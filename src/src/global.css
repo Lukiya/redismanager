@@ -1,0 +1,21 @@
+@font-face {
+  font-family: 'consolas';
+  src: url('./assets/consolas.ttf');
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+}
+
+body,
+td,
+th,
+.ant-pagination {
+  font-family: 'consolas';
+}
