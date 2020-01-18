@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-redis/redis/v7"
 
-	"github.com/Lukiya/RedisManager/src/go/core"
+	"github.com/Lukiya/redismanager/src/go/core"
 	"github.com/kataras/iris/v12"
 	u "github.com/syncfuture/go/util"
 )
@@ -41,7 +41,7 @@ func GetKeys(ctx iris.Context) {
 	if core.ClusterClient != nil {
 		mtx := new(sync.Mutex)
 		core.ClusterClient.ForEachMaster(func(client *redis.Client) error {
-			mtx.Lock() // ForEachMaster是并发执行，这里要加锁
+			mtx.Lock() // ForEachMaster is running concurrently, has to lock
 			defer mtx.Unlock()
 
 			nodeKeys := sredis.GetAllKeys(client, match, 100)

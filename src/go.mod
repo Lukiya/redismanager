@@ -1,4 +1,4 @@
-module github.com/Lukiya/RedisManager/src/go
+module github.com/Lukiya/redismanager/src/go
 
 go 1.13
 

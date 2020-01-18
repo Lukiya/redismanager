@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/Lukiya/RedisManager/src/go/core"
-	"github.com/Lukiya/RedisManager/src/go/handlers"
+	"github.com/Lukiya/redismanager/src/go/core"
+	"github.com/Lukiya/redismanager/src/go/handlers"
 	"github.com/iris-contrib/middleware/cors"
 	"github.com/kataras/iris/v12"
 )
