@@ -16,7 +16,7 @@ class KeyList extends Component {
     getKeys = () => {
         this.props.dispatch({
             type: 'db/getKeys',
-            payload: this.props.db
+            db: this.props.db
         });
     };
 

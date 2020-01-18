@@ -24,7 +24,6 @@ func getClient(ctx iris.Context) (r redis.Cmdable) {
 		dbStr := ctx.FormValueDefault("db", "0")
 		db, err := strconv.Atoi(dbStr)
 		if u.LogError(err) {
-			db = 0
 			return nil
 		}
 		return core.DBs[db]
@@ -54,6 +53,9 @@ func GetKeys(ctx iris.Context) {
 		})
 	} else {
 		client := getClient(ctx)
+		if client == nil {
+			return
+		}
 		nodeKeys := sredis.GetAllKeys(client, match, 100)
 		for _, key := range nodeKeys {
 			keyEntry := core.NewRedisEntry(client, key)
@@ -118,7 +120,9 @@ func GetValue(ctx iris.Context) {
 	}
 
 	client := getClient(ctx)
-
+	if client == nil {
+		return
+	}
 	switch keyType {
 	case "string":
 		v := client.Get(key).Val()
