@@ -8,6 +8,7 @@ import (
 
 	"github.com/go-redis/redis/v7"
 	"github.com/syncfuture/go/config"
+	u "github.com/syncfuture/go/util"
 )
 
 const (
@@ -32,19 +33,21 @@ func init() {
 	}
 
 	if len(RedisConfig.Addrs) == 1 {
-		// 非集群
+		// Not a cluster
 		options := &redis.Options{
 			Addr:     RedisConfig.Addrs[0],
 			DB:       0,
 			Password: RedisConfig.Password,
 		}
-		// 创建db0的Client
+		// create db0 client
 		DBs[0] = redis.NewClient(options)
 
-		// 使用db0的client获取总db数
-		dbcount, _ := strconv.Atoi(DBs[0].ConfigGet("databases").Val()[1].(string))
+		// use db0 clientto get db count
+		databases, err := DBs[0].ConfigGet("databases").Result()
+		u.LogFaltal(err)
+		dbcount, _ := strconv.Atoi(databases[1].(string))
 		for i := 1; i < dbcount; i++ {
-			// 从第二个开始，循环创建每个db的client
+			// skip first one, create client for rest db
 			DBs[i] = redis.NewClient(&redis.Options{
 				Addr:     RedisConfig.Addrs[0],
 				DB:       i,
@@ -52,7 +55,7 @@ func init() {
 			})
 		}
 	} else {
-		// 集群
+		// cluster
 		c := &redis.ClusterOptions{
 			Addrs: RedisConfig.Addrs,
 		}
