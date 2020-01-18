@@ -129,7 +129,7 @@ class KeyList extends Component {
             dataIndex: 'TTL',
             width: 100,
             align: "right",
-            sorter: (a, b) => a.Key.localeCompare(b.Key),
+            sorter: (a, b) => a.TTL - b.TTL,
         },
     ];
 

@@ -8,7 +8,7 @@ import (
 type RedisEntry struct {
 	Key    string
 	Type   string
-	TTL    string
+	TTL    int64
 	Length uint64
 }
 
@@ -17,8 +17,12 @@ func (x *RedisEntry) GetType(client redis.Cmdable) {
 }
 
 func (x *RedisEntry) GetTTL(client redis.Cmdable) {
-	a := client.TTL(x.Key).Val()
-	x.TTL = a.String()
+	ttl := client.TTL(x.Key).Val().Seconds()
+	if ttl < 0 {
+		x.TTL = -1
+	} else {
+		x.TTL = int64(ttl)
+	}
 }
 
 func (x *RedisEntry) GetLength(client redis.Cmdable) {
@@ -28,6 +32,8 @@ func (x *RedisEntry) GetLength(client redis.Cmdable) {
 		x.Length, err = client.HLen(x.Key).Uint64()
 	case "string":
 		x.Length, err = client.StrLen(x.Key).Uint64()
+	case "list":
+		x.Length, err = client.LLen(x.Key).Uint64()
 	}
 	u.LogError(err)
 }
