@@ -34,6 +34,7 @@ func newApp() *iris.Application {
 		v1.Get("/dbs", handlers.GetDBs)
 		v1.Get("/configs", handlers.GetConfigs)
 		v1.Get("/key/value", handlers.GetValue)
+		v1.Get("/hash", handlers.GetHashList)
 	}
 
 	return app

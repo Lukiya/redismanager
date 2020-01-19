@@ -1,17 +1,17 @@
-import { getKeys } from '../services/api';
+import { getHashList } from '../services/api';
 
 export default {
-    namespace: 'db',
+    namespace: 'hash',
 
     state: {
         list: [],
-        isBusy: false,
+        isBusy: false
     },
 
     effects: {
-        *getKeys({ db }, { call, put }) {
+        *getHashList({ redisKey }, { call, put }) {
             yield put({ type: 'setBusy', payload: { isBusy: true } });
-            const resp = yield call(getKeys, db);
+            const resp = yield call(getHashList, redisKey);
             yield put({ type: 'saveList', payload: { list: resp } });
             yield put({ type: 'setBusy', payload: { isBusy: false } });
         }

@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
+import u from '../utils/utils'
 
 class NodeList extends Component {
     componentDidMount() {
@@ -14,7 +15,7 @@ class NodeList extends Component {
 
     render() {
         let addrs = []
-        if (this.props.configs.Redis !== undefined) {
+        if (!u.isNoW(this.props.configs) && !u.isNoW(this.props.configs.Redis)) {
             addrs = this.props.configs.Redis.Addrs
         }
 

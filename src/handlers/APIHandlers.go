@@ -11,6 +11,7 @@ import (
 	"github.com/go-redis/redis/v7"
 
 	"github.com/Lukiya/redismanager/src/go/core"
+	log "github.com/kataras/golog"
 	"github.com/kataras/iris/v12"
 	u "github.com/syncfuture/go/util"
 )
@@ -137,5 +138,38 @@ func GetValue(ctx iris.Context) {
 		v := client.HGet(key, field).Val()
 		ctx.WriteString(v)
 		return
+	}
+}
+
+// GetHashList Get /api/hash?key={0}
+func GetHashList(ctx iris.Context) {
+	key := ctx.FormValue("key")
+	if key == "" {
+		ctx.WriteString("key is missing in query")
+		return
+	}
+
+	client := getClient(ctx)
+	if client == nil {
+		return
+	}
+
+	v, err := client.HGetAll(key).Result()
+	if u.LogError(err) {
+		return
+	}
+
+	ctx.ContentType(core.ContentTypeJson)
+	if len(v) > 0 {
+		bytes, err := json.Marshal(v)
+		if u.LogError(err) {
+			return
+		}
+		json := string(bytes)
+		log.Info(json)
+
+		ctx.Write(bytes)
+	} else {
+		ctx.WriteString("[]")
 	}
 }

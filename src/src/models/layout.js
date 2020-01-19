@@ -5,14 +5,14 @@ export default {
     namespace: 'layout',
 
     state: {
-        dbList: [],
+        list: [],
         configs: {},
     },
 
     effects: {
         *getDBs({ _ }, { call, put }) {
             const resp = yield call(getDBs);
-            yield put({ type: 'saveDBs', payload: { dbList: resp } });
+            yield put({ type: 'saveList', payload: { list: resp } });
         },
         *getConfigs({ _ }, { call, put }) {
             const resp = yield call(getConfigs);
@@ -21,10 +21,10 @@ export default {
     },
 
     reducers: {
-        saveDBs(state, { payload: { dbList } }) {
+        saveList(state, { payload: { list } }) {
             return {
                 ...state,
-                dbList,
+                list,
             }
         },
         saveConfigs(state, { payload: { configs } }) {

@@ -17,3 +17,9 @@ export function getKeys(db) {
         url: '/keys?db=' + db
     });
 }
+
+export function getHashList(key) {
+    return request({
+        url: '/hash?key=' + key
+    });
+}

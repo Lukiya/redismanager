@@ -19,3 +19,7 @@ th,
 .ant-pagination {
   font-family: 'consolas';
 }
+
+tr.noExpand .ant-table-row-expand-icon{
+  display: none;
+}

@@ -1,9 +1,16 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
-import { Table, Input, Button, Icon } from 'antd';
+import { Table, Input, Button, Icon} from 'antd';
 import Highlighter from 'react-highlight-words';
+import HashList from './HashList'
 
 class KeyList extends Component {
+    state = {
+        searchText: '',
+        searchedColumn: '',
+        subList: [],
+    };
+
     componentDidUpdate(prevProps) {
         if (prevProps.db !== this.props.db) {
             this.getKeys()
@@ -82,11 +89,6 @@ class KeyList extends Component {
                 ),
     });
 
-    state = {
-        searchText: '',
-        searchedColumn: '',
-    };
-
     handleSearch = (selectedKeys, confirm, dataIndex) => {
         confirm();
         this.setState({
@@ -99,6 +101,29 @@ class KeyList extends Component {
         clearFilters();
         this.setState({ searchText: '' });
     };
+
+    rowClassName = (record, i) => {
+        if (record.Type === "string") {
+            return "noExpand"
+        }
+    }
+
+    expandedRowRender = record => {
+        return (
+            this.state.subList[record.Key]
+        )
+    };
+
+    onExpand = (expanded, record) => {
+        if (expanded) {
+            this.setState({
+                subList: {
+                    ...this.state.subList,
+                    [record.Key]: <HashList redisKey={record.Key} />,
+                }
+            })
+        }
+    }
 
     columns = [
         {
@@ -138,7 +163,10 @@ class KeyList extends Component {
             <Table rowKey={x => x.Key}
                 rowSelection={this.rowSelection}
                 columns={this.columns}
-                dataSource={this.props.keyList}
+                dataSource={this.props.list}
+                expandedRowRender={this.expandedRowRender}
+                onExpand={this.onExpand}
+                rowClassName={this.rowClassName}
                 size="small"
                 pagination={{ pageSize: 19 }}
                 loading={this.props.isBusy} />
@@ -149,7 +177,7 @@ class KeyList extends Component {
 
 function mapStateToProps(state) {
     const s = state["db"]
-    return { keyList: s.keyList, isBusy: s.isBusy };
+    return { list: s.list, isBusy: s.isBusy };
 }
 
 export default connect(mapStateToProps)(KeyList)

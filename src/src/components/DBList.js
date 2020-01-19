@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'dva';
 import { Menu } from 'antd';
 import Link from 'umi/link';
+import u from '../utils/utils'
 
 class DBList extends Component {
     componentDidMount() {
@@ -15,10 +16,15 @@ class DBList extends Component {
     };
 
     render() {
+        let { list } = this.props
+        if (u.isNoW(list)) {
+            list = []
+        }
+
         return (
             <div>
                 < Menu theme="dark" mode="inline" selectedKeys={"|" + this.props.selectedDB + "|"}>
-                    {this.props.dbList.map(v => <Menu.Item key={'|' + v + '|'}><Link to={'/db/' + v}>db{v}</Link></Menu.Item>)}
+                    {list.map(v => <Menu.Item key={'|' + v + '|'}><Link to={'/db/' + v}>db{v}</Link></Menu.Item>)}
                 </Menu >
             </div>
         )
@@ -28,7 +34,7 @@ class DBList extends Component {
 
 function mapStateToProps(state) {
     const s = state["layout"]
-    return { dbList: s.dbList };
+    return { list: s.list };
 }
 
 export default connect(mapStateToProps)(DBList)
