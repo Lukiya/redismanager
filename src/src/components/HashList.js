@@ -1,14 +1,9 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
 import { Table } from 'antd';
+import u from '../utils/utils'
 
 class HashList extends Component {
-    constructor(props) {
-        super(props)
-
-        console.log(props)
-    }
-
     componentDidUpdate(prevProps) {
         if (prevProps.key !== this.props.key) {
             this.getHashList()
@@ -27,15 +22,38 @@ class HashList extends Component {
     };
 
     columns = [
-        { title: 'Field', dataIndex: 'Field', key: 'Field' },
-        { title: 'Value', dataIndex: 'Value', key: 'Value' },
+        {
+            title: 'Field',
+            dataIndex: 'Field',
+            key: 'Field',
+            defaultSortOrder: "ascend",
+            sorter: (a, b) => a.Field.localeCompare(b.Field),
+            className: "field",
+        },
+        {
+            title: 'Value',
+            dataIndex: 'Value',
+            key: 'Value',
+            className: "value",
+        },
     ]
 
     render() {
+        const data = []
+        if (!u.isNoW(this.props.list)) {
+            var list = this.props.list[this.props.redisKey]
+            if (!u.isNoW(list)) {
+                for (var key in list) {
+                    data.push({ "Field": key, "Value": list[key] })
+                }
+            }
+        }
         return (
             <Table rowKey={x => x.Field}
+                className="sublist"
                 columns={this.columns}
-                dataSource={this.props.list}
+                dataSource={data}
+                pagination={{ pageSize: 5 }}
                 size="small"
                 loading={this.props.isBusy} />
         )

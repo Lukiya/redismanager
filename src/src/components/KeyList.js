@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
-import { Table, Input, Button, Icon} from 'antd';
+import { Table, Input, Button, Icon } from 'antd';
 import Highlighter from 'react-highlight-words';
 import HashList from './HashList'
 
@@ -120,6 +120,13 @@ class KeyList extends Component {
                 subList: {
                     ...this.state.subList,
                     [record.Key]: <HashList redisKey={record.Key} />,
+                }
+            })
+        } else {
+            this.setState({
+                subList: {
+                    ...this.state.subList,
+                    [record.Key]: null,
                 }
             })
         }

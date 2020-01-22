@@ -23,3 +23,16 @@ th,
 tr.noExpand .ant-table-row-expand-icon{
   display: none;
 }
+
+
+
+.sublist{
+  table-layout: fixed;
+}
+
+.sublist .ant-table-tbody > tr > td {
+  max-width: 25vw;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
