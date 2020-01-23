@@ -1,7 +1,7 @@
-import { getHashElements } from '../services/api';
+import { getZSetElements } from '../services/api';
 
 export default {
-    namespace: 'hash',
+    namespace: 'zset',
 
     state: {
         list: {},
@@ -9,9 +9,9 @@ export default {
     },
 
     effects: {
-        *getHashElements({ redisKey }, { call, put }) {
+        *getZSetElements({ redisKey }, { call, put }) {
             yield put({ type: 'setBusy', payload: { isBusy: true } });
-            const resp = yield call(getHashElements, redisKey);
+            const resp = yield call(getZSetElements, redisKey);
             yield put({ type: 'saveList', payload: { redisKey: redisKey, list: resp } });
             yield put({ type: 'setBusy', payload: { isBusy: false } });
         }

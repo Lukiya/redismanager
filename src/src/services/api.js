@@ -18,8 +18,26 @@ export function getKeys(db) {
     });
 }
 
-export function getHashList(key) {
+export function getHashElements(key) {
     return request({
         url: '/hash?key=' + key
+    });
+}
+
+export function getListElements(key) {
+    return request({
+        url: '/list?key=' + key
+    });
+}
+
+export function getSetElements(key) {
+    return request({
+        url: '/set?key=' + key
+    });
+}
+
+export function getZSetElements(key) {
+    return request({
+        url: '/zset?key=' + key
     });
 }

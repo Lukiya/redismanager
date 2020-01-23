@@ -1,7 +1,7 @@
-import KeyList from '../../components/KeyList'
+import KeyTable from '../../components/KeyTable'
 
 export default function (props) {
     return (
-        <KeyList db={props.match.params.id} />
+        <KeyTable db={props.match.params.id} />
     )
 }

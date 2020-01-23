@@ -2,38 +2,29 @@ import React, { Component } from 'react';
 import { connect } from 'dva';
 import { Table, Input, Button, Icon } from 'antd';
 import Highlighter from 'react-highlight-words';
-import HashList from './HashList'
+import u from '../utils/utils'
 
-class KeyList extends Component {
+class ZSetTable extends Component {
     state = {
         searchText: '',
         searchedColumn: '',
-        subList: [],
     };
 
     componentDidUpdate(prevProps) {
-        if (prevProps.db !== this.props.db) {
-            this.getKeys()
+        if (prevProps.key !== this.props.key) {
+            this.getListElements()
         }
     }
+
     componentDidMount() {
-        this.getKeys()
+        this.getListElements()
     }
 
-    getKeys = () => {
+    getListElements = () => {
         this.props.dispatch({
-            type: 'db/getKeys',
-            db: this.props.db
+            type: 'zset/getZSetElements',
+            redisKey: this.props.redisKey
         });
-    };
-
-    rowSelection = {
-        onChange: (selectedRowKeys, selectedRows) => {
-            // console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
-        },
-        getCheckboxProps: record => ({
-            Key: record.Key,
-        }),
     };
 
     getColumnSearchProps = dataIndex => ({
@@ -102,89 +93,49 @@ class KeyList extends Component {
         this.setState({ searchText: '' });
     };
 
-    rowClassName = (record, i) => {
-        if (record.Type === "string") {
-            return "noExpand"
-        }
-    }
-
-    expandedRowRender = record => {
-        return (
-            this.state.subList[record.Key]
-        )
-    };
-
-    onExpand = (expanded, record) => {
-        if (expanded) {
-            this.setState({
-                subList: {
-                    ...this.state.subList,
-                    [record.Key]: <HashList redisKey={record.Key} />,
-                }
-            })
-        } else {
-            this.setState({
-                subList: {
-                    ...this.state.subList,
-                    [record.Key]: null,
-                }
-            })
-        }
-    }
-
     columns = [
         {
-            title: 'Key',
-            dataIndex: 'Key',
-            key: 'Key',
+            title: 'Score',
+            dataIndex: 'Field',
+            key: 'Field',
             defaultSortOrder: "ascend",
-            sorter: (a, b) => a.Key.localeCompare(b.Key),
-            ...this.getColumnSearchProps('Key'),
+            sorter: (a, b) => a.Field - b.Field,
+            ...this.getColumnSearchProps('Field'),
         },
         {
-            title: 'Type',
-            dataIndex: 'Type',
-            sorter: (a, b) => a.Type.localeCompare(b.Type),
-            width: 100,
-            filters: [{ text: 'hash', value: 'hash' }, { text: 'string', value: 'string' }, { text: 'list', value: 'list' }, { text: 'set', value: 'set' }, { text: 'zset', value: 'zset' }],
-            onFilter: (value, record) => record.Type.includes(value),
-        },
-        {
-            title: 'Length',
-            dataIndex: 'Length',
-            width: 100,
-            align: "right",
-            sorter: (a, b) => a.Length - b.Length,
-        },
-        {
-            title: 'TTL',
-            dataIndex: 'TTL',
-            width: 100,
-            align: "right",
-            sorter: (a, b) => a.TTL - b.TTL,
-        },
-    ];
+            title: 'Member',
+            dataIndex: 'Value',
+            key: 'Value',
+            sorter: (a, b) => a.Value.localeCompare(b.Value),
+            ...this.getColumnSearchProps('Value'),
+        }
+    ]
 
     render() {
+        const data = []
+        if (!u.isNoW(this.props.list)) {
+            var list = this.props.list[this.props.redisKey]
+            if (!u.isNoW(list)) {
+                for (var i in list) {
+                    data.push({ "Field": list[i].Score, "Value": list[i].Member })
+                }
+            }
+        }
         return (
-            <Table rowKey={x => x.Key}
-                rowSelection={this.rowSelection}
+            <Table rowKey={x => x.Value}
+                className="sublist"
                 columns={this.columns}
-                dataSource={this.props.list}
-                expandedRowRender={this.expandedRowRender}
-                onExpand={this.onExpand}
-                rowClassName={this.rowClassName}
+                dataSource={data}
+                pagination={{ pageSize: 5 }}
                 size="small"
-                pagination={{ pageSize: 19 }}
                 loading={this.props.isBusy} />
         )
     }
 }
 
-
 function mapStateToProps(state) {
-    const s = state["db"]
+    const s = state["zset"]
     return { list: s.list, isBusy: s.isBusy };
 }
 
-export default connect(mapStateToProps)(KeyList)
+export default connect(mapStateToProps)(ZSetTable)

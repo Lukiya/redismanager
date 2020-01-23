@@ -34,6 +34,10 @@ func (x *RedisEntry) GetLength(client redis.Cmdable) {
 		x.Length, err = client.StrLen(x.Key).Uint64()
 	case "list":
 		x.Length, err = client.LLen(x.Key).Uint64()
+	case "set":
+		x.Length, err = client.SCard(x.Key).Uint64()
+	case "zset":
+		x.Length, err = client.ZCard(x.Key).Uint64()
 	}
 	u.LogError(err)
 }

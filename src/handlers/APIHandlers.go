@@ -138,11 +138,24 @@ func GetValue(ctx iris.Context) {
 		v := client.HGet(key, field).Val()
 		ctx.WriteString(v)
 		return
+	case "list":
+		field := ctx.FormValue("field")
+		if field == "" {
+			ctx.WriteString("field is missing in query")
+			return
+		}
+		index, err := strconv.ParseInt(field, 10, 64)
+		if !u.LogError(err) {
+			v := client.LIndex(key, index).Val()
+			ctx.WriteString(v)
+		}
+		return
 	}
+
 }
 
-// GetHashList Get /api/hash?key={0}
-func GetHashList(ctx iris.Context) {
+// GetHashElements Get /api/hash?key={0}
+func GetHashElements(ctx iris.Context) {
 	key := ctx.FormValue("key")
 	if key == "" {
 		ctx.WriteString("key is missing in query")
@@ -155,6 +168,110 @@ func GetHashList(ctx iris.Context) {
 	}
 
 	v, err := client.HGetAll(key).Result()
+	if u.LogError(err) {
+		return
+	}
+
+	ctx.ContentType(core.ContentTypeJson)
+	if len(v) > 0 {
+		bytes, err := json.Marshal(v)
+		if u.LogError(err) {
+			return
+		}
+		json := string(bytes)
+		log.Info(json)
+
+		ctx.Write(bytes)
+	} else {
+		ctx.WriteString("[]")
+	}
+}
+
+// GetListElements Get /api/list?key={0}
+func GetListElements(ctx iris.Context) {
+	key := ctx.FormValue("key")
+	if key == "" {
+		ctx.WriteString("key is missing in query")
+		return
+	}
+
+	client := getClient(ctx)
+	if client == nil {
+		return
+	}
+
+	v, err := client.LRange(key, 0, -1).Result()
+	if u.LogError(err) {
+		return
+	}
+
+	ctx.ContentType(core.ContentTypeJson)
+	if len(v) > 0 {
+		bytes, err := json.Marshal(v)
+		if u.LogError(err) {
+			return
+		}
+		json := string(bytes)
+		log.Info(json)
+
+		ctx.Write(bytes)
+	} else {
+		ctx.WriteString("[]")
+	}
+}
+
+// GetSetElements Get /api/set?key={0}
+func GetSetElements(ctx iris.Context) {
+	key := ctx.FormValue("key")
+	if key == "" {
+		ctx.WriteString("key is missing in query")
+		return
+	}
+
+	client := getClient(ctx)
+	if client == nil {
+		return
+	}
+
+	v, err := client.SMembers(key).Result()
+	if u.LogError(err) {
+		return
+	}
+
+	ctx.ContentType(core.ContentTypeJson)
+	if len(v) > 0 {
+		bytes, err := json.Marshal(v)
+		if u.LogError(err) {
+			return
+		}
+		json := string(bytes)
+		log.Info(json)
+
+		ctx.Write(bytes)
+	} else {
+		ctx.WriteString("[]")
+	}
+}
+
+// GetZSetElements Get /api/zset?key={0}
+func GetZSetElements(ctx iris.Context) {
+	key := ctx.FormValue("key")
+	if key == "" {
+		ctx.WriteString("key is missing in query")
+		return
+	}
+
+	client := getClient(ctx)
+	if client == nil {
+		return
+	}
+
+	v, err := client.ZRangeByScoreWithScores(key, &redis.ZRangeBy{
+		Min: "-inf",
+		Max: "+inf",
+		// Offset: 0,
+		// Count:  2,
+	}).Result()
 	if u.LogError(err) {
 		return
 	}
