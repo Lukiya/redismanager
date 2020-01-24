@@ -6,6 +6,8 @@ export default {
     state: {
         list: [],
         isBusy: false,
+        editorVisible: false,
+        editingEntry: {},
     },
 
     effects: {
@@ -29,6 +31,19 @@ export default {
                 ...state,
                 isBusy
             }
-        }
+        },
+        showEditor(state, { entry }) {
+            return {
+                ...state,
+                editorVisible: true,
+                editingEntry: entry
+            }
+        },
+        hideEditor(state, { _ }) {
+            return {
+                ...state,
+                editorVisible: false,
+            }
+        },
     },
 };

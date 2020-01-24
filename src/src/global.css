@@ -20,11 +20,12 @@ th,
   font-family: 'consolas';
 }
 
-tr.noExpand .ant-table-row-expand-icon{
+.pointer{
+  cursor: pointer;
+}
+tr.str_row .ant-table-row-expand-icon{
   display: none;
 }
-
-
 
 .sublist{
   table-layout: fixed;

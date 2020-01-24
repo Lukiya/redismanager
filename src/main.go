@@ -33,7 +33,7 @@ func newApp() *iris.Application {
 		v1.Get("/keys", handlers.GetKeys)
 		v1.Get("/dbs", handlers.GetDBs)
 		v1.Get("/configs", handlers.GetConfigs)
-		v1.Get("/key/value", handlers.GetValue)
+		v1.Get("/entry", handlers.GetEntry)
 		v1.Get("/hash", handlers.GetHashElements)
 		v1.Get("/list", handlers.GetListElements)
 		v1.Get("/set", handlers.GetSetElements)

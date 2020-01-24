@@ -93,6 +93,28 @@ class ZSetTable extends Component {
         this.setState({ searchText: '' });
     };
 
+    showEditor = (record) => {
+        this.props.dispatch({
+            type: 'db/showEditor',
+            entry: {
+                Key: this.props.redisKey,
+                Field: record.Value
+            }
+        });
+    }
+
+    hideEditor = () => {
+        this.props.dispatch({
+            type: 'db/hideEditor'
+        });
+    }
+
+    onRow = (record) => {
+        return {
+            onClick: event => this.showEditor(record), // 点击行
+        };
+    };
+
     columns = [
         {
             title: 'Score',
@@ -121,12 +143,18 @@ class ZSetTable extends Component {
                 }
             }
         }
+        let pageSize = 10
+        if (!u.isNoW(this.props.configs) && !u.isNoW(this.props.configs.PageSize) && !u.isNoW(this.props.configs.PageSize.SubList)) {
+            pageSize = this.props.configs.PageSize.SubList
+        }
         return (
             <Table rowKey={x => x.Value}
                 className="sublist"
+                rowClassName="pointer"
+                onRow={this.onRow}
                 columns={this.columns}
                 dataSource={data}
-                pagination={{ pageSize: 5 }}
+                pagination={{ pageSize: pageSize }}
                 size="small"
                 loading={this.props.isBusy} />
         )
@@ -135,7 +163,8 @@ class ZSetTable extends Component {
 
 function mapStateToProps(state) {
     const s = state["zset"]
-    return { list: s.list, isBusy: s.isBusy };
+    const layout = state["layout"]
+    return { list: s.list, isBusy: s.isBusy, configs: layout.configs };
 }
 
 export default connect(mapStateToProps)(ZSetTable)

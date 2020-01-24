@@ -1,6 +1,6 @@
 import axios from 'axios';
 import NProgress from 'nprogress';
-import { notification } from 'antd';
+import { message } from 'antd';
 
 
 // global
@@ -41,6 +41,7 @@ export default function request(opt) {
             // >>>>>>>>>>>>>> failed <<<<<<<<<<<<<<
             // log error
             if (!error.response) {
+                message.error(error.message);
                 return console.log('Error', error.message);
             }
 
@@ -48,10 +49,7 @@ export default function request(opt) {
             const status = error.response.status;
             const errortext = error.response.statusText;
 
-            notification.error({
-                message: `request error`,
-                description: `${status}: ${errortext}`,
-            });
+            message.error(`${status}: ${errortext}`);
 
             return { code: status, message: errortext };
         });

@@ -6,6 +6,8 @@ import HashTable from './HashTable'
 import ListTable from './ListTable'
 import SetTable from './SetTable'
 import ZSetTable from './ZSetTable'
+import Editor from './Editor'
+import u from '../utils/utils'
 
 class KeyTable extends Component {
     state = {
@@ -107,9 +109,34 @@ class KeyTable extends Component {
 
     rowClassName = (record, i) => {
         if (record.Type === "string") {
-            return "noExpand"
+            return "str_row pointer"
+        } else {
+            return "pointer"
         }
+    };
+
+    showEditor = (record) => {
+        this.props.dispatch({
+            type: 'db/showEditor',
+            entry: { Key: record.Key },
+        });
     }
+
+    hideEditor = () => {
+        this.props.dispatch({
+            type: 'db/hideEditor'
+        });
+    }
+
+    onRow = (record) => {
+        return {
+            onClick: event => this.showEditor(record), // 点击行
+            // onDoubleClick: event => { },
+            // onContextMenu: event => { },
+            // onMouseEnter: event => { }, // 鼠标移入行
+            // onMouseLeave: event => { },
+        };
+    };
 
     expandedRowRender = record => {
         return (
@@ -143,7 +170,7 @@ class KeyTable extends Component {
                 [record.Key]: comp,
             }
         })
-    }
+    };
 
     columns = [
         {
@@ -178,18 +205,29 @@ class KeyTable extends Component {
         },
     ];
 
+
     render() {
+        let pageSize = 15
+        if (!u.isNoW(this.props.configs) && !u.isNoW(this.props.configs.PageSize) && !u.isNoW(this.props.configs.PageSize.KeyList)) {
+            pageSize = this.props.configs.PageSize.KeyList
+        }
         return (
-            <Table rowKey={x => x.Key}
-                rowSelection={this.rowSelection}
-                columns={this.columns}
-                dataSource={this.props.list}
-                expandedRowRender={this.expandedRowRender}
-                onExpand={this.onExpand}
-                rowClassName={this.rowClassName}
-                size="small"
-                pagination={{ pageSize: 19 }}
-                loading={this.props.isBusy} />
+            <div>
+                <Table rowKey={x => x.Key}
+                    onRow={this.onRow}
+                    rowSelection={this.rowSelection}
+                    columns={this.columns}
+                    dataSource={this.props.list}
+                    expandedRowRender={this.expandedRowRender}
+                    onExpand={this.onExpand}
+                    rowClassName={this.rowClassName}
+                    size="small"
+                    pagination={{ pageSize: pageSize }}
+                    loading={this.props.isBusy} />
+                <Editor editingEntry={this.props.editingEntry}
+                    onClose={this.hideEditor}
+                    visible={this.props.editorVisible} />
+            </div>
         )
     }
 }
@@ -197,7 +235,8 @@ class KeyTable extends Component {
 
 function mapStateToProps(state) {
     const s = state["db"]
-    return { list: s.list, isBusy: s.isBusy };
+    const layout = state["layout"]
+    return { list: s.list, isBusy: s.isBusy, configs: layout.configs, editingEntry: s.editingEntry, editorVisible: s.editorVisible };
 }
 
 export default connect(mapStateToProps)(KeyTable)

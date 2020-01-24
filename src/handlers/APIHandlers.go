@@ -107,51 +107,29 @@ func GetConfigs(ctx iris.Context) {
 	}
 }
 
-// GetValue Get /api/key/value?key={0}&type={1}&field={2}
-func GetValue(ctx iris.Context) {
+// GetEntry Get /api/entry?key={0}&type={1}&field={2}
+func GetEntry(ctx iris.Context) {
 	key := ctx.FormValue("key")
 	if key == "" {
 		ctx.WriteString("key is missing in query")
 		return
 	}
-	keyType := ctx.FormValue("type")
-	if keyType == "" {
-		ctx.WriteString("type is missing in query")
-		return
-	}
+	field := ctx.FormValue("field")
 
 	client := getClient(ctx)
 	if client == nil {
 		return
 	}
-	switch keyType {
-	case "string":
-		v := client.Get(key).Val()
-		ctx.WriteString(v)
-		return
-	case "hash":
-		field := ctx.FormValue("field")
-		if field == "" {
-			ctx.WriteString("field is missing in query")
-			return
-		}
-		v := client.HGet(key, field).Val()
-		ctx.WriteString(v)
-		return
-	case "list":
-		field := ctx.FormValue("field")
-		if field == "" {
-			ctx.WriteString("field is missing in query")
-			return
-		}
-		index, err := strconv.ParseInt(field, 10, 64)
-		if !u.LogError(err) {
-			v := client.LIndex(key, index).Val()
-			ctx.WriteString(v)
-		}
+
+	entry := core.NewRedisEntry(client, key)
+	entry.GetValue(field)
+
+	bytes, err := json.Marshal(entry)
+	if u.LogError(err) {
 		return
 	}
-
+	ctx.ContentType(core.ContentTypeJson)
+	ctx.Write(bytes)
 }
 
 // GetHashElements Get /api/hash?key={0}

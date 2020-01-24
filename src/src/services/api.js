@@ -1,4 +1,5 @@
 import request from '../utils/request'
+import u from '../utils/utils'
 
 export function getDBs() {
     return request({
@@ -14,30 +15,42 @@ export function getConfigs() {
 
 export function getKeys(db) {
     return request({
-        url: '/keys?db=' + db
+        url: '/keys?db=' + encodeURIComponent(db)
     });
 }
 
 export function getHashElements(key) {
     return request({
-        url: '/hash?key=' + key
+        url: '/hash?key=' + encodeURIComponent(key)
     });
 }
 
 export function getListElements(key) {
     return request({
-        url: '/list?key=' + key
+        url: '/list?key=' + encodeURIComponent(key)
     });
 }
 
 export function getSetElements(key) {
     return request({
-        url: '/set?key=' + key
+        url: '/set?key=' + encodeURIComponent(key)
     });
 }
 
 export function getZSetElements(key) {
     return request({
-        url: '/zset?key=' + key
+        url: '/zset?key=' + encodeURIComponent(key)
     });
+}
+
+export function getEntry(key, field) {
+    if (u.isNoW(field)) {
+        return request({
+            url: '/entry?key=' + encodeURIComponent(key)
+        });
+    } else {
+        return request({
+            url: '/entry?key=' + encodeURIComponent(key) + "&field=" + encodeURIComponent(field)
+        });
+    }
 }
