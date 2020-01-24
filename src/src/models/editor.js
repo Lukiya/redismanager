@@ -21,7 +21,7 @@ export default {
         saveEntry(state, { payload: { entry } }) {
             return {
                 ...state,
-                entry
+                entry,
             }
         },
         setBusy(state, { payload: { isBusy } }) {

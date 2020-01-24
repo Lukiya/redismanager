@@ -32,11 +32,11 @@ export default {
                 isBusy
             }
         },
-        showEditor(state, { entry }) {
+        showEditor(state, { editingEntry }) {
             return {
                 ...state,
                 editorVisible: true,
-                editingEntry: entry
+                editingEntry: editingEntry
             }
         },
         hideEditor(state, { _ }) {

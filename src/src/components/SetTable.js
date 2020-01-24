@@ -96,8 +96,9 @@ class SetTable extends Component {
     showEditor = (record) => {
         this.props.dispatch({
             type: 'db/showEditor',
-            entry: {
+            editingEntry: {
                 Key: this.props.redisKey,
+                Type: 'set',
                 Field: record.Field
             }
         });

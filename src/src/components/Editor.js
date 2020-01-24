@@ -1,12 +1,19 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
-import { Drawer, Form, Input, InputNumber, Row, Skeleton } from 'antd';
-import CodeMirror from 'codemirror-react';
+import { Drawer, Form, Input, InputNumber, Row, Skeleton, Select } from 'antd';
+// import CodeMirror from 'react-codemirror';
+import { UnControlled as CodeMirror } from 'react-codemirror2'
 import u from '../utils/utils'
+import 'codemirror/lib/codemirror.css'
+import 'codemirror/mode/javascript/javascript'
+import 'codemirror/mode/xml/xml'
+import 'codemirror/mode/css/css'
+
+const { Option } = Select;
 
 class Editor extends Component {
     state = {
-        mode: 'javascript',
+        mode: 'text',
         ttl: -1,
     }
 
@@ -34,8 +41,22 @@ class Editor extends Component {
         });
     }
 
+    onModeChange = (value) => {
+        this.setState({
+            mode: value
+        })
+    }
+
     render() {
         const entry = this.props.entry ?? {}    // prevent undefined error
+        const ttlVisible = u.isNoW(entry.Field)
+        const fieldVisible = !u.isNoW(entry.Field)
+        const codeEditorVisible = fieldVisible || entry.Type === "string"
+        const codemirrorOptions = {
+            lineNumbers: true,
+            theme: 'default',
+            mode: this.state.mode,
+        };
 
         return (
             <Drawer
@@ -48,30 +69,37 @@ class Editor extends Component {
                 <Skeleton loading={this.props.isBusy} active>
                     <Form layout="inline">
                         <Row>
-                            <Form.Item label="Field">
-                                <Input placeholder="Field" />
-                            </Form.Item>
-                            <Form.Item label="TTL">
-                                <InputNumber placeholder="TTL" value={this.props.entry.TTL} onChange={this.onTTLChange} />
-                            </Form.Item>
+                            {
+                                ttlVisible ? <Form.Item label="TTL">
+                                    <InputNumber placeholder="TTL" value={this.state.TTL} onChange={this.onTTLChange} />
+                                </Form.Item> : null
+                            }
+                            {
+                                fieldVisible ? <Form.Item label="Field">
+                                    <Input placeholder="Field" value={entry.Field} />
+                                </Form.Item> : null
+                            }
+                            {
+                                codeEditorVisible ? <Form.Item label="Mode">
+                                    <Select defaultValue="text" style={{ width: 120 }} onChange={this.onModeChange}>
+                                        <Option value="text">text</Option>
+                                        <Option value="javascript">javascript</Option>
+                                        <Option value="xml">xml</Option>
+                                        <Option value="css">css</Option>
+                                    </Select>
+                                </Form.Item> : null
+                            }
                         </Row>
+                        {
+                            codeEditorVisible ?
+                                <CodeMirror value={entry.Value} options={codemirrorOptions} />
+                                : null
+                        }
                     </Form>
-                    <CodeMirror
-                        value={entry.Value}
-                        mode={this.state.mode}
-                        theme='default'
-                        tabSize={2}
-                        lineNumbers={true}
-                    />
                 </Skeleton>
             </Drawer>
         )
     }
 }
 
-function mapStateToProps(state) {
-    const s = state["editor"]
-    return { entry: s.entry, isBusy: s.isBusy };
-}
-
-export default connect(mapStateToProps)(Editor)
+export default connect(({ editor }) => editor)(Editor)

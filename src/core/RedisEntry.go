@@ -60,6 +60,9 @@ func (x *RedisEntry) GetValue(field string) {
 	case "hash":
 		if field != "" {
 			x.Value, err = x.client.HGet(x.Key, field).Result()
+			if err == nil{
+				x.Field = field
+			}
 		}
 		break
 	case "list":

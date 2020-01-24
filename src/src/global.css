@@ -37,3 +37,8 @@ tr.str_row .ant-table-row-expand-icon{
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+.CodeMirror {
+  border: 1px solid #ddd;
+  height: auto;
+}

@@ -118,7 +118,7 @@ class KeyTable extends Component {
     showEditor = (record) => {
         this.props.dispatch({
             type: 'db/showEditor',
-            entry: { Key: record.Key },
+            editingEntry: { Key: record.Key, Type: record.Type },
         });
     }
 
@@ -130,10 +130,10 @@ class KeyTable extends Component {
 
     onRow = (record) => {
         return {
-            onClick: event => this.showEditor(record), // 点击行
+            onClick: event => this.showEditor(record),
             // onDoubleClick: event => { },
             // onContextMenu: event => { },
-            // onMouseEnter: event => { }, // 鼠标移入行
+            // onMouseEnter: event => { },
             // onMouseLeave: event => { },
         };
     };

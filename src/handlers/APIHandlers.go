@@ -11,7 +11,6 @@ import (
 	"github.com/go-redis/redis/v7"
 
 	"github.com/Lukiya/redismanager/src/go/core"
-	log "github.com/kataras/golog"
 	"github.com/kataras/iris/v12"
 	u "github.com/syncfuture/go/util"
 )
@@ -107,7 +106,7 @@ func GetConfigs(ctx iris.Context) {
 	}
 }
 
-// GetEntry Get /api/entry?key={0}&type={1}&field={2}
+// GetEntry Get /api/entry?key={0}&field={1}
 func GetEntry(ctx iris.Context) {
 	key := ctx.FormValue("key")
 	if key == "" {
@@ -156,8 +155,6 @@ func GetHashElements(ctx iris.Context) {
 		if u.LogError(err) {
 			return
 		}
-		json := string(bytes)
-		log.Info(json)
 
 		ctx.Write(bytes)
 	} else {
@@ -189,8 +186,6 @@ func GetListElements(ctx iris.Context) {
 		if u.LogError(err) {
 			return
 		}
-		json := string(bytes)
-		log.Info(json)
 
 		ctx.Write(bytes)
 	} else {
@@ -222,8 +217,6 @@ func GetSetElements(ctx iris.Context) {
 		if u.LogError(err) {
 			return
 		}
-		json := string(bytes)
-		log.Info(json)
 
 		ctx.Write(bytes)
 	} else {
@@ -260,8 +253,6 @@ func GetZSetElements(ctx iris.Context) {
 		if u.LogError(err) {
 			return
 		}
-		json := string(bytes)
-		log.Info(json)
 
 		ctx.Write(bytes)
 	} else {

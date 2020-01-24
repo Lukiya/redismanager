@@ -96,9 +96,10 @@ class HashTable extends Component {
     showEditor = (record) => {
         this.props.dispatch({
             type: 'db/showEditor',
-            entry: {
+            editingEntry: {
                 Key: this.props.redisKey,
-                Field: record.Field
+                Type: 'hash',
+                Field: record.Field,
             }
         });
     }

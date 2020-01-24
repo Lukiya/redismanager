@@ -31,10 +31,4 @@ class DBList extends Component {
     }
 }
 
-
-function mapStateToProps(state) {
-    const s = state["layout"]
-    return { list: s.list };
-}
-
-export default connect(mapStateToProps)(DBList)
+export default connect(({ layout }) => layout)(DBList)
