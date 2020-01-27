@@ -1,7 +1,7 @@
 import axios from 'axios';
 import NProgress from 'nprogress';
 import { message } from 'antd';
-
+import u from './utils'
 
 // global
 axios.defaults.timeout = 10000
@@ -47,7 +47,7 @@ export default function request(opt) {
 
             // show notification 
             const status = error.response.status;
-            const errortext = error.response.statusText;
+            const errortext = !u.isNoW(error.response.data) ? error.response.data : error.response.statusText;
 
             message.error(`${status}: ${errortext}`);
 

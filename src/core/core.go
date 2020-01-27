@@ -3,6 +3,7 @@ package core
 import (
 	"log"
 	"strconv"
+	"strings"
 
 	"github.com/syncfuture/go/sredis"
 
@@ -14,6 +15,7 @@ import (
 const (
 	ContentTypeJson       = "application/json"
 	ContentTypeJavascript = "application/javascript"
+	ContentTypeTextHtml   = "text/html"
 )
 
 var (
@@ -65,4 +67,14 @@ func init() {
 		ClusterClient = redis.NewClusterClient(c)
 		DBs[0] = ClusterClient
 	}
+}
+
+func IsJson(str string) bool {
+	if str == "" {
+		return false
+	}
+
+	str = strings.TrimSpace(str)
+
+	return strings.HasPrefix(str, "{") && strings.HasSuffix(str, "}")
 }

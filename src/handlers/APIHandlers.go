@@ -3,10 +3,19 @@ package handlers
 import (
 	"encoding/json"
 	"io/ioutil"
+	"net/http"
+	"regexp"
 	"strconv"
 	"sync"
 
 	"github.com/syncfuture/go/sredis"
+	"github.com/tdewolff/minify"
+	"github.com/tdewolff/minify/css"
+	"github.com/tdewolff/minify/html"
+	"github.com/tdewolff/minify/js"
+	mjson "github.com/tdewolff/minify/json"
+	"github.com/tdewolff/minify/svg"
+	"github.com/tdewolff/minify/xml"
 
 	"github.com/go-redis/redis/v7"
 
@@ -257,5 +266,40 @@ func GetZSetElements(ctx iris.Context) {
 		ctx.Write(bytes)
 	} else {
 		ctx.WriteString("[]")
+	}
+}
+
+type MinifyData struct {
+	Code string `json:"code"`
+}
+
+func Minify(ctx iris.Context) {
+	data := new(MinifyData)
+	ctx.ReadJSON(data)
+	if data.Code == "" {
+		return
+	}
+
+	m := minify.New()
+	m.AddFunc("text/css", css.Minify)
+	m.AddFunc("text/html", html.Minify)
+	m.AddFunc("image/svg+xml", svg.Minify)
+	m.AddFuncRegexp(regexp.MustCompile("^(application|text)/(x-)?(java|ecma)script$"), js.Minify)
+	m.AddFuncRegexp(regexp.MustCompile("[/+]json$"), mjson.Minify)
+	m.AddFuncRegexp(regexp.MustCompile("[/+]xml$"), xml.Minify)
+
+	var mimieType string
+	if core.IsJson(data.Code) {
+		mimieType = core.ContentTypeJson
+	} else {
+		mimieType = core.ContentTypeTextHtml
+	}
+
+	result, err := m.String(mimieType, data.Code)
+	if err == nil {
+		ctx.WriteString(result)
+	} else {
+		ctx.StatusCode(http.StatusInternalServerError)
+		ctx.WriteString(err.Error())
 	}
 }

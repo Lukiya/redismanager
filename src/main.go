@@ -38,6 +38,7 @@ func newApp() *iris.Application {
 		v1.Get("/list", handlers.GetListElements)
 		v1.Get("/set", handlers.GetSetElements)
 		v1.Get("/zset", handlers.GetZSetElements)
+		v1.Post("/min", handlers.Minify)
 	}
 
 	return app

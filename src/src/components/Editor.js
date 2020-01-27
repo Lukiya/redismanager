@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
-import { Drawer, Form, Input, InputNumber, Row, Skeleton, Select } from 'antd';
-// import CodeMirror from 'react-codemirror';
+import { Drawer, Form, Input, InputNumber, Row, Skeleton, Select, Button } from 'antd';
 import { UnControlled as CodeMirror } from 'react-codemirror2'
 import u from '../utils/utils'
 import 'codemirror/lib/codemirror.css'
@@ -47,6 +46,27 @@ class Editor extends Component {
         })
     }
 
+    Beautify = (event) => {
+        this.props.dispatch({
+            type: 'editor/beautify',
+            payload: { value: this.props.entry.Value }
+        });
+    }
+
+    Minify = (event) => {
+        this.props.dispatch({
+            type: 'editor/minify',
+            payload: { value: this.props.entry.Value }
+        });
+    }
+
+    onValueChanged = (editor, data, newValue) => {
+        this.props.dispatch({
+            type: 'editor/saveValue',
+            payload: { value: newValue }
+        });
+    }
+
     render() {
         const entry = this.props.entry ?? {}    // prevent undefined error
         const ttlVisible = u.isNoW(entry.Field)
@@ -60,7 +80,7 @@ class Editor extends Component {
 
         return (
             <Drawer
-                title={entry.Key}
+                title={`${entry.Key} (${entry.Type})`}
                 placement="right"
                 width="80vw"
                 onClose={this.props.onClose}
@@ -80,19 +100,29 @@ class Editor extends Component {
                                 </Form.Item> : null
                             }
                             {
-                                codeEditorVisible ? <Form.Item label="Mode">
+                                codeEditorVisible ? <Form.Item label="Highlight">
                                     <Select defaultValue="text" style={{ width: 120 }} onChange={this.onModeChange}>
                                         <Option value="text">text</Option>
-                                        <Option value="javascript">javascript</Option>
-                                        <Option value="xml">xml</Option>
+                                        <Option value="javascript">js/json</Option>
+                                        <Option value="xml">xml/html</Option>
                                         <Option value="css">css</Option>
                                     </Select>
+                                </Form.Item> : null
+                            }
+                            {
+                                codeEditorVisible ? <Form.Item>
+                                    <Button type="dashed" icon="code" onClick={this.Beautify}>Format</Button>
+                                </Form.Item> : null
+                            }
+                            {
+                                codeEditorVisible ? <Form.Item>
+                                    <Button type="dashed" icon="box-plot" onClick={this.Minify}>Compress</Button>
                                 </Form.Item> : null
                             }
                         </Row>
                         {
                             codeEditorVisible ?
-                                <CodeMirror value={entry.Value} options={codemirrorOptions} />
+                                <CodeMirror value={entry.Value} options={codemirrorOptions} onChange={this.onValueChanged} />
                                 : null
                         }
                     </Form>

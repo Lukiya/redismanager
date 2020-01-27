@@ -54,3 +54,14 @@ export function getEntry(key, field) {
         });
     }
 }
+
+export function minify(code) {
+    return request({
+        url: '/min',
+        method: 'POST',
+        data: {
+            code: code,
+        },
+        transformResponse: [(data) => { return data; }]
+    });
+}

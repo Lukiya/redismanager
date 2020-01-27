@@ -12,11 +12,16 @@
     "axios": "^0.19.1",
     "codemirror": "^5.51.0",
     "dva": "^2.6.0-beta.6",
+    "fs": "0.0.1-security",
+    "html-minifier": "^4.0.0",
+    "js-beautify": "^1.10.3",
     "nprogress": "^0.2.0",
     "react": "^16.8.6",
     "react-codemirror2": "^6.0.0",
     "react-dom": "^16.8.6",
-    "react-highlight-words": "^0.16.0"
+    "react-highlight-words": "^0.16.0",
+    "terser": "^4.6.3",
+    "uglify-js": "^3.7.6"
   },
   "devDependencies": {
     "babel-eslint": "^9.0.0",
