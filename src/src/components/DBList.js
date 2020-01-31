@@ -2,11 +2,11 @@ import React, { Component } from 'react';
 import { connect } from 'dva';
 import { Menu } from 'antd';
 import Link from 'umi/link';
-import u from '../utils/utils'
+import u from '../utils/utils';
 
 class DBList extends Component {
     componentDidMount() {
-        this.getDBs()
+        this.getDBs();
     }
 
     getDBs = () => {
@@ -16,7 +16,7 @@ class DBList extends Component {
     };
 
     render() {
-        let { list } = this.props
+        let { list } = this.props;
         if (u.isNoW(list)) {
             list = []
         }

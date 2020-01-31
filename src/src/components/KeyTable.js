@@ -2,12 +2,12 @@ import React, { Component } from 'react';
 import { connect } from 'dva';
 import { Table, Input, Button, Icon } from 'antd';
 import Highlighter from 'react-highlight-words';
-import HashTable from './HashTable'
-import ListTable from './ListTable'
-import SetTable from './SetTable'
-import ZSetTable from './ZSetTable'
-import Editor from './Editor'
-import u from '../utils/utils'
+import HashTable from './HashTable';
+import ListTable from './ListTable';
+import SetTable from './SetTable';
+import ZSetTable from './ZSetTable';
+import Editor from './Editor';
+import u from '../utils/utils';
 
 class KeyTable extends Component {
     state = {
@@ -18,11 +18,11 @@ class KeyTable extends Component {
 
     componentDidUpdate(prevProps) {
         if (prevProps.db !== this.props.db) {
-            this.getKeys()
+            this.getKeys();
         }
     }
     componentDidMount() {
-        this.getKeys()
+        this.getKeys();
     }
 
     getKeys = () => {
@@ -63,9 +63,7 @@ class KeyTable extends Component {
                 >
                     Search
             </Button>
-                <Button onClick={() => this.handleReset(clearFilters)} size="small" style={{ width: 90 }}>
-                    Reset
-            </Button>
+                <Button onClick={() => this.handleReset(clearFilters)} size="small" style={{ width: 90 }}>Reset</Button>
             </div>
         ),
         filterIcon: filtered => (
@@ -207,12 +205,13 @@ class KeyTable extends Component {
 
 
     render() {
-        let pageSize = 15
+        let pageSize = 15;
         if (!u.isNoW(this.props.configs) && !u.isNoW(this.props.configs.PageSize) && !u.isNoW(this.props.configs.PageSize.KeyList)) {
-            pageSize = this.props.configs.PageSize.KeyList
+            pageSize = this.props.configs.PageSize.KeyList;
         }
         return (
             <div>
+                <Button type="primary" className="new-entry" icon="file-add">New</Button>
                 <Table rowKey={x => x.Key}
                     onRow={this.onRow}
                     rowSelection={this.rowSelection}
@@ -234,8 +233,8 @@ class KeyTable extends Component {
 
 
 function mapStateToProps(state) {
-    const s = state["db"]
-    const layout = state["layout"]
+    const s = state["db"];
+    const layout = state["layout"];
     return { list: s.list, isBusy: s.isBusy, configs: layout.configs, editingEntry: s.editingEntry, editorVisible: s.editorVisible };
 }
 

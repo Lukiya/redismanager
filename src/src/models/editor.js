@@ -1,37 +1,40 @@
-import { getEntry, minify } from '../services/api';
-import jsbeautifier from 'js-beautify'
-import u from '../utils/utils'
-// import minify from 'html-minifier'
-// import Terser from 'terser'
+import { getEntry, saveEntry } from '../services/api';
+import vkbeautify from 'vkbeautify'
+import u from '../utils/utils';
 
 export default {
     namespace: 'editor',
 
     state: {
         entry: {},
+        mode: 'text',
+        isLoading: false,
         isBusy: false,
     },
 
     effects: {
-        *getEntry({ redisKey, redisField }, { call, put }) {
-            yield put({ type: 'setBusy', payload: { isBusy: true } });
+        *load({ redisKey, redisField }, { call, put }) {
+            yield put({ type: 'setLoading', payload: { isLoading: true } });
             const resp = yield call(getEntry, redisKey, redisField);
-            yield put({ type: 'saveEntry', payload: { entry: resp } });
-            yield put({ type: 'setBusy', payload: { isBusy: false } });
+            yield put({ type: 'setEntry', payload: { entry: resp } });
+            yield put({ type: 'setLoading', payload: { isLoading: false } });
         },
-        *minify({ payload: { value } }, { call, put }) {
-            const resp = yield call(minify, value);
-            yield put({ type: 'saveValue', payload: { value: resp } });
+        *save({ payload: { entry } }, { call, put }) {
+            yield put({ type: 'setBusy', payload: { isBusy: true } });
+            const resp = yield call(saveEntry, entry);
+            console.debug(resp);
+            yield put({ type: 'setBusy', payload: { isBusy: false } });
         },
     },
 
     reducers: {
-        beautify(state, { _ }) {
-            var newValue = jsbeautifier.js(state.entry.Value, {
-                indent_size: 2,
-                space_in_empty_paren: true,
-                // brace_style: 'preserve-inline',
-            })
+        beautify(state, { payload: { mode } }) {
+            let newValue = state.entry.Value;
+            if (mode === "javascript") {
+                newValue = vkbeautify.json(newValue, 4);
+            } else if (mode === "xml") {
+                newValue = vkbeautify.xml(newValue, 4);
+            }
 
             return {
                 ...state,
@@ -41,36 +44,32 @@ export default {
                 }
             }
         },
-        // minify(state, { _ }) {
-        //     // var newValue = minify(state.entry.Value, {
-        //     //     minifyJS: true,
-        //     //     minifyCSS: true,
-        //     // })
-        //     // var newValue = UglifyJS.minify(state.entry.Value)
-        //     minify(state.entry.Value)
+        minify(state, { payload: { mode } }) {
+            let newValue = state.entry.Value;
+            if (mode === "javascript") {
+                newValue = vkbeautify.jsonmin(newValue);
+            } else if (mode === "xml") {
+                newValue = vkbeautify.xmlmin(newValue);
+            }
 
-        //     // var result = Terser.minify(state.entry.Value, {
-        //     //     parse: { expression: true },
-        //     // })
-
-        //     return {
-        //         ...state,
-        //         entry: {
-        //             ...state.entry,
-        //             Value: result.code
-        //         }
-        //     }
-        // },
-        saveEntry(state, { payload: { entry } }) {
             return {
                 ...state,
-                entry,
+                entry: {
+                    ...state.entry,
+                    Value: newValue
+                }
             }
         },
-        saveValue(state, { payload: { value } }) {
-            if (!u.isNoW(value.code)) {
-                return state;
+        setTTL(state, { payload: { ttl } }) {
+            return {
+                ...state,
+                entry: {
+                    ...state.entry,
+                    TTL: ttl
+                }
             }
+        },
+        setValue(state, { payload: { value } }) {
             return {
                 ...state,
                 entry: {
@@ -79,10 +78,30 @@ export default {
                 }
             }
         },
+        setEntry(state, { payload: { entry } }) {
+            let mode = 'text';
+            if (u.isJson(entry.Value)) {
+                mode = "javascript";
+            } else if (u.isXml(entry.Value)) {
+                mode = "xml";
+            }
+
+            return {
+                ...state,
+                entry,
+                mode,
+            }
+        },
         setBusy(state, { payload: { isBusy } }) {
             return {
                 ...state,
                 isBusy
+            }
+        },
+        setLoading(state, { payload: { isLoading } }) {
+            return {
+                ...state,
+                isLoading
             }
         }
     },

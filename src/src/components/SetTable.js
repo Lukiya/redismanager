@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'dva';
 import { Table, Input, Button, Icon } from 'antd';
 import Highlighter from 'react-highlight-words';
-import u from '../utils/utils'
+import u from '../utils/utils';
 
 class SetTable extends Component {
     state = {
@@ -12,12 +12,12 @@ class SetTable extends Component {
 
     componentDidUpdate(prevProps) {
         if (prevProps.key !== this.props.key) {
-            this.getListElements()
+            this.getListElements();
         }
     }
 
     componentDidMount() {
-        this.getListElements()
+        this.getListElements();
     }
 
     getListElements = () => {
@@ -133,7 +133,7 @@ class SetTable extends Component {
             var list = this.props.list[this.props.redisKey]
             if (!u.isNoW(list)) {
                 for (var i in list) {
-                    data.push({ "Field": list[i] })
+                    data.push({ "Field": list[i] });
                 }
             }
         }
@@ -156,8 +156,8 @@ class SetTable extends Component {
 }
 
 function mapStateToProps(state) {
-    const s = state["set"]
-    const layout = state["layout"]
+    const s = state["set"];
+    const layout = state["layout"];
     return { list: s.list, isBusy: s.isBusy, configs: layout.configs };
 }
 

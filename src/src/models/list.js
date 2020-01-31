@@ -19,7 +19,7 @@ export default {
 
     reducers: {
         saveList(state, { payload: { redisKey, list } }) {
-            state.list[redisKey] = list
+            state.list[redisKey] = list;
             return state
         },
         setBusy(state, { payload: { isBusy } }) {

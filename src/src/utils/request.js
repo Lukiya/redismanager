@@ -1,10 +1,10 @@
 import axios from 'axios';
 import NProgress from 'nprogress';
 import { message } from 'antd';
-import u from './utils'
+import u from './utils';
 
 // global
-axios.defaults.timeout = 10000
+axios.defaults.timeout = 10000;
 axios.defaults.baseURL = 'http://localhost:16379/api/v1';
 // axios.defaults.withCredentials = true;
 

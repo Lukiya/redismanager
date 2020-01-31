@@ -1,44 +1,55 @@
 @font-face {
-  font-family: 'consolas';
-  src: url('./assets/consolas.ttf');
+    font-family: 'consolas';
+    src: url('./assets/consolas.ttf');
 }
 
 html,
 body,
 #root {
-  height: 100%;
+    height: 100%;
 }
 
 body {
-  margin: 0;
+    margin: 0;
 }
 
 body,
 td,
 th,
 .ant-pagination {
-  font-family: 'consolas';
+    font-family: 'consolas';
 }
 
-.pointer{
-  cursor: pointer;
-}
-tr.str_row .ant-table-row-expand-icon{
-  display: none;
+header {
+    overflow: hidden;
 }
 
-.sublist{
-  table-layout: fixed;
+.pointer {
+    cursor: pointer;
 }
 
-.sublist .ant-table-tbody > tr > td {
-  max-width: 25vw;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+tr.str_row .ant-table-row-expand-icon {
+    display: none;
+}
+
+.sublist {
+    table-layout: fixed;
+}
+
+.sublist .ant-table-tbody>tr>td {
+    max-width: 25vw;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .CodeMirror {
-  border: 1px solid #ddd;
-  height: auto;
+    border: 1px solid #ddd;
+    height: auto;
+}
+
+.new-entry {
+    position: absolute;
+    top: 15px;
+    right: 10px;
 }

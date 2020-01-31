@@ -1,4 +1,4 @@
-import KeyTable from '../../components/KeyTable'
+import KeyTable from '../../components/KeyTable';
 
 export default function (props) {
     return (

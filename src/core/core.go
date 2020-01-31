@@ -16,6 +16,11 @@ const (
 	ContentTypeJson       = "application/json"
 	ContentTypeJavascript = "application/javascript"
 	ContentTypeTextHtml   = "text/html"
+	RedisType_String      = "string"
+	RedisType_Hash        = "hash"
+	RedisType_List        = "list"
+	RedisType_Set         = "set"
+	RedisType_ZSet        = "zset"
 )
 
 var (

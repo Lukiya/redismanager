@@ -3,9 +3,9 @@ import styles from './index.css';
 import { connect } from 'dva';
 import { Layout } from 'antd';
 import Link from 'umi/link';
-import DBList from '../components/DBList'
-import NodeList from '../components/NodeList'
-import u from '../utils/utils'
+import DBList from '../components/DBList';
+import NodeList from '../components/NodeList';
+import u from '../utils/utils';
 
 const { Header, Content, Sider } = Layout;
 
@@ -25,12 +25,12 @@ class BaseLayout extends Component {
     let selectedDB;
     const array = this.props.children.props.location.pathname.match(/\/db\/(\d+)/)
     if (array != null && array.length > 1) {
-      selectedDB = array[1]
+      selectedDB = array[1];
     }
 
-    let configs = {}
+    let configs = {};
     if (!u.isNoW(this.props.configs)) {
-      configs = this.props.configs
+      configs = this.props.configs;
     }
 
     return (
@@ -41,7 +41,7 @@ class BaseLayout extends Component {
         </Sider>
         <Layout >
           <Header style={{ background: '#f0f2f5' }}>
-            <NodeList configs={configs} />
+            <NodeList configs={configs} newClicked={() => { console.log(2222) }} />
           </Header>
           <Content>
             {this.props.children}
@@ -53,7 +53,7 @@ class BaseLayout extends Component {
 }
 
 function mapStateToProps(state) {
-  const s = state["layout"]
+  const s = state["layout"];
   return { configs: s.configs };
 }
 

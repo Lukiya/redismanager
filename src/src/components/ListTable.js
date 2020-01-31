@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'dva';
 import { Table, Input, Button, Icon } from 'antd';
 import Highlighter from 'react-highlight-words';
-import u from '../utils/utils'
+import u from '../utils/utils';
 
 class ListTable extends Component {
     state = {
@@ -12,12 +12,12 @@ class ListTable extends Component {
 
     componentDidUpdate(prevProps) {
         if (prevProps.key !== this.props.key) {
-            this.getListElements()
+            this.getListElements();
         }
     }
 
     componentDidMount() {
-        this.getListElements()
+        this.getListElements();
     }
 
     getListElements = () => {
@@ -144,7 +144,7 @@ class ListTable extends Component {
         }
         let pageSize = 5
         if (!u.isNoW(this.props.configs) && !u.isNoW(this.props.configs.PageSize) && !u.isNoW(this.props.configs.PageSize.SubList)) {
-            pageSize = this.props.configs.PageSize.SubList
+            pageSize = this.props.configs.PageSize.SubList;
         }
         return (
             <Table rowKey={x => x.Field}
@@ -161,8 +161,8 @@ class ListTable extends Component {
 }
 
 function mapStateToProps(state) {
-    const s = state["list"]
-    const layout = state["layout"]
+    const s = state["list"];
+    const layout = state["layout"];
     return { list: s.list, isBusy: s.isBusy, configs: layout.configs };
 }
 

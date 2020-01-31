@@ -1,5 +1,5 @@
-import request from '../utils/request'
-import u from '../utils/utils'
+import request from '../utils/request';
+import u from '../utils/utils';
 
 export function getDBs() {
     return request({
@@ -55,13 +55,23 @@ export function getEntry(key, field) {
     }
 }
 
-export function minify(code) {
-    return request({
-        url: '/min',
-        method: 'POST',
-        data: {
-            code: code,
-        },
-        transformResponse: [(data) => { return data; }]
-    });
+// export function minify(code) {
+//     return request({
+//         url: '/min',
+//         method: 'POST',
+//         data: {
+//             code: code,
+//         },
+//         transformResponse: [(data) => { return data; }]
+//     });
+// }
+
+export function saveEntry(entry) {
+    if (!u.isNoW(entry)) {
+        return request({
+            url: '/entry',
+            method: 'POST',
+            data: entry,
+        });
+    }
 }

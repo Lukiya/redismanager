@@ -1,97 +1,98 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
-import { Drawer, Form, Input, InputNumber, Row, Skeleton, Select, Button } from 'antd';
-import { UnControlled as CodeMirror } from 'react-codemirror2'
-import u from '../utils/utils'
-import 'codemirror/lib/codemirror.css'
-import 'codemirror/mode/javascript/javascript'
-import 'codemirror/mode/xml/xml'
-import 'codemirror/mode/css/css'
-
-const { Option } = Select;
+import { Drawer, Form, Input, InputNumber, Row, Skeleton, Button } from 'antd';
+import { UnControlled as CodeMirror } from 'react-codemirror2';
+import u from '../utils/utils';
+import 'codemirror/lib/codemirror.css';
+import 'codemirror/mode/javascript/javascript';
+import 'codemirror/mode/xml/xml';
 
 class Editor extends Component {
     state = {
-        mode: 'text',
         ttl: -1,
-    }
+    };
 
     componentDidUpdate(prevProps) {
         if (prevProps.visible !== this.props.visible && this.props.visible) {
-            this.load()
+            this.load();
         }
     }
 
     load = () => {
         if (!u.isNoW(this.props.editingEntry)) {
             this.props.dispatch({
-                type: 'editor/getEntry',
+                type: 'editor/load',
                 redisKey: this.props.editingEntry.Key,
                 redisField: this.props.editingEntry.Field,
             });
         }
     };
 
-    onTTLChange = (value) => {
-        this.props.entry.TTL = value
+    onTTLChange = (newTTL) => {
         this.props.dispatch({
-            type: 'editor/saveEntry',
-            payload: { entry: this.props.entry },
+            type: 'editor/setTTL',
+            payload: { ttl: newTTL }
         });
-    }
+    };
 
-    onModeChange = (value) => {
-        this.setState({
-            mode: value
-        })
-    }
+    onValueChanged = (editor, data, newValue) => {
+        this.props.dispatch({
+            type: 'editor/setValue',
+            payload: { value: newValue }
+        });
+    };
 
     Beautify = (event) => {
         this.props.dispatch({
             type: 'editor/beautify',
-            payload: { value: this.props.entry.Value }
+            payload: { mode: this.props.mode }
         });
-    }
+    };
 
     Minify = (event) => {
         this.props.dispatch({
             type: 'editor/minify',
-            payload: { value: this.props.entry.Value }
+            payload: { mode: this.props.mode }
         });
-    }
+    };
 
-    onValueChanged = (editor, data, newValue) => {
+    Save = (event) => {
         this.props.dispatch({
-            type: 'editor/saveValue',
-            payload: { value: newValue }
+            type: 'editor/save',
+            payload: { entry: this.props.entry }
         });
-    }
+    };
 
     render() {
-        const entry = this.props.entry ?? {}    // prevent undefined error
-        const ttlVisible = u.isNoW(entry.Field)
-        const fieldVisible = !u.isNoW(entry.Field)
-        const codeEditorVisible = fieldVisible || entry.Type === "string"
+        const entry = this.props.entry ?? {};    // prevent undefined error
+        const ttlVisible = u.isNoW(entry.Field);
+        const fieldVisible = !u.isNoW(entry.Field);
+        const valueEditorVisible = fieldVisible || entry.Type === "string";
+        const mode = !u.isNoW(this.props.mode) ? this.props.mode : "text";
+
         const codemirrorOptions = {
             lineNumbers: true,
             theme: 'default',
-            mode: this.state.mode,
+            mode: mode,
         };
+
+        const formatVisible = valueEditorVisible && mode !== 'text';
+        let editorWidth = valueEditorVisible ? '80vw' : '20vw';
 
         return (
             <Drawer
                 title={`${entry.Key} (${entry.Type})`}
                 placement="right"
-                width="80vw"
+                width={editorWidth}
                 onClose={this.props.onClose}
                 visible={this.props.visible}
             >
-                <Skeleton loading={this.props.isBusy} active>
+                <Skeleton loading={this.props.isLoading} active>
                     <Form layout="inline">
                         <Row>
                             {
                                 ttlVisible ? <Form.Item label="TTL">
-                                    <InputNumber placeholder="TTL" value={this.state.TTL} onChange={this.onTTLChange} />
+                                    <InputNumber placeholder="TTL" value={entry.TTL} onChange={this.onTTLChange} />
                                 </Form.Item> : null
                             }
                             {
@@ -100,28 +101,21 @@ class Editor extends Component {
                                 </Form.Item> : null
                             }
                             {
-                                codeEditorVisible ? <Form.Item label="Highlight">
-                                    <Select defaultValue="text" style={{ width: 120 }} onChange={this.onModeChange}>
-                                        <Option value="text">text</Option>
-                                        <Option value="javascript">js/json</Option>
-                                        <Option value="xml">xml/html</Option>
-                                        <Option value="css">css</Option>
-                                    </Select>
+                                formatVisible ? <Form.Item>
+                                    <Button type="dashed" icon="code" onClick={this.Beautify}>Beautify</Button>
                                 </Form.Item> : null
                             }
                             {
-                                codeEditorVisible ? <Form.Item>
-                                    <Button type="dashed" icon="code" onClick={this.Beautify}>Format</Button>
-                                </Form.Item> : null
-                            }
-                            {
-                                codeEditorVisible ? <Form.Item>
+                                formatVisible ? <Form.Item>
                                     <Button type="dashed" icon="box-plot" onClick={this.Minify}>Compress</Button>
                                 </Form.Item> : null
                             }
+                            <Form.Item>
+                                <Button type="primary" icon="save" onClick={this.Save} loading={this.props.isBusy}>Save</Button>
+                            </Form.Item>
                         </Row>
                         {
-                            codeEditorVisible ?
+                            valueEditorVisible ?
                                 <CodeMirror value={entry.Value} options={codemirrorOptions} onChange={this.onValueChanged} />
                                 : null
                         }

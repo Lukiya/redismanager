@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'dva';
 import { Table, Input, Button, Icon } from 'antd';
 import Highlighter from 'react-highlight-words';
-import u from '../utils/utils'
+import u from '../utils/utils';
 
 class HashTable extends Component {
     state = {
@@ -12,12 +12,12 @@ class HashTable extends Component {
 
     componentDidUpdate(prevProps) {
         if (prevProps.key !== this.props.key) {
-            this.getHashElements()
+            this.getHashElements();
         }
     }
 
     componentDidMount() {
-        this.getHashElements()
+        this.getHashElements();
     }
 
     getHashElements = () => {

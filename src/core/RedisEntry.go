@@ -1,9 +1,10 @@
 package core
 
 import (
+	"strconv"
+
 	"github.com/go-redis/redis/v7"
 	u "github.com/syncfuture/go/util"
-	"strconv"
 )
 
 type RedisEntry struct {
@@ -32,19 +33,19 @@ func (x *RedisEntry) GetTTL() {
 func (x *RedisEntry) GetLength() {
 	var err error
 	switch x.Type {
-	case "string":
+	case RedisType_String:
 		x.Length, err = x.client.StrLen(x.Key).Uint64()
 		break
-	case "hash":
+	case RedisType_Hash:
 		x.Length, err = x.client.HLen(x.Key).Uint64()
 		break
-	case "list":
+	case RedisType_List:
 		x.Length, err = x.client.LLen(x.Key).Uint64()
 		break
-	case "set":
+	case RedisType_Set:
 		x.Length, err = x.client.SCard(x.Key).Uint64()
 		break
-	case "zset":
+	case RedisType_ZSet:
 		x.Length, err = x.client.ZCard(x.Key).Uint64()
 		break
 	}
@@ -54,18 +55,18 @@ func (x *RedisEntry) GetLength() {
 func (x *RedisEntry) GetValue(field string) {
 	var err error
 	switch x.Type {
-	case "string":
+	case RedisType_String:
 		x.Value, err = x.client.Get(x.Key).Result()
 		break
-	case "hash":
+	case RedisType_Hash:
 		if field != "" {
 			x.Value, err = x.client.HGet(x.Key, field).Result()
-			if err == nil{
+			if err == nil {
 				x.Field = field
 			}
 		}
 		break
-	case "list":
+	case RedisType_List:
 		if field != "" {
 			var index int64
 			index, err = strconv.ParseInt(field, 10, 64)
@@ -75,13 +76,13 @@ func (x *RedisEntry) GetValue(field string) {
 			}
 		}
 		break
-	case "set":
+	case RedisType_Set:
 		if field != "" {
 			x.Field = field
 			x.Value = field
 		}
 		break
-	case "zset":
+	case RedisType_ZSet:
 		if field != "" {
 			var score float64
 			score, err = x.client.ZScore(x.Key, field).Result()
