@@ -110,9 +110,7 @@ class KeyTable extends Component {
 
     rowClassName = (record, i) => {
         if (record.Type === "string") {
-            return "str_row pointer"
-        } else {
-            return "pointer"
+            return "str_row"
         }
     };
 
@@ -129,15 +127,15 @@ class KeyTable extends Component {
         });
     }
 
-    onRow = (record) => {
-        return {
-            onClick: event => this.showEditor(record),
-            // onDoubleClick: event => { },
-            // onContextMenu: event => { },
-            // onMouseEnter: event => { },
-            // onMouseLeave: event => { },
-        };
-    };
+    // onRow = (record) => {
+    //     return {
+    //         onClick: event => this.showEditor(record),
+    //         // onDoubleClick: event => { },
+    //         // onContextMenu: event => { },
+    //         // onMouseEnter: event => { },
+    //         // onMouseLeave: event => { },
+    //     };
+    // };
 
     expandedRowRender = record => {
         return (
@@ -173,6 +171,12 @@ class KeyTable extends Component {
         })
     };
 
+    onCell = (record, rowIndex) => {
+        return {
+            onClick: event => this.showEditor(record),
+        };
+    };
+
     columns = [
         {
             title: 'Key',
@@ -181,6 +185,8 @@ class KeyTable extends Component {
             defaultSortOrder: "ascend",
             sorter: (a, b) => a.Key.localeCompare(b.Key),
             ...this.getColumnSearchProps('Key'),
+            onCell: this.onCell,
+            className: "pointer",
         },
         {
             title: 'Type',
@@ -222,7 +228,7 @@ class KeyTable extends Component {
                     <Button type="danger" icon="delete" disabled={!hasSelection}>Del</Button>
                 </div>
                 <Table rowKey={x => x.Key}
-                    onRow={this.onRow}
+                    // onRow={this.onRow}
                     rowSelection={this.rowSelection}
                     columns={this.columns}
                     dataSource={this.props.list}
