@@ -33,8 +33,11 @@ class KeyTable extends Component {
     };
 
     rowSelection = {
-        onChange: (selectedRowKeys, selectedRows) => {
-            // console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
+        onChange: (selectedKeys) => {
+            this.props.dispatch({
+                type: 'db/setSelectedKeys',
+                selectedKeys
+            });
         },
         getCheckboxProps: record => ({
             Key: record.Key,
@@ -209,9 +212,15 @@ class KeyTable extends Component {
         if (!u.isNoW(this.props.configs) && !u.isNoW(this.props.configs.PageSize) && !u.isNoW(this.props.configs.PageSize.KeyList)) {
             pageSize = this.props.configs.PageSize.KeyList;
         }
+
+        const hasSelection = !u.isNoW(this.props.selectedKeys) && this.props.selectedKeys.length > 0;
+
         return (
             <div>
-                <Button type="primary" className="new-entry" icon="file-add">New</Button>
+                <div className="new-entry">
+                    <Button type="primary" icon="file-add">New</Button>
+                    <Button type="danger" icon="delete" disabled={!hasSelection}>Del</Button>
+                </div>
                 <Table rowKey={x => x.Key}
                     onRow={this.onRow}
                     rowSelection={this.rowSelection}
@@ -235,7 +244,10 @@ class KeyTable extends Component {
 function mapStateToProps(state) {
     const s = state["db"];
     const layout = state["layout"];
-    return { list: s.list, isBusy: s.isBusy, configs: layout.configs, editingEntry: s.editingEntry, editorVisible: s.editorVisible };
+    return {
+        ...s,
+        configs: layout.configs
+    };
 }
 
 export default connect(mapStateToProps)(KeyTable)

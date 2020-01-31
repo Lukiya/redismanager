@@ -51,5 +51,8 @@ tr.str_row .ant-table-row-expand-icon {
 .new-entry {
     position: absolute;
     top: 15px;
-    right: 10px;
+    right: 5px;
+}
+.new-entry button{
+    margin-right: 5px;
 }

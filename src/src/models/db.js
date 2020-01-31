@@ -6,6 +6,7 @@ export default {
     state: {
         list: [],
         isBusy: false,
+        selectedKeys: [],
         editorVisible: false,
         editingEntry: {},
     },
@@ -45,5 +46,11 @@ export default {
                 editorVisible: false,
             }
         },
+        setSelectedKeys(state, { selectedKeys }) {
+            return {
+                ...state,
+                selectedKeys
+            }
+        }
     },
 };

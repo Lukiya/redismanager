@@ -70,12 +70,25 @@ export default {
             }
         },
         setValue(state, { payload: { value } }) {
-            return {
-                ...state,
-                entry: {
-                    ...state.entry,
-                    Value: value
+            let mode = 'text';
+            if (u.isJson(value)) {
+                mode = "javascript";
+            } else if (u.isXml(value)) {
+                mode = "xml";
+            }
+
+            if (state.mode !== mode) {
+                return {
+                    ...state,
+                    mode,
+                    entry: {
+                        ...state.entry,
+                        Value: value
+                    }
                 }
+            } else {
+                state.entry.Value = value;
+                return state;
             }
         },
         setEntry(state, { payload: { entry } }) {
