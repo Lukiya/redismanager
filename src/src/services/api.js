@@ -66,12 +66,13 @@ export function getEntry(key, field) {
 //     });
 // }
 
-export function saveEntry(entry) {
-    if (!u.isNoW(entry)) {
-        return request({
-            url: '/entry',
-            method: 'POST',
-            data: entry,
-        });
-    }
+export function saveEntry(editingEntry, backupEntry) {
+    return request({
+        url: '/entry',
+        method: 'POST',
+        data: {
+            editing: editingEntry,
+            backup: backupEntry
+        },
+    });
 }

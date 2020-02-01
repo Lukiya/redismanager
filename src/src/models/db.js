@@ -5,10 +5,8 @@ export default {
 
     state: {
         list: [],
-        isBusy: false,
         selectedKeys: [],
-        editorVisible: false,
-        editingEntry: {},
+        isBusy: false,
     },
 
     effects: {
@@ -31,19 +29,6 @@ export default {
             return {
                 ...state,
                 isBusy
-            }
-        },
-        showEditor(state, { editingEntry }) {
-            return {
-                ...state,
-                editorVisible: true,
-                editingEntry: editingEntry
-            }
-        },
-        hideEditor(state, { _ }) {
-            return {
-                ...state,
-                editorVisible: false,
             }
         },
         setSelectedKeys(state, { selectedKeys }) {

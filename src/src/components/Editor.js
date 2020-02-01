@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
-import { Drawer, Form, Input, InputNumber, Row, Skeleton, Button } from 'antd';
+import { Drawer, Input, Row, Skeleton, Button, Col } from 'antd';
 import { UnControlled as CodeMirror } from 'react-codemirror2';
 import u from '../utils/utils';
 import 'codemirror/lib/codemirror.css';
@@ -12,26 +12,24 @@ class Editor extends Component {
         ttl: -1,
     };
 
-    componentDidUpdate(prevProps) {
-        if (prevProps.visible !== this.props.visible && this.props.visible) {
-            this.load();
-        }
-    }
-
-    load = () => {
-        if (!u.isNoW(this.props.editingEntry)) {
-            this.props.dispatch({
-                type: 'editor/load',
-                redisKey: this.props.editingEntry.Key,
-                redisField: this.props.editingEntry.Field,
-            });
-        }
-    };
-
-    onTTLChange = (newTTL) => {
+    onTTLChange = ({ target: { value } }) => {
         this.props.dispatch({
             type: 'editor/setTTL',
-            payload: { ttl: newTTL }
+            payload: { ttl: value }
+        });
+    };
+
+    onKeyChange = ({ target: { value } }) => {
+        this.props.dispatch({
+            type: 'editor/setKey',
+            payload: { key: value }
+        });
+    };
+
+    onFieldChange = ({ target: { value } }) => {
+        this.props.dispatch({
+            type: 'editor/setField',
+            payload: { field: value }
         });
     };
 
@@ -42,84 +40,76 @@ class Editor extends Component {
         });
     };
 
-    Beautify = (event) => {
+    beautify = () => {
         this.props.dispatch({
             type: 'editor/beautify',
-            payload: { mode: this.props.mode }
+            payload: { valueEditorMode: this.props.valueEditorMode }
         });
     };
 
-    Minify = (event) => {
+    minify = () => {
         this.props.dispatch({
             type: 'editor/minify',
-            payload: { mode: this.props.mode }
+            payload: { valueEditorMode: this.props.valueEditorMode }
         });
     };
 
-    Save = (event) => {
+    save = () => {
         this.props.dispatch({
             type: 'editor/save',
-            payload: { entry: this.props.entry }
         });
     };
 
+    hide = () => {
+        this.props.dispatch({
+            type: 'editor/hide',
+        });
+    }
+
     render() {
-        const entry = this.props.entry ?? {};    // prevent undefined error
-        const ttlVisible = u.isNoW(entry.Field);
-        const fieldVisible = !u.isNoW(entry.Field);
-        const valueEditorVisible = fieldVisible || entry.Type === "string";
-        const mode = !u.isNoW(this.props.mode) ? this.props.mode : "text";
+        const editingEntry = this.props.editingEntry ?? {};    // prevent undefined error
+        const valueEditorMode = !u.isNoW(this.props.valueEditorMode) ? this.props.valueEditorMode : "text";
 
         const codemirrorOptions = {
             lineNumbers: true,
             theme: 'default',
-            mode: mode,
+            mode: valueEditorMode,
         };
 
-        const formatVisible = valueEditorVisible && mode !== 'text';
-        let editorWidth = valueEditorVisible ? '80vw' : '20vw';
+        const formatEnabled = this.props.valueEditorEnabled && valueEditorMode !== 'text';
 
         return (
             <Drawer
-                title={`${entry.Key} (${entry.Type})`}
+                title={`${editingEntry.Type} - ${this.props.editingEntry.isNew ? "new" : "edit"}`}
                 placement="right"
-                width={editorWidth}
-                onClose={this.props.onClose}
+                width={this.props.valueEditorWidth}
+                onClose={this.hide}
                 visible={this.props.visible}
             >
                 <Skeleton loading={this.props.isLoading} active>
-                    <Form layout="inline">
-                        <Row>
-                            {
-                                ttlVisible ? <Form.Item label="TTL">
-                                    <InputNumber placeholder="TTL" value={entry.TTL} onChange={this.onTTLChange} />
-                                </Form.Item> : null
-                            }
-                            {
-                                fieldVisible ? <Form.Item label="Field">
-                                    <Input placeholder="Field" value={entry.Field} />
-                                </Form.Item> : null
-                            }
-                            {
-                                formatVisible ? <Form.Item>
-                                    <Button type="dashed" icon="code" onClick={this.Beautify}>Beautify</Button>
-                                </Form.Item> : null
-                            }
-                            {
-                                formatVisible ? <Form.Item>
-                                    <Button type="dashed" icon="box-plot" onClick={this.Minify}>Compress</Button>
-                                </Form.Item> : null
-                            }
-                            <Form.Item>
-                                <Button type="primary" icon="save" onClick={this.Save} loading={this.props.isBusy}>Save</Button>
-                            </Form.Item>
-                        </Row>
-                        {
-                            valueEditorVisible ?
-                                <CodeMirror value={entry.Value} options={codemirrorOptions} onChange={this.onValueChanged} />
-                                : null
-                        }
-                    </Form>
+                    <Row type="flex" gutter={8} align="middle">
+                        <Col md={12} lg={8} xl={9} xxl={10}>
+                            <Input addonBefore="Key" value={editingEntry.Key} onChange={this.onKeyChange} disabled={!this.props.keyEditorEnabled} />
+                        </Col>
+                        <Col md={12} lg={8} xl={9} xxl={10}>
+                            <Input addonBefore="Field" value={editingEntry.Field} onChange={this.onFieldChange} disabled={!this.props.fieldEditorEnabled} />
+                        </Col>
+                        <Col md={12} lg={4} xl={3} xxl={2}>
+                            <Input addonBefore="TTL" value={editingEntry.TTL} onChange={this.onTTLChange} disabled={!this.props.ttlEditorEnabled} />
+                        </Col>
+                        <Col md={12} lg={4} xl={3} xxl={2}>
+                            <Button type="primary" icon="save" onClick={this.save} loading={this.props.isBusy} title="Save"></Button>
+                            <Button type="dashed" icon="code" onClick={this.beautify} title="Beautify" style={{ margin: "0 5px" }} disabled={!formatEnabled}></Button>
+                            <Button type="dashed" icon="box-plot" onClick={this.minify} title="Compress" disabled={!formatEnabled}></Button>
+                        </Col>
+                    </Row>
+                    {
+                        this.props.valueEditorEnabled ?
+                            <div style={{ marginTop: "5px" }}>
+                                <CodeMirror value={editingEntry.Value} options={codemirrorOptions} onChange={this.onValueChanged} />
+                            </div>
+                            : null
+                    }
                 </Skeleton>
             </Drawer>
         )

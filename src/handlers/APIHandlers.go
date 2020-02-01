@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"strconv"
 	"sync"
+	"time"
 
 	"github.com/syncfuture/go/sredis"
 
@@ -262,17 +263,53 @@ func GetZSetElements(ctx iris.Context) {
 
 // GetZSetElements Post /api/entry
 func SaveRedisEntry(ctx iris.Context) {
-	entry := new(core.RedisEntry)
-	ctx.ReadJSON(entry)
+	cmd := new(core.SaveRedisEntryCommand)
+	ctx.ReadJSON(cmd)
+	client := getClient(ctx)
 
-	if entry.Type == "" {
-		ctx.WriteString("type is missing")
-		return
+	if cmd.Editing.IsNew {
+		if cmd.Editing.Type == core.RedisType_String {
+			// New string
+		} else {
+			// Other
+		}
+	} else {
+		if cmd.Editing.Type == core.RedisType_String {
+			// Edit string
+
+		} else if cmd.Editing.Field == "" {
+			// Edit key
+			if cmd.Editing.Key != cmd.Backup.Key {
+				// Need change name
+			}
+		} else {
+			// Edit member
+		}
 	}
 
-	if entry.Type == "string" {
+	if cmd.Editing.TTL != cmd.Backup.TTL {
+		var err error
+		// Need update ttl
+		if cmd.Editing.TTL > 0 {
+			_, err = client.Expire(cmd.Editing.Key, time.Duration(cmd.Editing.TTL)*time.Second).Result()
+		} else {
+			_, err = client.Persist(cmd.Editing.Key).Result()
+		}
 
+		if u.LogError(err) {
+			ctx.WriteString(err.Error())
+			return
+		}
 	}
+
+	// if entry.Type == "" {
+	// 	ctx.WriteString("type is missing")
+	// 	return
+	// }
+
+	// if entry.Type == "string" {
+
+	// }
 }
 
 // type MinifyData struct {

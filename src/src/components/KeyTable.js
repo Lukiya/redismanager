@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
-import { Table, Input, Button, Icon } from 'antd';
+import { Table, Input, Button, Icon, Dropdown, Menu } from 'antd';
 import Highlighter from 'react-highlight-words';
 import HashTable from './HashTable';
 import ListTable from './ListTable';
@@ -114,18 +114,18 @@ class KeyTable extends Component {
         }
     };
 
-    showEditor = (record) => {
-        this.props.dispatch({
-            type: 'db/showEditor',
-            editingEntry: { Key: record.Key, Type: record.Type },
-        });
-    }
+    // showEditor = (record) => {
+    //     this.props.dispatch({
+    //         type: 'editor/show',
+    //         editingEntry: { Key: record.Key, Type: record.Type },
+    //     });
+    // }
 
-    hideEditor = () => {
-        this.props.dispatch({
-            type: 'db/hideEditor'
-        });
-    }
+    // hideEditor = () => {
+    //     this.props.dispatch({
+    //         type: 'db/hideEditor'
+    //     });
+    // }
 
     // onRow = (record) => {
     //     return {
@@ -171,10 +171,22 @@ class KeyTable extends Component {
         })
     };
 
-    onCell = (record, rowIndex) => {
+    onCell = (record) => {
         return {
-            onClick: event => this.showEditor(record),
+            onClick: () => {
+                this.props.dispatch({
+                    type: 'editor/show',
+                    editingEntry: { Key: record.Key, Type: record.Type, isNew: false },
+                });
+            },
         };
+    };
+
+    newClicked = (event) => {
+        this.props.dispatch({
+            type: 'editor/show',
+            editingEntry: { Type: event.key, isNew: true },
+        });
     };
 
     columns = [
@@ -219,12 +231,24 @@ class KeyTable extends Component {
             pageSize = this.props.configs.PageSize.KeyList;
         }
 
+        const menu = (
+            <Menu>
+                <Menu.Item key="string" onClick={this.newClicked}>string</Menu.Item>
+                <Menu.Item key="hash" onClick={this.newClicked}>hash</Menu.Item>
+                <Menu.Item key="list" onClick={this.newClicked}>list</Menu.Item>
+                <Menu.Item key="set" onClick={this.newClicked}>set</Menu.Item>
+                <Menu.Item key="zset" onClick={this.newClicked}>zset</Menu.Item>
+            </Menu>
+        );
+
         const hasSelection = !u.isNoW(this.props.selectedKeys) && this.props.selectedKeys.length > 0;
 
         return (
             <div>
                 <div className="new-entry">
-                    <Button type="primary" icon="file-add">New</Button>
+                    <Dropdown overlay={menu}>
+                        <Button type="primary" icon="file-add">New <Icon type="down" /></Button>
+                    </Dropdown>
                     <Button type="danger" icon="delete" disabled={!hasSelection}>Del</Button>
                 </div>
                 <Table rowKey={x => x.Key}
@@ -238,9 +262,7 @@ class KeyTable extends Component {
                     size="small"
                     pagination={{ pageSize: pageSize }}
                     loading={this.props.isBusy} />
-                <Editor editingEntry={this.props.editingEntry}
-                    onClose={this.hideEditor}
-                    visible={this.props.editorVisible} />
+                <Editor editingEntry={this.props.editingEntry} />
             </div>
         )
     }

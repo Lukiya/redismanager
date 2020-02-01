@@ -7,6 +7,10 @@ import (
 	u "github.com/syncfuture/go/util"
 )
 
+type SaveRedisEntryCommand struct {
+	Editing *RedisEntry `json:"editing"`
+	Backup  *RedisEntry `json:"backup"`
+}
 type RedisEntry struct {
 	Key    string
 	Type   string
@@ -14,6 +18,7 @@ type RedisEntry struct {
 	Value  string
 	TTL    int64
 	Length uint64
+	IsNew  bool `json:"isNew"`
 	client redis.Cmdable
 }
 
@@ -71,7 +76,7 @@ func (x *RedisEntry) GetValue(field string) {
 			var index int64
 			index, err = strconv.ParseInt(field, 10, 64)
 			if err == nil {
-				x.Field = string(index)
+				x.Field = field
 				x.Value, err = x.client.LIndex(x.Key, index).Result()
 			}
 		}
