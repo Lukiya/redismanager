@@ -25,9 +25,10 @@ export default {
             const state = yield select(states => states["editor"]);
 
             yield put({ type: 'setBusy', payload: { isBusy: true } });
-            const resp = yield call(saveEntry, state.editingEntry, state.backupEntry);
+            const msgCode = yield call(saveEntry, state.editingEntry, state.backupEntry);
             yield put({ type: 'setBusy', payload: { isBusy: false } });
-            if (resp === "") {
+
+            if (u.isSuccess(msgCode)) {
                 yield put({ type: 'hide' });
             }
         },

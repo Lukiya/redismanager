@@ -76,3 +76,11 @@ export function saveEntry(editingEntry, backupEntry) {
         },
     });
 }
+
+export function deleteEntries(entries) {
+    return request({
+        url: '/entries',
+        method: 'DELETE',
+        data: entries,
+    });
+}

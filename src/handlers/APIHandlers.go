@@ -7,6 +7,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/syncfuture/go/task"
+
 	"github.com/syncfuture/go/sredis"
 
 	"github.com/go-redis/redis/v7"
@@ -27,13 +29,13 @@ func getClient(ctx iris.Context) (r redis.Cmdable) {
 		if u.LogError(err) {
 			return nil
 		}
-		return core.DBs[db]
+		return core.DBClients[db]
 	} else {
 		return core.ClusterClient
 	}
 }
 
-// GetKeys GET /api/keys
+// GetKeys GET /api/v1/keys
 func GetKeys(ctx iris.Context) {
 	match := ctx.FormValueDefault("match", _defaultMatch)
 
@@ -73,9 +75,9 @@ func GetKeys(ctx iris.Context) {
 	ctx.Write(bytes)
 }
 
-// GetDBs GET /api/dbs
+// GetDBs GET /api/v1/dbs
 func GetDBs(ctx iris.Context) {
-	dbCount := len(core.DBs)
+	dbCount := len(core.DBClients)
 	dbs := make([]int, dbCount)
 	for i := 0; i < dbCount; i++ {
 		dbs[i] = i
@@ -90,13 +92,7 @@ func GetDBs(ctx iris.Context) {
 	ctx.Write(bytes)
 }
 
-// // GetDBCount GET /api/db/count
-// func GetDBCount(ctx iris.Context) {
-// 	dbcount := strconv.Itoa(len(core.DBs))
-// 	ctx.WriteString(dbcount)
-// }
-
-// GetConfigs Get /api/configs
+// GetConfigs Get /api/v1/configs
 func GetConfigs(ctx iris.Context) {
 	ctx.ContentType(core.ContentTypeJson)
 	bytes, err := ioutil.ReadFile("configs.json")
@@ -107,7 +103,7 @@ func GetConfigs(ctx iris.Context) {
 	}
 }
 
-// GetEntry Get /api/entry?key={0}&field={1}
+// GetEntry Get /api/v1/entry?key={0}&field={1}
 func GetEntry(ctx iris.Context) {
 	key := ctx.FormValue("key")
 	if key == "" {
@@ -132,7 +128,7 @@ func GetEntry(ctx iris.Context) {
 	ctx.Write(bytes)
 }
 
-// GetHashElements Get /api/hash?key={0}
+// GetHashElements Get /api/v1/hash?key={0}
 func GetHashElements(ctx iris.Context) {
 	key := ctx.FormValue("key")
 	if key == "" {
@@ -163,7 +159,7 @@ func GetHashElements(ctx iris.Context) {
 	}
 }
 
-// GetListElements Get /api/list?key={0}
+// GetListElements Get /api/v1/list?key={0}
 func GetListElements(ctx iris.Context) {
 	key := ctx.FormValue("key")
 	if key == "" {
@@ -194,7 +190,7 @@ func GetListElements(ctx iris.Context) {
 	}
 }
 
-// GetSetElements Get /api/set?key={0}
+// GetSetElements Get /api/v1/set?key={0}
 func GetSetElements(ctx iris.Context) {
 	key := ctx.FormValue("key")
 	if key == "" {
@@ -225,7 +221,7 @@ func GetSetElements(ctx iris.Context) {
 	}
 }
 
-// GetZSetElements Get /api/zset?key={0}
+// GetZSetElements Get /api/v1/zset?key={0}
 func GetZSetElements(ctx iris.Context) {
 	key := ctx.FormValue("key")
 	if key == "" {
@@ -261,7 +257,7 @@ func GetZSetElements(ctx iris.Context) {
 	}
 }
 
-// GetZSetElements Post /api/entry
+// GetZSetElements Post /api/v1/entry
 func SaveRedisEntry(ctx iris.Context) {
 	cmd := new(core.SaveRedisEntryCommand)
 	ctx.ReadJSON(cmd)
@@ -310,6 +306,27 @@ func SaveRedisEntry(ctx iris.Context) {
 	// if entry.Type == "string" {
 
 	// }
+}
+
+// DeleteRedisEntries DELETE /api/v1/entries
+func DeleteRedisEntries(ctx iris.Context) {
+	entries := make([]*core.RedisEntry, 0)
+	ctx.ReadJSON(&entries)
+
+	if len(entries) == 0 {
+		ctx.WriteString("entries array is missing")
+		return
+	}
+
+	scheduler := task.NewFlowScheduler(8)
+	scheduler.SliceRun(&entries, func(i int, v interface{}) {
+		entry := v.(*core.RedisEntry)
+		client := redis.NewClient(&redis.Options{
+			Addr:     entry.Node,
+			Password: core.RedisConfig.Password,
+		})
+		client.Del(entry.Key)
+	})
 }
 
 // type MinifyData struct {

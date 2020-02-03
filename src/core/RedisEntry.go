@@ -12,6 +12,7 @@ type SaveRedisEntryCommand struct {
 	Backup  *RedisEntry `json:"backup"`
 }
 type RedisEntry struct {
+	Node   string
 	Key    string
 	Type   string
 	Field  string
@@ -109,5 +110,12 @@ func NewRedisEntry(client redis.Cmdable, key string) (r *RedisEntry) {
 	r.GetType()
 	r.GetLength()
 	r.GetTTL()
+
+	switch c := client.(type) {
+	case *redis.Client:
+		r.Node = c.Options().Addr
+		break
+	}
+
 	return r
 }

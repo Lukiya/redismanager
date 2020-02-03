@@ -3,44 +3,49 @@ package main
 import (
 	"github.com/Lukiya/redismanager/src/go/core"
 	"github.com/Lukiya/redismanager/src/go/handlers"
-	"github.com/iris-contrib/middleware/cors"
 	"github.com/kataras/iris/v12"
+	"github.com/kataras/iris/v12/core/router"
 )
 
 func newApp() *iris.Application {
 	app := iris.New()
-	app.OnErrorCode(iris.StatusNotFound, func(ctx iris.Context) {
-		ctx.Writef("404 not found here")
-	})
+
+	var v1 router.Party
 
 	if core.Debug {
+		// Debug & Dev mode
 		app.HandleDir("/", "./dist")
+		crs := func(ctx iris.Context) {
+			ctx.Header("Access-Control-Allow-Origin", "*")
+			ctx.Header("Access-Control-Allow-Credentials", "true")
+			ctx.Header("Access-Control-Allow-Methods", "DELETE")
+			ctx.Header("Access-Control-Allow-Headers", "Access-Control-Allow-Origin, Content-Type")
+			ctx.Next()
+		}
+
+		v1 = app.Party("/api/v1", crs).AllowMethods(iris.MethodOptions)
+		// v1.Options("/entries", func(ctx iris.Context) {})
 	} else {
+		// Production mode
 		app.HandleDir("/", "./dist", iris.DirOptions{
 			Asset:      Asset,
 			AssetInfo:  AssetInfo,
 			AssetNames: AssetNames,
 		})
+		v1 = app.Party("/api/v1")
 	}
 
-	crs := cors.New(cors.Options{
-		AllowedOrigins: []string{"*"}, // allows everything, use that to change the hosts.
-		// AllowCredentials: true,
-	})
-
-	v1 := app.Party("/api/v1", crs).AllowMethods(iris.MethodOptions) // <- important for the preflight.
-	{
-		v1.Get("/keys", handlers.GetKeys)
-		v1.Get("/dbs", handlers.GetDBs)
-		v1.Get("/configs", handlers.GetConfigs)
-		v1.Get("/entry", handlers.GetEntry)
-		v1.Get("/hash", handlers.GetHashElements)
-		v1.Get("/list", handlers.GetListElements)
-		v1.Get("/set", handlers.GetSetElements)
-		v1.Get("/zset", handlers.GetZSetElements)
-		v1.Post("/entry", handlers.SaveRedisEntry)
-		// v1.Post("/min", handlers.Minify)
-	}
+	// Register party routes
+	v1.Get("/keys", handlers.GetKeys)
+	v1.Get("/dbs", handlers.GetDBs)
+	v1.Get("/configs", handlers.GetConfigs)
+	v1.Get("/entry", handlers.GetEntry)
+	v1.Get("/hash", handlers.GetHashElements)
+	v1.Get("/list", handlers.GetListElements)
+	v1.Get("/set", handlers.GetSetElements)
+	v1.Get("/zset", handlers.GetZSetElements)
+	v1.Post("/entry", handlers.SaveRedisEntry)
+	v1.Delete("/entries", handlers.DeleteRedisEntries)
 
 	return app
 }

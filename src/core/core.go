@@ -27,7 +27,7 @@ var (
 	ConfigProvider config.IConfigProvider
 	RedisConfig    *sredis.RedisConfig
 	ClusterClient  *redis.ClusterClient
-	DBs            = make(map[int]redis.Cmdable)
+	DBClients      = make(map[int]redis.Cmdable)
 	Debug          bool
 )
 
@@ -40,22 +40,22 @@ func init() {
 	}
 
 	if len(RedisConfig.Addrs) == 1 {
-		// Not a cluster
+		// standalone
 		options := &redis.Options{
 			Addr:     RedisConfig.Addrs[0],
 			DB:       0,
 			Password: RedisConfig.Password,
 		}
 		// create db0 client
-		DBs[0] = redis.NewClient(options)
+		DBClients[0] = redis.NewClient(options)
 
 		// use db0 clientto get db count
-		databases, err := DBs[0].ConfigGet("databases").Result()
+		databases, err := DBClients[0].ConfigGet("databases").Result()
 		u.LogFaltal(err)
 		dbcount, _ := strconv.Atoi(databases[1].(string))
 		for i := 1; i < dbcount; i++ {
 			// skip first one, create client for rest db
-			DBs[i] = redis.NewClient(&redis.Options{
+			DBClients[i] = redis.NewClient(&redis.Options{
 				Addr:     RedisConfig.Addrs[0],
 				DB:       i,
 				Password: RedisConfig.Password,
@@ -70,7 +70,7 @@ func init() {
 			c.Password = RedisConfig.Password
 		}
 		ClusterClient = redis.NewClusterClient(c)
-		DBs[0] = ClusterClient
+		DBClients[0] = ClusterClient
 	}
 }
 

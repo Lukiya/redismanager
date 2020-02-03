@@ -105,12 +105,6 @@ class ListTable extends Component {
         });
     }
 
-    hideEditor = () => {
-        this.props.dispatch({
-            type: 'db/hideEditor'
-        });
-    }
-
     onRow = (record) => {
         return {
             onClick: event => this.showEditor(record), // 点击行

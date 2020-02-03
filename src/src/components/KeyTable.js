@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
-import { Table, Input, Button, Icon, Dropdown, Menu } from 'antd';
+import { Table, Input, Button, Icon, Dropdown, Menu, Modal } from 'antd';
 import Highlighter from 'react-highlight-words';
 import HashTable from './HashTable';
 import ListTable from './ListTable';
@@ -18,25 +18,25 @@ class KeyTable extends Component {
 
     componentDidUpdate(prevProps) {
         if (prevProps.db !== this.props.db) {
-            this.getKeys();
+            this.loadKeys();
         }
     }
     componentDidMount() {
-        this.getKeys();
+        this.loadKeys();
     }
 
-    getKeys = () => {
+    loadKeys = () => {
         this.props.dispatch({
-            type: 'db/getKeys',
+            type: 'keyList/init',
             db: this.props.db
         });
     };
 
     rowSelection = {
-        onChange: (selectedKeys) => {
+        onChange: (selectedKeys, records) => {
             this.props.dispatch({
-                type: 'db/setSelectedKeys',
-                selectedKeys
+                type: 'keyList/setSelectedEntries',
+                entries: records
             });
         },
         getCheckboxProps: record => ({
@@ -114,29 +114,6 @@ class KeyTable extends Component {
         }
     };
 
-    // showEditor = (record) => {
-    //     this.props.dispatch({
-    //         type: 'editor/show',
-    //         editingEntry: { Key: record.Key, Type: record.Type },
-    //     });
-    // }
-
-    // hideEditor = () => {
-    //     this.props.dispatch({
-    //         type: 'db/hideEditor'
-    //     });
-    // }
-
-    // onRow = (record) => {
-    //     return {
-    //         onClick: event => this.showEditor(record),
-    //         // onDoubleClick: event => { },
-    //         // onContextMenu: event => { },
-    //         // onMouseEnter: event => { },
-    //         // onMouseLeave: event => { },
-    //     };
-    // };
-
     expandedRowRender = record => {
         return (
             this.state.subList[record.Key]
@@ -186,6 +163,26 @@ class KeyTable extends Component {
         this.props.dispatch({
             type: 'editor/show',
             editingEntry: { Type: event.key, isNew: true },
+        });
+    };
+
+    confirmDelete = () => {
+        this.props.dispatch({
+            type: 'keyList/setDeletingVisible',
+            payload: { flag: true }
+        });
+    };
+
+    cancelDelete = () => {
+        this.props.dispatch({
+            type: 'keyList/setDeletingVisible',
+            payload: { flag: false }
+        });
+    };
+
+    delete = () => {
+        this.props.dispatch({
+            type: 'keyList/deleteEntries',
         });
     };
 
@@ -241,15 +238,16 @@ class KeyTable extends Component {
             </Menu>
         );
 
-        const hasSelection = !u.isNoW(this.props.selectedKeys) && this.props.selectedKeys.length > 0;
+        const hasSelection = !u.isNoW(this.props.selectedEntries) && this.props.selectedEntries.length > 0;
 
         return (
             <div>
                 <div className="new-entry">
-                    <Dropdown overlay={menu}>
+                    <Dropdown overlay={menu} title="New">
                         <Button type="primary" icon="file-add">New <Icon type="down" /></Button>
                     </Dropdown>
-                    <Button type="danger" icon="delete" disabled={!hasSelection}>Del</Button>
+                    <Button type="default" icon="redo" onClick={this.loadKeys} title="Refresh"></Button>
+                    <Button type="danger" icon="delete" disabled={!hasSelection} onClick={this.confirmDelete} title="Delete"></Button>
                 </div>
                 <Table rowKey={x => x.Key}
                     // onRow={this.onRow}
@@ -263,6 +261,9 @@ class KeyTable extends Component {
                     pagination={{ pageSize: pageSize }}
                     loading={this.props.isBusy} />
                 <Editor editingEntry={this.props.editingEntry} />
+                <Modal title="Confirm" visible={this.props.deletingVisible} onOk={this.delete} onCancel={this.cancelDelete}>
+                    <p>Delete selcted keys?</p>
+                </Modal>
             </div>
         )
     }
@@ -270,7 +271,7 @@ class KeyTable extends Component {
 
 
 function mapStateToProps(state) {
-    const s = state["db"];
+    const s = state["keyList"];
     const layout = state["layout"];
     return {
         ...s,
