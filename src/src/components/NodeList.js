@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import u from '../utils/utils'
+import { Button, Popover } from 'antd';
 
 class NodeList extends Component {
     render() {
@@ -8,10 +9,16 @@ class NodeList extends Component {
             addrs = this.props.configs.Redis.Addrs;
         }
 
-        const nodesStr = addrs.map((v, i) => i < addrs.length - 1 ? v + ", " : v);
+        const nodes = [];
+        for (let i = 0; i < addrs.length; i++) {
+            nodes.push(<li key={i}>{addrs[i]}</li>);
+        }
+        const nodesList = <ul className="nodeList">{nodes}</ul>
 
         return (
-            <div title={nodesStr}>{nodesStr}</div>
+            <Popover content={nodesList} trigger="focus">
+                <Button type="dashed" icon="gold">Nodes</Button>
+            </Popover>
         )
     }
 }

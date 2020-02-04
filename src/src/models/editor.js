@@ -32,7 +32,7 @@ export default {
                 yield put({ type: 'hide' });
             }
         },
-        *show({ editingEntry }, { call, put, select }) {
+        *show({ editingEntry }, { call, put }) {
             yield put({ type: 'init', editingEntry });
             if (!editingEntry.isNew) {
                 // load from db
@@ -46,31 +46,26 @@ export default {
 
     reducers: {
         init(state, { editingEntry }) {
+            if (editingEntry.Type === "string") {
+                state.ttlEditorEnabled = true;
+                state.keyEditorEnabled = true;
+                state.ttlEditorEnabled = false;
+                state.valueEditorEnabled = true;
+            }
+            else {
+                state.valueEditorEnabled = !u.isNoW(editingEntry.Field);
+                state.ttlEditorEnabled = !state.valueEditorEnabled;
+                state.keyEditorEnabled = !state.valueEditorEnabled;
+                state.fieldEditorEnabled = state.valueEditorEnabled;
+            }
 
             if (editingEntry.isNew) {
                 state.editingEntry.Type = editingEntry.Type;
                 state.editingEntry.Key = '';
                 state.editingEntry.Value = '';
                 state.editingEntry.Field = '';
-                if (editingEntry.Type === "string") {
-                    state.fieldEditorEnabled = false;
-                    state.ttlEditorEnabled = true;
-                } else {
-                    state.fieldEditorEnabled = true;
-                    state.ttlEditorEnabled = false;
-                }
-            } else {
-                if (editingEntry.Type === "string") {
-                    state.fieldEditorEnabled = false;
-                    state.ttlEditorEnabled = true;
-                    state.valueEditorEnabled = true;
-                } else {
-                    state.ttlEditorEnabled = true;
-                    state.valueEditorEnabled = state.editingEntry.Field !== "";
-                    state.fieldEditorEnabled = state.valueEditorEnabled;
-                }
+                state.fieldEditorEnabled = editingEntry.Type === "hash" || editingEntry.Type === "zset";
             }
-
 
             return {
                 ...state,

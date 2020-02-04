@@ -14,6 +14,7 @@ export default {
 
     effects: {
         *init({ db }, { call, put }) {
+            yield put({ type: 'setSelectedEntries', entries: [] });
             yield put({ type: 'setDB', payload: { db: db } });
             yield put({ type: 'getKeys' });
         },

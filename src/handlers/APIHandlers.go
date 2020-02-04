@@ -261,13 +261,18 @@ func GetZSetElements(ctx iris.Context) {
 func SaveRedisEntry(ctx iris.Context) {
 	cmd := new(core.SaveRedisEntryCommand)
 	ctx.ReadJSON(cmd)
+
+	if cmd.Editing == nil {
+		return
+	}
+
 	client := getClient(ctx)
 
 	if cmd.Editing.IsNew {
 		if cmd.Editing.Type == core.RedisType_String {
 			// New string
 		} else {
-			// Other
+			// New Other
 		}
 	} else {
 		if cmd.Editing.Type == core.RedisType_String {
