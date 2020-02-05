@@ -1,4 +1,4 @@
-import { getKeys, deleteEntries } from '../services/api';
+import { getKeys, deleteEntries, getEntry } from '../services/api';
 import u from '../utils/utils';
 
 export default {
@@ -8,13 +8,14 @@ export default {
         db: 0,
         list: [],
         selectedEntries: [],
+        selectedRowKeys: [],
         isBusy: false,
-        deletingVisible: false,
+        deletingDialogVisible: false,
     },
 
     effects: {
         *init({ db }, { call, put }) {
-            yield put({ type: 'setSelectedEntries', entries: [] });
+            yield put({ type: 'setSelections', payload: { selectedEntries: [], selectedRowKeys: [] } });
             yield put({ type: 'setDB', payload: { db: db } });
             yield put({ type: 'getKeys' });
         },
@@ -22,27 +23,74 @@ export default {
             const state = yield select(states => states["keyList"]);
             yield put({ type: 'setBusy', payload: { isBusy: true } });
             const resp = yield call(getKeys, state.db);
-            yield put({ type: 'saveList', payload: { list: resp } });
+            yield put({ type: 'setList', payload: { list: resp } });
             yield put({ type: 'setBusy', payload: { isBusy: false } });
         },
-        *deleteEntries({ entries }, { call, put, select }) {
+        *refreshEntry({ key }, { call, put, select }) {
+            yield put({ type: 'setBusy', payload: { isBusy: true } });
+            const resp = yield call(getEntry, key);
+            yield put({ type: 'setEntry', payload: { entry: resp } });
+            yield put({ type: 'setBusy', payload: { isBusy: false } });
+        },
+        *deleteEntries({ _ }, { call, put, select }) {
             const state = yield select(states => states["keyList"]);
+            if (state.selectedEntries.length === 0) {
+                return;
+            }
 
             yield put({ type: 'setBusy', payload: { isBusy: true } });
             const msgCode = yield call(deleteEntries, state.selectedEntries);
             yield put({ type: 'setBusy', payload: { isBusy: false } });
             if (u.isSuccess(msgCode)) {
-                yield put({ type: 'getKeys' });
+                yield put({ type: 'removeEntries', payload: { entries: state.selectedEntries } });
             }
-            yield put({ type: 'setDeletingVisible', payload: { flag: false } });
+            yield put({ type: 'setDeletingDialogVisible', payload: { flag: false } });
         }
     },
 
     reducers: {
-        saveList(state, { payload: { list } }) {
+        setList(state, { payload: { list } }) {
             return {
                 ...state,
                 list,
+            }
+        },
+        setEntry(state, { payload: { entry } }) {
+            let exists = false;
+            const newList = state.list.map(x => {
+                if (x.Key === entry.Key) {
+                    exists = true;
+                    return entry;
+                } else {
+                    return x;
+                }
+            });
+
+            if (!exists) {
+                newList.push(entry);
+            }
+
+            return {
+                ...state,
+                list: newList,
+            }
+        },
+        removeEntries(state, { payload: { entries } }) {
+            const newList = state.list.filter(x => {
+                let found = false;
+                for (let i = 0; i < entries.length; i++) {
+                    if (entries[i].Key === x.Key) {
+                        found = true;
+                        break;
+                    }
+                }
+                return !found;
+            });
+
+            return {
+                ...state,
+                selectedEntries: [],
+                list: newList,
             }
         },
         setDB(state, { payload: { db } }) {
@@ -57,16 +105,17 @@ export default {
                 isBusy,
             }
         },
-        setDeletingVisible(state, { payload: { flag } }) {
+        setDeletingDialogVisible(state, { payload: { flag } }) {
             return {
                 ...state,
-                deletingVisible: flag,
+                deletingDialogVisible: flag,
             }
         },
-        setSelectedEntries(state, { entries }) {
+        setSelections(state, { payload: { selectedRowKeys, selectedEntries } }) {
             return {
                 ...state,
-                selectedEntries: entries,
+                selectedRowKeys,
+                selectedEntries,
             }
         },
     },

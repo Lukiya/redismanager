@@ -32,16 +32,14 @@ class KeyTable extends Component {
         });
     };
 
-    rowSelection = {
-        onChange: (selectedKeys, records) => {
-            this.props.dispatch({
-                type: 'keyList/setSelectedEntries',
-                entries: records
-            });
-        },
-        getCheckboxProps: record => ({
-            Key: record.Key,
-        }),
+    onSelectionChanged = (selectedRowKeys, selectedEntries) => {
+        this.props.dispatch({
+            type: 'keyList/setSelections',
+            payload: {
+                selectedRowKeys,
+                selectedEntries,
+            },
+        });
     };
 
     getColumnSearchProps = dataIndex => ({
@@ -168,14 +166,14 @@ class KeyTable extends Component {
 
     confirmDelete = () => {
         this.props.dispatch({
-            type: 'keyList/setDeletingVisible',
+            type: 'keyList/setDeletingDialogVisible',
             payload: { flag: true }
         });
     };
 
     cancelDelete = () => {
         this.props.dispatch({
-            type: 'keyList/setDeletingVisible',
+            type: 'keyList/setDeletingDialogVisible',
             payload: { flag: false }
         });
     };
@@ -240,6 +238,14 @@ class KeyTable extends Component {
 
         const hasSelection = !u.isNoW(this.props.selectedEntries) && this.props.selectedEntries.length > 0;
 
+        const rowSelection = {
+            selectedRowKeys: this.props.selectedRowKeys,
+            onChange: this.onSelectionChanged,
+            // getCheckboxProps: record => ({
+            //     Key: record.Key,
+            // }),
+        };
+
         return (
             <div>
                 <div className="new-entry">
@@ -251,7 +257,7 @@ class KeyTable extends Component {
                 </div>
                 <Table rowKey={x => x.Key}
                     // onRow={this.onRow}
-                    rowSelection={this.rowSelection}
+                    rowSelection={rowSelection}
                     columns={this.columns}
                     dataSource={this.props.list}
                     expandedRowRender={this.expandedRowRender}
@@ -261,7 +267,7 @@ class KeyTable extends Component {
                     pagination={{ pageSize: pageSize }}
                     loading={this.props.isBusy} />
                 <Editor editingEntry={this.props.editingEntry} />
-                <Modal title="Confirm" visible={this.props.deletingVisible} onOk={this.delete} onCancel={this.cancelDelete}>
+                <Modal title="Confirm" visible={this.props.deletingDialogVisible} onOk={this.delete} onCancel={this.cancelDelete}>
                     <p>Delete selcted keys?</p>
                 </Modal>
             </div>

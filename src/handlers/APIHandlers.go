@@ -7,8 +7,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/syncfuture/go/task"
-
 	"github.com/syncfuture/go/sredis"
 
 	"github.com/go-redis/redis/v7"
@@ -269,12 +267,18 @@ func SaveRedisEntry(ctx iris.Context) {
 	client := getClient(ctx)
 
 	if cmd.Editing.IsNew {
+		////////// New
 		if cmd.Editing.Type == core.RedisType_String {
 			// New string
+			err := client.Set(cmd.Editing.Key, cmd.Editing.Value, time.Duration(-1)).Err()
+			if handleError(ctx, err) {
+				return
+			}
 		} else {
 			// New Other
 		}
 	} else {
+		////////// Edit
 		if cmd.Editing.Type == core.RedisType_String {
 			// Edit string
 
@@ -297,8 +301,7 @@ func SaveRedisEntry(ctx iris.Context) {
 			_, err = client.Persist(cmd.Editing.Key).Result()
 		}
 
-		if u.LogError(err) {
-			ctx.WriteString(err.Error())
+		if handleError(ctx, err) {
 			return
 		}
 	}
@@ -314,15 +317,12 @@ func DeleteRedisEntries(ctx iris.Context) {
 		return
 	}
 
-	scheduler := task.NewFlowScheduler(8)
-	scheduler.SliceRun(&entries, func(i int, v interface{}) {
-		entry := v.(*core.RedisEntry)
-		client := redis.NewClient(&redis.Options{
-			Addr:     entry.Node,
-			Password: core.RedisConfig.Password,
-		})
-		client.Del(entry.Key)
-	})
+	client := getClient(ctx)
+	pipe := client.Pipeline()
+	for _, entry := range entries {
+		pipe.Del(entry.Key)
+	}
+	pipe.Exec()
 }
 
 // type MinifyData struct {
@@ -359,3 +359,11 @@ func DeleteRedisEntries(ctx iris.Context) {
 // 		ctx.WriteString(err.Error())
 // 	}
 // }
+
+func handleError(ctx iris.Context, err error) bool {
+	if u.LogError(err) {
+		ctx.WriteString(err.Error())
+		return true
+	}
+	return false
+}

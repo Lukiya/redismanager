@@ -30,6 +30,7 @@ export default {
 
             if (u.isSuccess(msgCode)) {
                 yield put({ type: 'hide' });
+                yield put({ type: 'keyList/refreshEntry', key: state.editingEntry.Key });
             }
         },
         *show({ editingEntry }, { call, put }) {
@@ -60,16 +61,18 @@ export default {
             }
 
             if (editingEntry.isNew) {
+                state.editingEntry.IsNew = true;
                 state.editingEntry.Type = editingEntry.Type;
                 state.editingEntry.Key = '';
                 state.editingEntry.Value = '';
                 state.editingEntry.Field = '';
+                state.editingEntry.TTL = -1;
                 state.fieldEditorEnabled = editingEntry.Type === "hash" || editingEntry.Type === "zset";
             }
 
             return {
                 ...state,
-                editingEntry,
+                editingEntry: state.editingEntry,
                 visible: true,
             }
         },
