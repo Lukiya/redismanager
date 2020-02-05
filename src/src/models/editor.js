@@ -50,7 +50,7 @@ export default {
             if (editingEntry.Type === "string") {
                 state.ttlEditorEnabled = true;
                 state.keyEditorEnabled = true;
-                state.ttlEditorEnabled = false;
+                state.fieldEditorEnabled = false;
                 state.valueEditorEnabled = true;
             }
             else {

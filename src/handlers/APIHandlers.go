@@ -2,10 +2,10 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"strconv"
 	"sync"
-	"time"
 
 	"github.com/syncfuture/go/sredis"
 
@@ -266,44 +266,50 @@ func SaveRedisEntry(ctx iris.Context) {
 
 	client := getClient(ctx)
 
-	if cmd.Editing.IsNew {
-		////////// New
-		if cmd.Editing.Type == core.RedisType_String {
-			// New string
-			err := client.Set(cmd.Editing.Key, cmd.Editing.Value, time.Duration(-1)).Err()
-			if handleError(ctx, err) {
-				return
-			}
-		} else {
-			// New Other
-		}
-	} else {
-		////////// Edit
-		if cmd.Editing.Type == core.RedisType_String {
-			// Edit string
-
-		} else if cmd.Editing.Field == "" {
-			// Edit key
-			if cmd.Editing.Key != cmd.Backup.Key {
-				// Need change name
-			}
-		} else {
-			// Edit member
-		}
-	}
-
-	if cmd.Editing.TTL != cmd.Backup.TTL {
-		var err error
-		// Need update ttl
-		if cmd.Editing.TTL > 0 {
-			_, err = client.Expire(cmd.Editing.Key, time.Duration(cmd.Editing.TTL)*time.Second).Result()
-		} else {
-			_, err = client.Persist(cmd.Editing.Key).Result()
-		}
-
+	////////// New
+	switch cmd.Editing.Type {
+	case core.RedisType_String:
+		err := saveString(cmd)
 		if handleError(ctx, err) {
 			return
 		}
+		break
+	case core.RedisType_Hash:
+		err := saveHash(cmd)
+		if handleError(ctx, err) {
+			return
+		}
+		break
+	case core.RedisType_List:
+		err := saveList(cmd)
+		if handleError(ctx, err) {
+			return
+		}
+		break
+	case core.RedisType_Set:
+		err := saveSet(cmd)
+		if handleError(ctx, err) {
+			return
+		}
+		break
+	case core.RedisType_ZSet:
+		err := saveZSet(cmd)
+		if handleError(ctx, err) {
+			return
+		}
+		break
+	default:
+		err := fmt.Errorf("type '%s' does not support yet", cmd.Editing.Type)
+		if handleError(ctx, err) {
+			return
+		}
+		break
+	}
+
+	////////// save TTL
+	err := saveTTL(client, cmd)
+	if handleError(ctx, err) {
+		return
 	}
 }
 
@@ -324,41 +330,6 @@ func DeleteRedisEntries(ctx iris.Context) {
 	}
 	pipe.Exec()
 }
-
-// type MinifyData struct {
-// 	Code string `json:"code"`
-// }
-
-// func Minify(ctx iris.Context) {
-// 	data := new(MinifyData)
-// 	ctx.ReadJSON(data)
-// 	if data.Code == "" {
-// 		return
-// 	}
-
-// 	m := minify.New()
-// 	m.AddFunc("text/css", css.Minify)
-// 	m.AddFunc("text/html", html.Minify)
-// 	m.AddFunc("image/svg+xml", svg.Minify)
-// 	m.AddFuncRegexp(regexp.MustCompile("^(application|text)/(x-)?(java|ecma)script$"), js.Minify)
-// 	m.AddFuncRegexp(regexp.MustCompile("[/+]json$"), mjson.Minify)
-// 	m.AddFuncRegexp(regexp.MustCompile("[/+]xml$"), xml.Minify)
-
-// 	var mimieType string
-// 	if core.IsJson(data.Code) {
-// 		mimieType = core.ContentTypeJson
-// 	} else {
-// 		mimieType = core.ContentTypeTextHtml
-// 	}
-
-// 	result, err := m.String(mimieType, data.Code)
-// 	if err == nil {
-// 		ctx.WriteString(result)
-// 	} else {
-// 		ctx.StatusCode(http.StatusInternalServerError)
-// 		ctx.WriteString(err.Error())
-// 	}
-// }
 
 func handleError(ctx iris.Context, err error) bool {
 	if u.LogError(err) {

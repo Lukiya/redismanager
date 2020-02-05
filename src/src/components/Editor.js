@@ -89,13 +89,13 @@ class Editor extends Component {
                 <Skeleton loading={this.props.isLoading} active>
                     <Row type="flex" gutter={8} align="middle">
                         <Col md={12} lg={8} xl={9} xxl={10}>
-                            <Input addonBefore="Key" value={editingEntry.Key} onChange={this.onKeyChange} disabled={!this.props.keyEditorEnabled} />
+                            <Input addonBefore="Key" value={editingEntry.Key} onChange={this.onKeyChange} disabled={!this.props.keyEditorEnabled} onPressEnter={this.save} />
                         </Col>
                         <Col md={12} lg={8} xl={9} xxl={10}>
-                            <Input addonBefore="Field" value={editingEntry.Field} onChange={this.onFieldChange} disabled={!this.props.fieldEditorEnabled} />
+                            <Input addonBefore="Field" value={editingEntry.Field} onChange={this.onFieldChange} disabled={!this.props.fieldEditorEnabled} onPressEnter={this.save} />
                         </Col>
                         <Col md={12} lg={4} xl={3} xxl={2}>
-                            <Input addonBefore="TTL" value={editingEntry.TTL} onChange={this.onTTLChange} disabled={!this.props.ttlEditorEnabled} />
+                            <Input addonBefore="TTL" value={editingEntry.TTL} onChange={this.onTTLChange} disabled={!this.props.ttlEditorEnabled} onPressEnter={this.save} />
                         </Col>
                         <Col md={12} lg={4} xl={3} xxl={2}>
                             <Button type="primary" icon="save" onClick={this.save} loading={this.props.isBusy} title="Save"></Button>
