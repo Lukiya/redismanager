@@ -56,7 +56,7 @@ export default {
                 state.valueEditorEnabled = !u.isNoW(editingEntry.Field);
                 state.ttlEditorEnabled = !state.valueEditorEnabled;
                 state.keyEditorEnabled = !state.valueEditorEnabled;
-                state.fieldEditorEnabled = state.valueEditorEnabled;
+                state.fieldEditorEnabled = state.valueEditorEnabled && (editingEntry.Type === "hash" || editingEntry.Type === "zset");
             }
 
             if (editingEntry.isNew) {

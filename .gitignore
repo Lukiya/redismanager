@@ -16,3 +16,4 @@ src/configs.json
 # umi
 .umi
 .umi-production
+src/io_test.go

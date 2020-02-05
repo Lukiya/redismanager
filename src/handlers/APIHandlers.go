@@ -302,15 +302,6 @@ func SaveRedisEntry(ctx iris.Context) {
 			return
 		}
 	}
-
-	// if entry.Type == "" {
-	// 	ctx.WriteString("type is missing")
-	// 	return
-	// }
-
-	// if entry.Type == "string" {
-
-	// }
 }
 
 // DeleteRedisEntries DELETE /api/v1/entries

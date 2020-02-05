@@ -1,9 +1,11 @@
 package core
 
 import (
+	"bytes"
 	"log"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/syncfuture/go/sredis"
 
@@ -29,6 +31,7 @@ var (
 	ClusterClient  *redis.ClusterClient
 	DBClients      = make(map[int]redis.Cmdable)
 	Debug          bool
+	BufferPool     *sync.Pool
 )
 
 func init() {
@@ -71,6 +74,13 @@ func init() {
 		}
 		ClusterClient = redis.NewClusterClient(c)
 		DBClients[0] = ClusterClient
+	}
+
+	BufferPool = &sync.Pool{
+		New: func() interface{} {
+			var b bytes.Buffer
+			return &b
+		},
 	}
 }
 
