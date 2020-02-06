@@ -1,10 +1,10 @@
 # redismanager, a cross-platform redis gui client.
-### Intro
+## Intro
 
 Redis Manager is an open source, cross-platform and completely free redis management GUI. Its server side is writen by GO, and client side is writen by react + umi + ant design ui.
 
 
-### Quick start
+## Quick start
 #### DEV environment
 * golang https://golang.org
 * node.js https://nodejs.org/en/download
@@ -40,3 +40,12 @@ This is the configuration file for Redis Manager, here's an example:
 ```
 #### You are all set
 Run excutable file or run an docker image, then open a broswer, and access http://localhost:16379 (or http://RemoteIP:Port) to start using it.
+
+
+## Docker using guide
+#### From local image
+1. docker load -i ./dist/docker/redismanager.tar
+2. docker run --name redismanager -d --restart always -p 16379:16379 -v /data/redismanager/configs.json:/app/configs.json redismanager
+#### From docker hub
+1. docker pull redismanager
+2. docker run --name redismanager -d --restart always -p 16379:16379 -v /data/redismanager/configs.json:/app/configs.json redismanager
