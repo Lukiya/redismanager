@@ -1,0 +1,13 @@
+{
+    "Log": {
+        "Level": "warn"
+    },
+    "Redis": {
+        "Addrs": [
+            "localhost:6379"
+        ],
+        "Password": ""
+    },
+    "PageSize": 5,
+    "ListenAddr": ":16379"
+}

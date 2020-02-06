@@ -1,6 +1,9 @@
 
 // ref: https://umijs.org/config/
 export default {
+  define: {
+    'process.env.apiURL': "http://localhost:16379/api/v1"
+  },
   treeShaking: true,
   history: 'hash',
   routes: [

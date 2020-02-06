@@ -5,7 +5,7 @@ import u from './utils';
 
 // global
 axios.defaults.timeout = 10000;
-axios.defaults.baseURL = 'http://localhost:16379/api/v1';
+axios.defaults.baseURL = process.env.apiURL;
 // axios.defaults.withCredentials = true;
 
 // add request interceptor

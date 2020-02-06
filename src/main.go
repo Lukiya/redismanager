@@ -5,10 +5,16 @@ import (
 	"github.com/Lukiya/redismanager/src/go/handlers"
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/core/router"
+	"github.com/kataras/iris/v12/middleware/logger"
+	"github.com/kataras/iris/v12/middleware/recover"
 )
 
 func newApp() *iris.Application {
 	app := iris.New()
+	logLevel := core.ConfigProvider.GetStringDefault("Log.Level", "info")
+	app.Logger().SetLevel(logLevel)
+	app.Use(recover.New())
+	app.Use(logger.New())
 
 	var v1 router.Party
 
