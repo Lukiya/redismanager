@@ -38,3 +38,5 @@ This is the configuration file for Redis Manager, here's an example:
     "ListenAddr": ":16379"    // Listen address and port
 }
 ```
+#### You are all set
+Run excutable file or run an docker image, then open a broswer, and access http://IP:PORT to start using it.
