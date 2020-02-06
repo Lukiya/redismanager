@@ -128,7 +128,7 @@ func bindataDistfaviconico() (*asset, error) {
 		size: 2462,
 		md5checksum: "",
 		mode: os.FileMode(438),
-		modTime: time.Unix(1580951699, 0),
+		modTime: time.Unix(1581009835, 0),
 	}
 
 	a := &asset{bytes: bytes, info: info}
@@ -167,7 +167,7 @@ func bindataDistindexhtml() (*asset, error) {
 		size: 351,
 		md5checksum: "",
 		mode: os.FileMode(438),
-		modTime: time.Unix(1580951699, 0),
+		modTime: time.Unix(1581009835, 0),
 	}
 
 	a := &asset{bytes: bytes, info: info}
@@ -2347,7 +2347,7 @@ func bindataDiststaticconsolas1db29588ttf() (*asset, error) {
 		size: 96772,
 		md5checksum: "",
 		mode: os.FileMode(438),
-		modTime: time.Unix(1580951699, 0),
+		modTime: time.Unix(1581009835, 0),
 	}
 
 	a := &asset{bytes: bytes, info: info}
@@ -3482,7 +3482,7 @@ func bindataDistumicss() (*asset, error) {
 		size: 233668,
 		md5checksum: "",
 		mode: os.FileMode(438),
-		modTime: time.Unix(1580951699, 0),
+		modTime: time.Unix(1581009835, 0),
 	}
 
 	a := &asset{bytes: bytes, info: info}
@@ -21365,7 +21365,7 @@ func bindataDistumijs() (*asset, error) {
 		size: 1698410,
 		md5checksum: "",
 		mode: os.FileMode(438),
-		modTime: time.Unix(1580951699, 0),
+		modTime: time.Unix(1581009835, 0),
 	}
 
 	a := &asset{bytes: bytes, info: info}
