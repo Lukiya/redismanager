@@ -1,4 +1,4 @@
-# redismanager, a cross-platform redis gui client.
+# Redis Manager
 ## Intro
 
 Redis Manager is an open source, cross-platform and completely free redis management GUI. Its server side is writen by GO, and client side is writen by react + umi + ant design ui.
