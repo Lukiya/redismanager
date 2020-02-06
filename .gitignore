@@ -8,7 +8,6 @@ package-lock.json
 # production
 __debug_bin
 dist
-src/configs.json
 
 # misc
 .DS_Store
@@ -16,4 +15,7 @@ src/configs.json
 # umi
 .umi
 .umi-production
+
+# other
+configs.json
 src/io_test.go

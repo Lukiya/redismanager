@@ -19,7 +19,7 @@ func newApp() *iris.Application {
 	var v1 router.Party
 
 	if core.Debug {
-		// Debug & Dev mode
+		// Debug mode
 		app.HandleDir("/", "./dist")
 		crs := func(ctx iris.Context) {
 			ctx.Header("Access-Control-Allow-Origin", "*")
@@ -30,7 +30,6 @@ func newApp() *iris.Application {
 		}
 
 		v1 = app.Party("/api/v1", crs).AllowMethods(iris.MethodOptions)
-		// v1.Options("/entries", func(ctx iris.Context) {})
 	} else {
 		// Production mode
 		app.HandleDir("/", "./dist", iris.DirOptions{
@@ -41,7 +40,7 @@ func newApp() *iris.Application {
 		v1 = app.Party("/api/v1")
 	}
 
-	// Register party routes
+	// Register api routes
 	v1.Get("/keys", handlers.GetKeys)
 	v1.Get("/dbs", handlers.GetDBs)
 	v1.Get("/configs", handlers.GetConfigs)
