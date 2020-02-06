@@ -39,4 +39,4 @@ This is the configuration file for Redis Manager, here's an example:
 }
 ```
 #### You are all set
-Run excutable file or run an docker image, then open a broswer, and access http://IP:PORT to start using it.
+Run excutable file or run an docker image, then open a broswer, and access http://localhost:16379 (or http://RemoteIP:Port) to start using it.
