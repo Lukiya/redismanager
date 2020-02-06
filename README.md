@@ -30,7 +30,7 @@ This is the configuration file for Redis Manager, here's an example:
     },
     "Redis": {
         "Addrs": [
-            "localhost:6379"  // Redis server address and port, enable cluster support by add all nodes into this array
+            "localhost:6379"  // Redis server address and port, enable cluster support by adding all nodes into this array
         ],
         "Password": ""        // Password for redis server
     },
