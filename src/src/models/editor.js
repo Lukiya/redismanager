@@ -9,6 +9,7 @@ export default {
         backupEntry: {},    // Backup entry, for undo using
         editingEntry: {},   // Editing entry, for editing using
         valueEditorMode: 'text',
+        fieldCaption: '',
         isLoading: false,
         isBusy: false,
         visible: false,
@@ -33,8 +34,8 @@ export default {
                 yield put({ type: 'keyList/refreshEntry', key: state.editingEntry.Key });
             }
         },
-        *show({ editingEntry }, { call, put }) {
-            yield put({ type: 'init', editingEntry });
+        *show({ payload: { editingEntry } }, { call, put }) {
+            yield put({ type: 'init', payload: { editingEntry } });
             if (!editingEntry.isNew) {
                 // load from db
                 yield put({ type: 'setLoading', payload: { isLoading: true } });
@@ -46,7 +47,7 @@ export default {
     },
 
     reducers: {
-        init(state, { editingEntry }) {
+        init(state, { payload: { editingEntry } }) {
             if (editingEntry.Type === "string") {
                 state.ttlEditorEnabled = true;
                 state.keyEditorEnabled = true;
@@ -60,6 +61,16 @@ export default {
                 state.fieldEditorEnabled = state.valueEditorEnabled && (editingEntry.Type === "hash" || editingEntry.Type === "zset");
             }
 
+            ////////// field caption
+            if (editingEntry.Type === "zset") {
+                state.fieldCaption = "score";
+            } else if (editingEntry.Type === "list") {
+                state.fieldCaption = "index";
+            } else {
+                state.fieldCaption = "filed";
+            }
+
+            ////////// new
             if (editingEntry.isNew) {
                 state.editingEntry.IsNew = true;
                 state.editingEntry.Type = editingEntry.Type;
@@ -67,6 +78,9 @@ export default {
                 state.editingEntry.Value = '';
                 state.editingEntry.Field = '';
                 state.editingEntry.TTL = -1;
+
+                state.keyEditorEnabled = true;
+                state.valueEditorEnabled = true;
                 state.fieldEditorEnabled = editingEntry.Type === "hash" || editingEntry.Type === "zset";
             }
 
@@ -178,7 +192,7 @@ export default {
             entry.isNew = false;
             return {
                 ...state,
-                backupEntry: entry,
+                backupEntry: u.deepClone(entry),
                 editingEntry: entry,
                 valueEditorMode,
             }

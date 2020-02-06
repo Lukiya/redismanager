@@ -11,7 +11,7 @@ func saveString(client redis.Cmdable, cmd *core.SaveRedisEntryCommand) (err erro
 	if cmd.Editing.IsNew {
 		err = client.Set(cmd.Editing.Key, cmd.Editing.Value, time.Duration(-1)).Err()
 	} else {
-
+		err = client.Set(cmd.Editing.Key, cmd.Editing.Value, time.Duration(-1)).Err()
 	}
 	return err
 }

@@ -151,7 +151,13 @@ class KeyTable extends Component {
             onClick: () => {
                 this.props.dispatch({
                     type: 'editor/show',
-                    editingEntry: { Key: record.Key, Type: record.Type, isNew: false },
+                    payload: {
+                        editingEntry: {
+                            Key: record.Key,
+                            Type: record.Type,
+                            isNew: false
+                        },
+                    },
                 });
             },
         };
@@ -160,7 +166,12 @@ class KeyTable extends Component {
     newClicked = (event) => {
         this.props.dispatch({
             type: 'editor/show',
-            editingEntry: { Type: event.key, isNew: true },
+            payload: {
+                editingEntry: {
+                    Type: event.key,
+                    isNew: true,
+                },
+            },
         });
     };
 

@@ -92,7 +92,7 @@ func (x *RedisEntry) GetValue(field string) {
 			var score float64
 			score, err = x.client.ZScore(x.Key, field).Result()
 			if err == nil {
-				x.Field = strconv.FormatFloat(score, 'E', -1, 64)
+				x.Field = strconv.FormatFloat(score, 'f', -1, 64)
 				x.Value = field
 			}
 		}

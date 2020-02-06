@@ -96,12 +96,14 @@ class ZSetTable extends Component {
     showEditor = (record) => {
         this.props.dispatch({
             type: 'editor/show',
-            editingEntry: {
-                Key: this.props.redisKey,
-                Type: 'zset',
-                Field: record.Value,
-                isNew: false,
-            }
+            payload: {
+                editingEntry: {
+                    Key: this.props.redisKey,
+                    Type: 'zset',
+                    Field: record.Value,
+                    isNew: false,
+                },
+            },
         });
     }
 

@@ -269,31 +269,31 @@ func SaveRedisEntry(ctx iris.Context) {
 	////////// New
 	switch cmd.Editing.Type {
 	case core.RedisType_String:
-		err := saveString(cmd)
+		err := saveString(client, cmd)
 		if handleError(ctx, err) {
 			return
 		}
 		break
 	case core.RedisType_Hash:
-		err := saveHash(cmd)
+		err := saveHash(client, cmd)
 		if handleError(ctx, err) {
 			return
 		}
 		break
 	case core.RedisType_List:
-		err := saveList(cmd)
+		err := saveList(client, cmd)
 		if handleError(ctx, err) {
 			return
 		}
 		break
 	case core.RedisType_Set:
-		err := saveSet(cmd)
+		err := saveSet(client, cmd)
 		if handleError(ctx, err) {
 			return
 		}
 		break
 	case core.RedisType_ZSet:
-		err := saveZSet(cmd)
+		err := saveZSet(client, cmd)
 		if handleError(ctx, err) {
 			return
 		}

@@ -31,6 +31,23 @@ export default {
             const resp = yield call(getEntry, key);
             yield put({ type: 'setEntry', payload: { entry: resp } });
             yield put({ type: 'setBusy', payload: { isBusy: false } });
+
+            switch (resp.Type) {
+                case "hash":
+                    yield put({ type: 'hash/getHashElements', redisKey: key });
+                    break;
+                case "list":
+                    yield put({ type: 'list/getListElements', redisKey: key });
+                    break;
+                case "set":
+                    yield put({ type: 'set/getSetElements', redisKey: key });
+                    break;
+                case "zset":
+                    yield put({ type: 'zset/getZSetElements', redisKey: key });
+                    break;
+                default:
+                    break;
+            }
         },
         *deleteEntries({ _ }, { call, put, select }) {
             const state = yield select(states => states["keyList"]);

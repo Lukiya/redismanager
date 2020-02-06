@@ -96,12 +96,14 @@ class ListTable extends Component {
     showEditor = (record) => {
         this.props.dispatch({
             type: 'editor/show',
-            editingEntry: {
-                Key: this.props.redisKey,
-                Type: 'list',
-                Field: record.Field,
-                isNew: false,
-            }
+            payload: {
+                editingEntry: {
+                    Key: this.props.redisKey,
+                    Type: 'list',
+                    Field: record.Field,
+                    isNew: false,
+                }
+            },
         });
     }
 
