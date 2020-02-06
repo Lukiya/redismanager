@@ -9,7 +9,7 @@
 * golang https://golang.org
 * node.js https://nodejs.org/en/download
 * powershell https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell
-* npx (optional) https://github.com/upx/upx/releases
+* upx (optional) https://github.com/upx/upx/releases
 * docker (optional) https://www.docker.com
 #### Build
 There are 6 powershell scripts for building source code.
