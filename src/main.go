@@ -58,9 +58,9 @@ func newApp() *iris.Application {
 }
 
 func main() {
-	fmt.Println("————————————————————————————————————————————————")
-	fmt.Println("|             Redis Manager v1.0.0             |")
-	fmt.Println("————————————————————————————————————————————————")
+	fmt.Println("------------------------------------------------")
+	fmt.Println("-             Redis Manager v1.0.0             -")
+	fmt.Println("------------------------------------------------")
 	app := newApp()
 	listenAddr := core.ConfigProvider.GetStringDefault("ListenAddr", ":16379")
 	app.Run(iris.Addr(listenAddr))

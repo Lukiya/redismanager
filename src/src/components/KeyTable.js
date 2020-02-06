@@ -17,7 +17,7 @@ class KeyTable extends Component {
     };
 
     componentDidUpdate(prevProps) {
-        if (prevProps.db !== this.props.db) {
+        if (prevProps.selectedDB !== this.props.selectedDB) {
             this.loadKeys();
         }
     }
@@ -28,7 +28,7 @@ class KeyTable extends Component {
     loadKeys = () => {
         this.props.dispatch({
             type: 'keyList/init',
-            db: this.props.db
+            db: this.props.selectedDB
         });
     };
 
