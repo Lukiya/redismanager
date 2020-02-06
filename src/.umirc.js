@@ -22,7 +22,7 @@ export default {
       antd: true,
       dva: true,
       dynamicImport: false,
-      title: 'Redis Manager 1.0.0',
+      title: 'Redis Manager 1.0.0 beta',
       dll: false,
 
       routes: {
