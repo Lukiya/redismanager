@@ -19,38 +19,38 @@ export function getKeys(db) {
     });
 }
 
-export function getHashElements(key) {
+export function getHashElements(db, key) {
     return request({
-        url: '/hash?key=' + encodeURIComponent(key)
+        url: '/hash?db=' + encodeURIComponent(db) + '&key=' + encodeURIComponent(key)
     });
 }
 
-export function getListElements(key) {
+export function getListElements(db, key) {
     return request({
-        url: '/list?key=' + encodeURIComponent(key)
+        url: '/list?db=' + encodeURIComponent(db) + '&key=' + encodeURIComponent(key)
     });
 }
 
-export function getSetElements(key) {
+export function getSetElements(db, key) {
     return request({
-        url: '/set?key=' + encodeURIComponent(key)
+        url: '/set?db=' + encodeURIComponent(db) + '&key=' + encodeURIComponent(key)
     });
 }
 
-export function getZSetElements(key) {
+export function getZSetElements(db, key) {
     return request({
-        url: '/zset?key=' + encodeURIComponent(key)
+        url: '/zset?db=' + encodeURIComponent(db) + '&key=' + encodeURIComponent(key)
     });
 }
 
-export function getEntry(key, field) {
+export function getEntry(db, key, field) {
     if (u.isNoW(field)) {
         return request({
-            url: '/entry?key=' + encodeURIComponent(key)
+            url: '/entry?db=' + encodeURIComponent(db) + '&key=' + encodeURIComponent(key)
         });
     } else {
         return request({
-            url: '/entry?key=' + encodeURIComponent(key) + "&field=" + encodeURIComponent(field)
+            url: '/entry?db=' + encodeURIComponent(db) + '&key=' + encodeURIComponent(key) + "&field=" + encodeURIComponent(field)
         });
     }
 }
@@ -66,9 +66,9 @@ export function getEntry(key, field) {
 //     });
 // }
 
-export function saveEntry(editingEntry, backupEntry) {
+export function saveEntry(db, editingEntry, backupEntry) {
     return request({
-        url: '/entry',
+        url: '/entry?db=' + encodeURIComponent(db),
         method: 'POST',
         data: {
             editing: editingEntry,
@@ -77,9 +77,9 @@ export function saveEntry(editingEntry, backupEntry) {
     });
 }
 
-export function deleteEntries(entries) {
+export function deleteEntries(db, entries) {
     return request({
-        url: '/entries',
+        url: '/entries?db=' + encodeURIComponent(db),
         method: 'DELETE',
         data: entries,
     });

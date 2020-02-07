@@ -23,7 +23,8 @@ class ZSetTable extends Component {
     getListElements = () => {
         this.props.dispatch({
             type: 'zset/getZSetElements',
-            redisKey: this.props.redisKey
+            redisKey: this.props.redisKey,
+            db: this.props.selectedDB,
         });
     };
 

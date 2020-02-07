@@ -4,14 +4,16 @@ export default {
     namespace: 'zset',
 
     state: {
+        // db: 0,
         list: {},
         isBusy: false
     },
 
     effects: {
-        *getZSetElements({ redisKey }, { call, put }) {
+        *getZSetElements({ db, redisKey }, { call, put }) {
+            // yield put({ type: 'setDB', payload: { db } });
             yield put({ type: 'setBusy', payload: { isBusy: true } });
-            const resp = yield call(getZSetElements, redisKey);
+            const resp = yield call(getZSetElements, db, redisKey);
             yield put({ type: 'saveList', payload: { redisKey: redisKey, list: resp } });
             yield put({ type: 'setBusy', payload: { isBusy: false } });
         }
@@ -27,6 +29,12 @@ export default {
                 ...state,
                 isBusy
             }
-        }
+        },
+        // setDB(state, { payload: { db } }) {
+        //     return {
+        //         ...state,
+        //         db
+        //     }
+        // }
     },
 };

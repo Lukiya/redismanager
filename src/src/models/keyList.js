@@ -27,8 +27,9 @@ export default {
             yield put({ type: 'setBusy', payload: { isBusy: false } });
         },
         *refreshEntry({ key }, { call, put, select }) {
+            const state = yield select(states => states["keyList"]);
             yield put({ type: 'setBusy', payload: { isBusy: true } });
-            const resp = yield call(getEntry, key);
+            const resp = yield call(getEntry, state.db, key);
             yield put({ type: 'setEntry', payload: { entry: resp } });
             yield put({ type: 'setBusy', payload: { isBusy: false } });
 
@@ -56,7 +57,21 @@ export default {
             }
 
             yield put({ type: 'setBusy', payload: { isBusy: true } });
-            const msgCode = yield call(deleteEntries, state.selectedEntries);
+            const msgCode = yield call(deleteEntries, state.db, state.selectedEntries);
+            yield put({ type: 'setBusy', payload: { isBusy: false } });
+            if (u.isSuccess(msgCode)) {
+                yield put({ type: 'removeEntries', payload: { entries: state.selectedEntries } });
+            }
+            yield put({ type: 'setDeletingDialogVisible', payload: { flag: false } });
+        },
+        *copy({ _ }, { call, put, select }) {
+            const state = yield select(states => states["keyList"]);
+            if (state.selectedEntries.length === 0) {
+                return;
+            }
+
+            yield put({ type: 'setBusy', payload: { isBusy: true } });
+            const msgCode = yield call(deleteEntries, state.db, state.selectedEntries);
             yield put({ type: 'setBusy', payload: { isBusy: false } });
             if (u.isSuccess(msgCode)) {
                 yield put({ type: 'removeEntries', payload: { entries: state.selectedEntries } });

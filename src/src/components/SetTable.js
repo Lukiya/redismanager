@@ -23,7 +23,8 @@ class SetTable extends Component {
     getListElements = () => {
         this.props.dispatch({
             type: 'set/getSetElements',
-            redisKey: this.props.redisKey
+            redisKey: this.props.redisKey,
+            db: this.props.selectedDB,
         });
     };
 

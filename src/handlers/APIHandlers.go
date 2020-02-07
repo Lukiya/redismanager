@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"strconv"
+	"strings"
 	"sync"
 
 	"github.com/syncfuture/go/sredis"
@@ -19,19 +19,6 @@ import (
 const (
 	_defaultMatch = "*"
 )
-
-func getClient(ctx iris.Context) (r redis.Cmdable) {
-	if core.ClusterClient == nil {
-		dbStr := ctx.FormValueDefault("db", "0")
-		db, err := strconv.Atoi(dbStr)
-		if u.LogError(err) {
-			return nil
-		}
-		return core.DBClients[db]
-	} else {
-		return core.ClusterClient
-	}
-}
 
 // GetKeys GET /api/v1/keys
 func GetKeys(ctx iris.Context) {
@@ -261,12 +248,16 @@ func SaveRedisEntry(ctx iris.Context) {
 	ctx.ReadJSON(cmd)
 
 	if cmd.Editing == nil {
+		ctx.WriteString("editing entry is missing")
+		return
+	} else if strings.TrimSpace(cmd.Editing.Key) == "" {
+		ctx.WriteString("editing key is missing")
 		return
 	}
 
 	client := getClient(ctx)
 
-	////////// New
+	////////// Save entry by type
 	switch cmd.Editing.Type {
 	case core.RedisType_String:
 		err := saveString(client, cmd)
@@ -331,10 +322,16 @@ func DeleteRedisEntries(ctx iris.Context) {
 	pipe.Exec()
 }
 
-func handleError(ctx iris.Context, err error) bool {
-	if u.LogError(err) {
-		ctx.WriteString(err.Error())
-		return true
+func Export(ctx iris.Context) {
+	client := getClient(ctx)
+	if client == nil {
+		return
 	}
-	return false
+}
+
+func Import(ctx iris.Context) {
+	client := getClient(ctx)
+	if client == nil {
+		return
+	}
 }

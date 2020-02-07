@@ -23,6 +23,20 @@ class KeyTable extends Component {
     }
     componentDidMount() {
         this.loadKeys();
+
+        // Copy
+        window.addEventListener('copy', function (e) {
+            this.props.dispatch({
+                type: 'keyList/copy',
+
+            });
+        });
+        // Paste
+        window.addEventListener('paste', function (e) {
+            this.props.dispatch({
+                type: 'keyList/paste',
+            });
+        });
     }
 
     loadKeys = () => {
@@ -123,16 +137,16 @@ class KeyTable extends Component {
         if (expanded) {
             switch (record.Type) {
                 case "hash":
-                    comp = <HashTable redisKey={record.Key} />
+                    comp = <HashTable selectedDB={this.props.db} redisKey={record.Key} />
                     break
                 case "list":
-                    comp = <ListTable redisKey={record.Key} />
+                    comp = <ListTable selectedDB={this.props.db} redisKey={record.Key} />
                     break
                 case "set":
-                    comp = <SetTable redisKey={record.Key} />
+                    comp = <SetTable selectedDB={this.props.db} redisKey={record.Key} />
                     break
                 case "zset":
-                    comp = <ZSetTable redisKey={record.Key} />
+                    comp = <ZSetTable selectedDB={this.props.db} redisKey={record.Key} />
                     break
                 default:
                     break
@@ -152,6 +166,7 @@ class KeyTable extends Component {
                 this.props.dispatch({
                     type: 'editor/show',
                     payload: {
+                        db: this.props.db,
                         editingEntry: {
                             Key: record.Key,
                             Type: record.Type,
@@ -171,6 +186,7 @@ class KeyTable extends Component {
                     Type: event.key,
                     isNew: true,
                 },
+                db: this.props.db,
             },
         });
     };

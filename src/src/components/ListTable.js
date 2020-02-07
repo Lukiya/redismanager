@@ -23,7 +23,8 @@ class ListTable extends Component {
     getListElements = () => {
         this.props.dispatch({
             type: 'list/getListElements',
-            redisKey: this.props.redisKey
+            redisKey: this.props.redisKey,
+            db: this.props.selectedDB,
         });
     };
 

@@ -6,6 +6,7 @@ export default {
     namespace: 'editor',
 
     state: {
+        db: 0,
         backupEntry: {},    // Backup entry, for undo using
         editingEntry: {},   // Editing entry, for editing using
         valueEditorMode: 'text',
@@ -26,7 +27,7 @@ export default {
             const state = yield select(states => states["editor"]);
 
             yield put({ type: 'setBusy', payload: { isBusy: true } });
-            const msgCode = yield call(saveEntry, state.editingEntry, state.backupEntry);
+            const msgCode = yield call(saveEntry, state.db, state.editingEntry, state.backupEntry);
             yield put({ type: 'setBusy', payload: { isBusy: false } });
 
             if (u.isSuccess(msgCode)) {
@@ -34,12 +35,12 @@ export default {
                 yield put({ type: 'keyList/refreshEntry', key: state.editingEntry.Key });
             }
         },
-        *show({ payload: { editingEntry } }, { call, put }) {
-            yield put({ type: 'init', payload: { editingEntry } });
+        *show({ payload: { db, editingEntry } }, { call, put }) {
+            yield put({ type: 'init', payload: { db, editingEntry } });
             if (!editingEntry.isNew) {
                 // load from db
                 yield put({ type: 'setLoading', payload: { isLoading: true } });
-                const resp = yield call(getEntry, editingEntry.Key, editingEntry.Field);
+                const resp = yield call(getEntry, db, editingEntry.Key, editingEntry.Field);
                 yield put({ type: 'setLoading', payload: { isLoading: false } });
                 yield put({ type: 'setEntry', payload: { entry: resp } });
             }
@@ -47,7 +48,13 @@ export default {
     },
 
     reducers: {
-        init(state, { payload: { editingEntry } }) {
+        init(state, { payload: { db, editingEntry } }) {
+            if (u.isNoW(db)) {
+                db = 0;
+                console.warn("db does not set.");
+            }
+            state.db = db;
+
             if (editingEntry.Type === "string") {
                 state.ttlEditorEnabled = true;
                 state.keyEditorEnabled = true;

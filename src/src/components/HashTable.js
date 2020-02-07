@@ -23,7 +23,8 @@ class HashTable extends Component {
     getHashElements = () => {
         this.props.dispatch({
             type: 'hash/getHashElements',
-            redisKey: this.props.redisKey
+            redisKey: this.props.redisKey,
+            db: this.props.selectedDB,
         });
     };
 

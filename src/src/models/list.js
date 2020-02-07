@@ -4,14 +4,16 @@ export default {
     namespace: 'list',
 
     state: {
+        // db: 0,
         list: {},
         isBusy: false
     },
 
     effects: {
-        *getListElements({ redisKey }, { call, put }) {
+        *getListElements({ db, redisKey }, { call, put }) {
+            // yield put({ type: 'setDB', payload: { db } });
             yield put({ type: 'setBusy', payload: { isBusy: true } });
-            const resp = yield call(getListElements, redisKey);
+            const resp = yield call(getListElements, db, redisKey);
             yield put({ type: 'saveList', payload: { redisKey: redisKey, list: resp } });
             yield put({ type: 'setBusy', payload: { isBusy: false } });
         }
@@ -27,6 +29,12 @@ export default {
                 ...state,
                 isBusy
             }
-        }
+        },
+        // setDB(state, { payload: { db } }) {
+        //     return {
+        //         ...state,
+        //         db
+        //     }
+        // }
     },
 };
