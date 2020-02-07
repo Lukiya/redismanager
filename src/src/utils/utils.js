@@ -15,7 +15,7 @@ var u = {
         return startPattern.test(str) && endPattern.test(str);
     },
     isJson: (str) => {
-        var startPattern = /^\s*[\{\[]]/;
+        var startPattern = /^\s*[\{\[]/;
         var endPattern = /[\}\]]\s*$/;
         return startPattern.test(str) && endPattern.test(str);
     },
