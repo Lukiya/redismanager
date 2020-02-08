@@ -17,8 +17,8 @@ Write-Host "#: building docker image"
 docker build -t $imageName $targetDir
 Write-Host "#: exporting docker image..."
 docker save $imageName -o $targetDir$imageName.tar
-Write-Host "#: removing docker image..."
-docker rmi $imageName
+#Write-Host "#: removing docker image..."
+#docker rmi $imageName
 Write-Host "#: clear temperary files..."
 Remove-Item $targetDir/* -Exclude *.tar
 Write-Host "#: done"
