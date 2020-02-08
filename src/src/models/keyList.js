@@ -16,11 +16,11 @@ export default {
 
     effects: {
         *init({ db }, { call, put }) {
-            yield put({ type: 'setSelections', payload: { selectedEntries: [], selectedRowKeys: [] } });
             yield put({ type: 'setDB', payload: { db: db } });
             yield put({ type: 'getKeys' });
         },
         *getKeys({ _ }, { call, put, select }) {
+            yield put({ type: 'setSelections', payload: { selectedEntries: [], selectedRowKeys: [] } });
             const state = yield select(states => states["keyList"]);
             yield put({ type: 'setBusy', payload: { isBusy: true } });
             const resp = yield call(getKeys, state.db);
