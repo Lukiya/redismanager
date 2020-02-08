@@ -84,3 +84,19 @@ export function deleteEntries(db, entries) {
         data: entries,
     });
 }
+
+export function copyKeys(db, keys) {
+    return request({
+        url: '/copy?db=' + encodeURIComponent(db),
+        method: 'POST',
+        data: keys,
+    });
+}
+
+export function importKeys(db, data) {
+    return request({
+        url: '/import?db=' + encodeURIComponent(db),
+        method: 'POST',
+        data: data,
+    });
+}

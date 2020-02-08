@@ -2,12 +2,12 @@ package io
 
 import (
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/Lukiya/redismanager/src/go/core"
 
 	"github.com/go-redis/redis/v7"
-	"github.com/syncfuture/go/sredis"
 	"github.com/syncfuture/go/task"
 	u "github.com/syncfuture/go/util"
 )
@@ -17,26 +17,33 @@ type Importer struct {
 	client redis.Cmdable
 }
 
-func NewImporter(zip bool, redisConfig *sredis.RedisConfig) (r *Importer) {
+func NewImporter(client redis.Cmdable) (r *Importer) {
 	r = new(Importer)
-	r.client = sredis.NewClient(redisConfig)
-	r.Zip = zip
+	r.client = client
 	return r
 }
 
-func (x *Importer) ImportKeys(in []byte) (err error) {
-	if x.Zip {
-		in, err = unzip(in)
+func (x *Importer) ImportKeys(in []byte) (imported int, err error) {
+	if in == nil || len(in) < 3 {
+		err = fmt.Errorf("input bytes are missing")
+		return
+	}
+	if in[0] == core.ZipIndicator1 && in[1] == core.ZipIndicatorSeperator { // data is compressed, need to decompress
+		in, err = unzip(in[2:]) // remove first 2 byte (zip indicator)
 		if u.LogError(err) {
-			return err
+			return
 		}
+	} else {
+		in = in[2:]
 	}
 
 	var entries []*ExportFileEntry
 	err = json.Unmarshal(in, &entries)
 	if u.LogError(err) {
-		return err
+		return
 	}
+
+	imported = len(entries)
 
 	scheduler := task.NewFlowScheduler(4)
 	scheduler.SliceRun(&entries, func(i int, v interface{}) {
@@ -98,5 +105,5 @@ func (x *Importer) ImportKeys(in []byte) (err error) {
 		}
 	})
 
-	return err
+	return
 }

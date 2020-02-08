@@ -1,6 +1,8 @@
 import { message } from 'antd';
+import copy from 'copy-to-clipboard';
 
 var u = {
+    CLIPBOARD_REDIS: "REDIS:",
     isNoW: (obj) => {
         if (obj === undefined || obj === null || obj.toString().trim() === "") {
             return true;
@@ -78,6 +80,18 @@ var u = {
 
         return result;
     },
-};
+    copyToClipboard: (content) => {
+        copy(u.CLIPBOARD_REDIS + content);
+    },
+    base64ToBytesArray: (base64) => {
+        var binStr = window.atob(base64);
+        var len = binStr.length;
+        var bytes = new Array(len);
+        for (var i = 0; i < len; i++) {
+            bytes[i] = binStr.charCodeAt(i);
+        }
+        return bytes;
+    },
+}
 
 export default u

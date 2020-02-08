@@ -23,20 +23,22 @@ class KeyTable extends Component {
     }
     componentDidMount() {
         this.loadKeys();
+        const self = this;
 
         // Copy
-        window.addEventListener('copy', function (e) {
-            this.props.dispatch({
+        document.oncopy = e => {
+            self.props.dispatch({
                 type: 'keyList/copy',
 
             });
-        });
+        };
         // Paste
-        window.addEventListener('paste', function (e) {
-            this.props.dispatch({
+        document.onpaste = e => {
+            self.props.dispatch({
                 type: 'keyList/paste',
+                clipboardData: e.clipboardData,
             });
-        });
+        };
     }
 
     loadKeys = () => {

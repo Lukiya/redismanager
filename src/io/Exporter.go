@@ -7,7 +7,6 @@ import (
 	"github.com/Lukiya/redismanager/src/go/core"
 
 	"github.com/go-redis/redis/v7"
-	"github.com/syncfuture/go/sredis"
 	u "github.com/syncfuture/go/util"
 )
 
@@ -16,9 +15,9 @@ type Exporter struct {
 	client redis.Cmdable
 }
 
-func NewExporter(zip bool, redisConfig *sredis.RedisConfig) (r *Exporter) {
+func NewExporter(zip bool, client redis.Cmdable) (r *Exporter) {
 	r = new(Exporter)
-	r.client = sredis.NewClient(redisConfig)
+	r.client = client
 	r.Zip = zip
 	return r
 }
@@ -43,6 +42,13 @@ func (x *Exporter) ExportKeys(keys ...string) (r []byte, err error) {
 	if x.Zip {
 		r, err = zip(r)
 	}
+	var prefix []byte
+	if x.Zip {
+		prefix = []byte{core.ZipIndicator1, core.ZipIndicatorSeperator}
+	} else {
+		prefix = []byte{core.ZipIndicator0, core.ZipIndicatorSeperator}
+	}
+	r = append(prefix, r...)
 
 	return r, err
 }

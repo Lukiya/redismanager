@@ -53,6 +53,9 @@ func newApp() *iris.Application {
 	v1.Get("/zset", handlers.GetZSetElements)
 	v1.Post("/entry", handlers.SaveRedisEntry)
 	v1.Delete("/entries", handlers.DeleteRedisEntries)
+	v1.Post("/export", handlers.Export)
+	v1.Post("/copy", handlers.Copy)
+	v1.Post("/import", handlers.Import)
 
 	return app
 }

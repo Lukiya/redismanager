@@ -10,7 +10,9 @@
   "dependencies": {
     "antd": "^3.19.5",
     "axios": "^0.19.1",
+    "clipboard": "^2.0.4",
     "codemirror": "^5.51.0",
+    "copy-to-clipboard": "^3.2.1",
     "dva": "^2.6.0-beta.6",
     "nprogress": "^0.2.0",
     "react": "^16.8.6",

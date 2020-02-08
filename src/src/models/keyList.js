@@ -1,4 +1,5 @@
-import { getKeys, deleteEntries, getEntry } from '../services/api';
+import { getKeys, deleteEntries, getEntry, copyKeys, importKeys } from '../services/api';
+import { Message } from 'antd';
 import u from '../utils/utils';
 
 export default {
@@ -66,17 +67,49 @@ export default {
         },
         *copy({ _ }, { call, put, select }) {
             const state = yield select(states => states["keyList"]);
-            if (state.selectedEntries.length === 0) {
+            if (state.selectedRowKeys.length === 0) {
                 return;
             }
 
             yield put({ type: 'setBusy', payload: { isBusy: true } });
-            const msgCode = yield call(deleteEntries, state.db, state.selectedEntries);
-            yield put({ type: 'setBusy', payload: { isBusy: false } });
-            if (u.isSuccess(msgCode)) {
-                yield put({ type: 'removeEntries', payload: { entries: state.selectedEntries } });
+            const resp = yield call(copyKeys, state.db, state.selectedRowKeys);
+            if (resp.MsgCode === "") {
+                u.copyToClipboard(resp.Data);
+                Message.info(state.selectedRowKeys.length + " key(s) copied.");
+            } else {
+                Message.error(resp.MsgCode);
             }
-            yield put({ type: 'setDeletingDialogVisible', payload: { flag: false } });
+            yield put({ type: 'setBusy', payload: { isBusy: false } });
+        },
+        *paste({ clipboardData }, { call, put, select }) {
+            if (u.isNoW(clipboardData)) {
+                return;
+            }
+
+            const clipboardText = clipboardData.getData("text");
+            if (u.isNoW(clipboardText) || clipboardText.indexOf(u.CLIPBOARD_REDIS) !== 0) {
+                return;
+            }
+
+            const base64Str = clipboardText.substring(u.CLIPBOARD_REDIS.length, clipboardText.length);
+            let bytes;
+            try {
+                // var a = window.atob(data);
+                bytes = u.base64ToBytesArray(base64Str);
+            } catch {
+                return;
+            }
+
+            const state = yield select(states => states["keyList"]);
+            yield put({ type: 'setBusy', payload: { isBusy: true } });
+            const resp = yield call(importKeys, state.db, bytes);
+            if (resp.MsgCode === "") {
+                Message.success(resp.Data + " key(s) pasted.");
+            } else {
+                Message.error(resp.MsgCode);
+            }
+            yield put({ type: 'setBusy', payload: { isBusy: false } });
+            yield put({ type: 'getKeys'});   // Refresh
         }
     },
 

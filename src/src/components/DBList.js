@@ -24,7 +24,7 @@ class DBList extends Component {
         return (
             <div>
                 < Menu theme="dark" mode="inline" selectedKeys={"|" + this.props.selectedDB + "|"}>
-                    {list.map(v => <Menu.Item key={'|' + v + '|'}><Link to={'/db/' + v}><Icon type="database" />db{v}</Link></Menu.Item>)}
+                    {list.map(v => <Menu.Item key={'|' + v + '|'}><Link className="pointer" to={'/db/' + v}><Icon type="database" />db{v}</Link></Menu.Item>)}
                 </Menu >
             </div>
         )

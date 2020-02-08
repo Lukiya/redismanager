@@ -6,6 +6,9 @@ import (
 	"io/ioutil"
 	"strings"
 	"sync"
+	"time"
+
+	"github.com/Lukiya/redismanager/src/go/io"
 
 	"github.com/syncfuture/go/sredis"
 
@@ -41,9 +44,9 @@ func GetKeys(ctx iris.Context) {
 		})
 	} else {
 		client := getClient(ctx)
-		if client == nil {
-			return
-		}
+		// if client == nil {
+		// 	return
+		// }
 		nodeKeys := sredis.GetAllKeys(client, match, 100)
 		for _, key := range nodeKeys {
 			keyEntry := core.NewRedisEntry(client, key)
@@ -98,9 +101,9 @@ func GetEntry(ctx iris.Context) {
 	field := ctx.FormValue("field")
 
 	client := getClient(ctx)
-	if client == nil {
-		return
-	}
+	// if client == nil {
+	// 	return
+	// }
 
 	entry := core.NewRedisEntry(client, key)
 	entry.GetValue(field)
@@ -122,9 +125,9 @@ func GetHashElements(ctx iris.Context) {
 	}
 
 	client := getClient(ctx)
-	if client == nil {
-		return
-	}
+	// if client == nil {
+	// 	return
+	// }
 
 	v, err := client.HGetAll(key).Result()
 	if u.LogError(err) {
@@ -153,9 +156,9 @@ func GetListElements(ctx iris.Context) {
 	}
 
 	client := getClient(ctx)
-	if client == nil {
-		return
-	}
+	// if client == nil {
+	// 	return
+	// }
 
 	v, err := client.LRange(key, 0, -1).Result()
 	if u.LogError(err) {
@@ -184,9 +187,9 @@ func GetSetElements(ctx iris.Context) {
 	}
 
 	client := getClient(ctx)
-	if client == nil {
-		return
-	}
+	// if client == nil {
+	// 	return
+	// }
 
 	v, err := client.SMembers(key).Result()
 	if u.LogError(err) {
@@ -215,9 +218,9 @@ func GetZSetElements(ctx iris.Context) {
 	}
 
 	client := getClient(ctx)
-	if client == nil {
-		return
-	}
+	// if client == nil {
+	// 	return
+	// }
 
 	v, err := client.ZRangeByScoreWithScores(key, &redis.ZRangeBy{
 		Min: "-inf",
@@ -322,16 +325,74 @@ func DeleteRedisEntries(ctx iris.Context) {
 	pipe.Exec()
 }
 
+// Export POST /api/v1/export
 func Export(ctx iris.Context) {
-	client := getClient(ctx)
-	if client == nil {
+	var keys []string
+	ctx.ReadJSON(&keys)
+	if keys == nil || len(keys) == 0 {
+		ctx.WriteString("keys are missing")
 		return
+	}
+	dbStr := ctx.FormValueDefault("db", "0")
+	client := getClient(ctx)
+	exporter := io.NewExporter(true, client)
+	bytes, err := exporter.ExportKeys(keys...)
+	if !handleError(ctx, err) {
+		ctx.ContentType("application/octet-stream")
+		ctx.Header("Content-Disposition", fmt.Sprintf("attachment;filename=%s-%s.rmd", dbStr, time.Now().Format("20060102-150405")))
+		ctx.Write(bytes)
 	}
 }
 
-func Import(ctx iris.Context) {
-	client := getClient(ctx)
-	if client == nil {
+// Export Copy /api/v1/copy
+func Copy(ctx iris.Context) {
+	ctx.ContentType(core.ContentTypeJson)
+
+	var keys []string
+	mr := new(core.MsgResult)
+	ctx.ReadJSON(&keys)
+	if keys == nil || len(keys) == 0 {
+		writeMsgResult(ctx, mr, "keys are missing")
 		return
 	}
+
+	client := getClient(ctx)
+	exporter := io.NewExporter(true, client)
+	bytes, err := exporter.ExportKeys(keys...)
+	if writeMsgResultError(ctx, mr, err) {
+		return
+	}
+	mr.Data = bytes
+	jsonBytes, err := json.Marshal(mr)
+	if writeMsgResultError(ctx, mr, err) {
+		return
+	}
+	ctx.Write(jsonBytes)
+}
+
+// Import POST /api/v1/import
+func Import(ctx iris.Context) {
+	ctx.ContentType(core.ContentTypeJson)
+
+	var bytes []byte
+	ctx.ReadJSON(&bytes)
+	mr := new(core.MsgResult)
+	if bytes == nil || len(bytes) < 3 {
+		writeMsgResult(ctx, mr, "import data missing")
+		return
+	}
+
+	client := getClient(ctx)
+	importer := io.NewImporter(client)
+	imported, err := importer.ImportKeys(bytes)
+	if writeMsgResultError(ctx, mr, err) {
+		return
+	}
+
+	mr.Data = imported
+	jsonBytes, err := json.Marshal(mr)
+	if writeMsgResultError(ctx, mr, err) {
+		return
+	}
+	ctx.Write(jsonBytes)
 }
