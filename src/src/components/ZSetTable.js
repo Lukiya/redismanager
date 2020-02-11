@@ -98,6 +98,7 @@ class ZSetTable extends Component {
         this.props.dispatch({
             type: 'editor/show',
             payload: {
+                db: this.props.selectedDB,
                 editingEntry: {
                     Key: this.props.redisKey,
                     Type: 'zset',
