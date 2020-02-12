@@ -25,6 +25,7 @@ class KeyTable extends Component {
         this.loadKeys();
         const self = this;
 
+
         // Copy
         document.oncopy = e => {
             self.props.dispatch({
@@ -194,22 +195,16 @@ class KeyTable extends Component {
     };
 
     confirmDelete = () => {
-        this.props.dispatch({
-            type: 'keyList/setDeletingDialogVisible',
-            payload: { flag: true }
-        });
-    };
-
-    cancelDelete = () => {
-        this.props.dispatch({
-            type: 'keyList/setDeletingDialogVisible',
-            payload: { flag: false }
-        });
-    };
-
-    delete = () => {
-        this.props.dispatch({
-            type: 'keyList/deleteEntries',
+        const self = this;
+        
+        Modal.confirm({
+            title: 'Do you want to delete selected keys?',
+            content: 'This operation cannot be undone.',
+            onOk() {
+                self.props.dispatch({
+                    type: 'keyList/deleteEntries',
+                });
+            },
         });
     };
 
@@ -282,6 +277,8 @@ class KeyTable extends Component {
                         <Button type="primary" icon="file-add">New <Icon type="down" /></Button>
                     </Dropdown>
                     <Button type="default" icon="redo" onClick={this.loadKeys} title="Refresh"></Button>
+                    <Button type="default" icon="import" onClick={this.loadKeys} title="Import"></Button>
+                    <Button type="default" icon="export" disabled={!hasSelection} onClick={this.loadKeys} title="Export"></Button>
                     <Button type="danger" icon="delete" disabled={!hasSelection} onClick={this.confirmDelete} title="Delete"></Button>
                 </div>
                 <Table rowKey={x => x.Key}
@@ -296,9 +293,6 @@ class KeyTable extends Component {
                     pagination={{ pageSize: pageSize }}
                     loading={this.props.isBusy} />
                 <Editor editingEntry={this.props.editingEntry} />
-                <Modal title="Confirm" visible={this.props.deletingDialogVisible} onOk={this.delete} onCancel={this.cancelDelete}>
-                    <p>Delete selcted keys?</p>
-                </Modal>
             </div>
         )
     }

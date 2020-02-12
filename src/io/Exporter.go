@@ -1,8 +1,11 @@
 package io
 
 import (
+	"archive/zip"
+	"bytes"
 	"encoding/json"
 	"errors"
+	"io"
 
 	"github.com/Lukiya/redismanager/src/go/core"
 
@@ -40,7 +43,7 @@ func (x *Exporter) ExportKeys(keys ...string) (r []byte, err error) {
 
 	r, err = json.Marshal(entries)
 	if x.Zip {
-		r, err = zip(r)
+		r, err = zipBytes(r)
 	}
 	var prefix []byte
 	if x.Zip {
@@ -108,52 +111,77 @@ func (x *Exporter) ExportKey(key string) (r *ExportFileEntry, err error) {
 	return r, err
 }
 
-func (x *Exporter) ExportMembers(key string, members ...interface{}) (r *ExportFileEntry, err error) {
-	if key == "" {
-		err = errors.New("key is missing")
-		u.LogError(err)
-		return nil, err
-	}
-	memberCount := len(members)
-	if memberCount == 0 {
-		err = errors.New("members are missing")
-		u.LogError(err)
-		return nil, err
-	}
-
-	redisType, err := x.client.Type(key).Result()
+func (x *Exporter) ExportZipFile(keys ...string) (r []byte, err error) {
+	var data []byte
+	data, err = x.ExportKeys(keys...)
 	if u.LogError(err) {
-		return nil, err
+		return
 	}
 
-	// Export
-	switch redisType {
-	case core.RedisType_Hash:
-		f := make([]string, memberCount)
-		for i := 0; i < memberCount; i++ {
-			f[i] = members[i].(string)
-		}
-		v, err := x.client.HMGet(key, f...).Result()
-		if u.LogError(err) {
-			return nil, err
-		}
-		r, err = NewExportFileEntry(key, redisType, v)
-		break
-	case core.RedisType_List:
-		start, end := members[0].(int64), members[1].(int64)
-		v, err := x.client.LRange(key, start, end).Result()
-		if u.LogError(err) {
-			return nil, err
-		}
-		r, err = NewExportFileEntry(key, redisType, v)
-		break
-	case core.RedisType_Set:
-		r, err = NewExportFileEntry(key, redisType, members)
-		break
-	case core.RedisType_ZSet:
-		r, err = NewExportFileEntry(key, redisType, members)
-		break
+	var buf bytes.Buffer
+	zipWriter := zip.NewWriter(&buf)
+	defer zipWriter.Close()
+
+	var w io.Writer
+	w, err = zipWriter.Create("data")
+	if u.LogError(err) {
+		return
+	}
+	_, err = w.Write(data)
+	if u.LogError(err) {
+		return
 	}
 
-	return r, err
+	r = buf.Bytes()
+	return
 }
+
+// func (x *Exporter) ExportMembers(key string, members ...interface{}) (r *ExportFileEntry, err error) {
+// 	if key == "" {
+// 		err = errors.New("key is missing")
+// 		u.LogError(err)
+// 		return nil, err
+// 	}
+// 	memberCount := len(members)
+// 	if memberCount == 0 {
+// 		err = errors.New("members are missing")
+// 		u.LogError(err)
+// 		return nil, err
+// 	}
+
+// 	redisType, err := x.client.Type(key).Result()
+// 	if u.LogError(err) {
+// 		return nil, err
+// 	}
+
+// 	// Export
+// 	switch redisType {
+// 	case core.RedisType_Hash:
+// 		f := make([]string, memberCount)
+// 		for i := 0; i < memberCount; i++ {
+// 			f[i] = members[i].(string)
+// 		}
+// 		v, err := x.client.HMGet(key, f...).Result()
+// 		if u.LogError(err) {
+// 			return nil, err
+// 		}
+// 		r, err = NewExportFileEntry(key, redisType, v)
+// 		break
+// 	case core.RedisType_List:
+// 		start, end := members[0].(int64), members[1].(int64)
+// 		v, err := x.client.LRange(key, start, end).Result()
+// 		if u.LogError(err) {
+// 			return nil, err
+// 		}
+// 		r, err = NewExportFileEntry(key, redisType, v)
+// 		break
+// 	case core.RedisType_Set:
+// 		r, err = NewExportFileEntry(key, redisType, members)
+// 		break
+// 	case core.RedisType_ZSet:
+// 		r, err = NewExportFileEntry(key, redisType, members)
+// 		break
+// 	}
+
+// 	return r, err
+// }

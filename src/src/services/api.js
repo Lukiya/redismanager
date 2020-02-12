@@ -87,7 +87,7 @@ export function deleteEntries(db, entries) {
 
 export function copyKeys(db, keys) {
     return request({
-        url: '/copy?db=' + encodeURIComponent(db),
+        url: '/keys/copy?db=' + encodeURIComponent(db),
         method: 'POST',
         data: keys,
     });
@@ -95,7 +95,7 @@ export function copyKeys(db, keys) {
 
 export function importKeys(db, data) {
     return request({
-        url: '/import?db=' + encodeURIComponent(db),
+        url: '/keys/import?db=' + encodeURIComponent(db),
         method: 'POST',
         data: data,
     });

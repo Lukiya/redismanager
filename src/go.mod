@@ -8,5 +8,6 @@ require (
 	github.com/kataras/iris/v12 v12.1.4
 	github.com/stretchr/testify v1.4.0
 	github.com/syncfuture/go v1.0.8
+	golang.org/x/tools v0.0.0-20200211183705-e2a38c836335 // indirect
 	google.golang.org/grpc v1.26.0
 )

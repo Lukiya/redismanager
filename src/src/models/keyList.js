@@ -11,7 +11,7 @@ export default {
         selectedEntries: [],
         selectedRowKeys: [],
         isBusy: false,
-        deletingDialogVisible: false,
+        deletingConfirmVisible: false,
     },
 
     effects: {
@@ -109,7 +109,7 @@ export default {
                 Message.error(resp.MsgCode);
             }
             yield put({ type: 'setBusy', payload: { isBusy: false } });
-            yield put({ type: 'getKeys'});   // Refresh
+            yield put({ type: 'getKeys' });   // Refresh
         }
     },
 
@@ -173,7 +173,7 @@ export default {
         setDeletingDialogVisible(state, { payload: { flag } }) {
             return {
                 ...state,
-                deletingDialogVisible: flag,
+                deletingConfirmVisible: flag,
             }
         },
         setSelections(state, { payload: { selectedRowKeys, selectedEntries } }) {

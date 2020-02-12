@@ -11,13 +11,13 @@ var (
 	_decompressor = grpc.NewGZIPDecompressor()
 )
 
-func zip(in []byte) (out []byte, err error) {
+func zipBytes(in []byte) (out []byte, err error) {
 	var buf bytes.Buffer
 	err = _compressor.Do(&buf, in)
 	return buf.Bytes(), err
 }
 
-func unzip(in []byte) (out []byte, err error) {
+func unzipBytes(in []byte) (out []byte, err error) {
 	buf := bytes.NewBuffer(in)
 	out, err = _decompressor.Do(buf)
 	return out, err

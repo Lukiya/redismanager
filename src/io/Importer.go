@@ -29,7 +29,7 @@ func (x *Importer) ImportKeys(in []byte) (imported int, err error) {
 		return
 	}
 	if in[0] == core.ZipIndicator1 && in[1] == core.ZipIndicatorSeperator { // data is compressed, need to decompress
-		in, err = unzip(in[2:]) // remove first 2 byte (zip indicator)
+		in, err = unzipBytes(in[2:]) // remove first 2 byte (zip indicator)
 		if u.LogError(err) {
 			return
 		}

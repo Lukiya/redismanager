@@ -345,7 +345,7 @@ func Export(ctx iris.Context) {
 }
 
 // Export Copy /api/v1/copy
-func Copy(ctx iris.Context) {
+func CopyKeys(ctx iris.Context) {
 	ctx.ContentType(core.ContentTypeJson)
 
 	var keys []string
@@ -371,7 +371,7 @@ func Copy(ctx iris.Context) {
 }
 
 // Import POST /api/v1/import
-func Import(ctx iris.Context) {
+func ImportKeys(ctx iris.Context) {
 	ctx.ContentType(core.ContentTypeJson)
 
 	var bytes []byte
