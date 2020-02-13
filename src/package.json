@@ -19,6 +19,7 @@
     "react-codemirror2": "^6.0.0",
     "react-dom": "^16.8.6",
     "react-highlight-words": "^0.16.0",
+    "react-hot-keys": "^2.4.5",
     "vkbeautify": "^0.99.3"
   },
   "devDependencies": {

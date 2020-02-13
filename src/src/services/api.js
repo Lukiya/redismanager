@@ -85,9 +85,9 @@ export function deleteEntries(db, entries) {
     });
 }
 
-export function copyKeys(db, keys) {
+export function exportKeys(db, keys) {
     return request({
-        url: '/keys/copy?db=' + encodeURIComponent(db),
+        url: '/export/keys?db=' + encodeURIComponent(db),
         method: 'POST',
         data: keys,
     });
@@ -95,7 +95,23 @@ export function copyKeys(db, keys) {
 
 export function importKeys(db, data) {
     return request({
-        url: '/keys/import?db=' + encodeURIComponent(db),
+        url: '/import/keys?db=' + encodeURIComponent(db),
+        method: 'POST',
+        data: data,
+    });
+}
+
+export function exportFile(db, keys) {
+    return request({
+        url: '/export/file?db=' + encodeURIComponent(db),
+        method: 'POST',
+        data: keys,
+    });
+}
+
+export function importFile(db, data) {
+    return request({
+        url: '/import/file?db=' + encodeURIComponent(db),
         method: 'POST',
         data: data,
     });

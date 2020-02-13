@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
 import { Table, Input, Button, Icon, Dropdown, Menu, Modal } from 'antd';
+import Hotkeys from 'react-hot-keys';
 import Highlighter from 'react-highlight-words';
 import HashTable from './HashTable';
 import ListTable from './ListTable';
@@ -214,8 +215,10 @@ class KeyTable extends Component {
 
     };
 
-    confirmDelete = () => {
+    removeKeys = () => {
         const self = this;
+        const hasSelection = !u.isNoW(self.props.selectedEntries) && self.props.selectedEntries.length > 0;
+        if (!hasSelection) return;
 
         Modal.confirm({
             title: 'Do you want to delete selected keys?',
@@ -227,6 +230,10 @@ class KeyTable extends Component {
             },
         });
     };
+
+    exportFile = () => {
+
+    }
 
     columns = [
         {
@@ -297,10 +304,13 @@ class KeyTable extends Component {
                         <Button type="primary" icon="file-add">New <Icon type="down" /></Button>
                     </Dropdown>
                     <Button type="default" icon="redo" onClick={this.loadKeys} title="Refresh"></Button>
-                    <Button type="default" icon="import" onClick={this.loadKeys} title="Import"></Button>
-                    <Button type="default" icon="export" disabled={!hasSelection} onClick={this.loadKeys} title="Export"></Button>
-                    <Button type="danger" icon="delete" disabled={!hasSelection} onClick={this.confirmDelete} title="Delete"></Button>
+                    {/* <Button type="default" icon="import" onClick={this.loadKeys} title="Import"></Button>
+                    <Button type="default" icon="export" disabled={!hasSelection} onClick={this.exportFile} title="Export"></Button> */}
+                    <Button type="danger" icon="delete" disabled={!hasSelection} onClick={this.removeKeys} title="Delete"></Button>
                 </div>
+                <Hotkeys keyName="del" onKeyUp={this.removeKeys.bind(document)} filter={(e) => {
+                    return u.isNoW(e.target.type) || e.target.type === "checkbox";
+                }} />
                 <Table rowKey={x => x.Key}
                     // onRow={this.onRow}
                     rowSelection={rowSelection}

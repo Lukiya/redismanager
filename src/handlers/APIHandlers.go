@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"net/http"
 	"strings"
 	"sync"
 	"time"
@@ -325,27 +326,8 @@ func DeleteRedisEntries(ctx iris.Context) {
 	pipe.Exec()
 }
 
-// Export POST /api/v1/export
-func Export(ctx iris.Context) {
-	var keys []string
-	ctx.ReadJSON(&keys)
-	if keys == nil || len(keys) == 0 {
-		ctx.WriteString("keys are missing")
-		return
-	}
-	dbStr := ctx.FormValueDefault("db", "0")
-	client := getClient(ctx)
-	exporter := io.NewExporter(true, client)
-	bytes, err := exporter.ExportKeys(keys...)
-	if !handleError(ctx, err) {
-		ctx.ContentType("application/octet-stream")
-		ctx.Header("Content-Disposition", fmt.Sprintf("attachment;filename=%s-%s.rmd", dbStr, time.Now().Format("20060102-150405")))
-		ctx.Write(bytes)
-	}
-}
-
-// Export Copy /api/v1/copy
-func CopyKeys(ctx iris.Context) {
+// Export POST /api/v1/export/keys
+func ExportKeys(ctx iris.Context) {
 	ctx.ContentType(core.ContentTypeJson)
 
 	var keys []string
@@ -370,7 +352,7 @@ func CopyKeys(ctx iris.Context) {
 	ctx.Write(jsonBytes)
 }
 
-// Import POST /api/v1/import
+// Import POST /api/v1/import/keys
 func ImportKeys(ctx iris.Context) {
 	ctx.ContentType(core.ContentTypeJson)
 
@@ -395,4 +377,30 @@ func ImportKeys(ctx iris.Context) {
 		return
 	}
 	ctx.Write(jsonBytes)
+}
+
+// Export POST /api/v1/export/file
+func ExportFile(ctx iris.Context) {
+	// var keys []string
+	// ctx.ReadJSON(&keys)
+	keysStr := ctx.FormValue("keys")
+	keys := strings.Split(keysStr, ",")
+	if keys == nil || len(keys) == 0 {
+		ctx.StatusCode(http.StatusBadRequest)
+		return
+	}
+	dbStr := ctx.FormValueDefault("db", "0")
+	client := getClient(ctx)
+	exporter := io.NewExporter(false, client)
+	bytes, err := exporter.ExportZipFile(keys...)
+	if !handleError(ctx, err) {
+		ctx.ContentType("application/octet-stream")
+		ctx.Header("Content-Disposition", fmt.Sprintf("attachment;filename=%s-%s.rmd", dbStr, time.Now().Format("20060102-150405")))
+		ctx.Write(bytes)
+	}
+}
+
+// Import POST /api/v1/import/file
+func ImportFile(ctx iris.Context) {
+
 }

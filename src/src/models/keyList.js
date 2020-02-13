@@ -1,4 +1,4 @@
-import { getKeys, deleteEntries, getEntry, copyKeys, importKeys } from '../services/api';
+import { getKeys, deleteEntries, getEntry, exportKeys, importKeys } from '../services/api';
 import { Message } from 'antd';
 import u from '../utils/utils';
 
@@ -72,7 +72,7 @@ export default {
             }
 
             yield put({ type: 'setBusy', payload: { isBusy: true } });
-            const resp = yield call(copyKeys, state.db, state.selectedRowKeys);
+            const resp = yield call(exportKeys, state.db, state.selectedRowKeys);
             if (resp.MsgCode === "") {
                 u.copyToClipboard(resp.Data);
                 Message.info(state.selectedRowKeys.length + " key(s) copied.");
