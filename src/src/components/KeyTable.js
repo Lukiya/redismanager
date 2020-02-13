@@ -35,9 +35,25 @@ class KeyTable extends Component {
         };
         // Paste
         document.onpaste = e => {
-            self.props.dispatch({
-                type: 'keyList/paste',
-                clipboardData: e.clipboardData,
+            const clipboardData = e.clipboardData;
+            if (u.isNoW(clipboardData)) {
+                return;
+            }
+
+            const clipboardText = clipboardData.getData("text");
+            if (u.isNoW(clipboardText) || clipboardText.indexOf(u.CLIPBOARD_REDIS) !== 0) {
+                return;
+            }
+
+            Modal.confirm({
+                title: 'Confirm',
+                content: 'If key exists, paste data will override it, continue?',
+                onOk() {
+                    self.props.dispatch({
+                        type: 'keyList/paste',
+                        clipboardText: clipboardText,
+                    });
+                },
             });
         };
     }
@@ -194,9 +210,13 @@ class KeyTable extends Component {
         });
     };
 
+    exportClicked = () => {
+
+    };
+
     confirmDelete = () => {
         const self = this;
-        
+
         Modal.confirm({
             title: 'Do you want to delete selected keys?',
             content: 'This operation cannot be undone.',

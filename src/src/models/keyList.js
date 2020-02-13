@@ -81,22 +81,13 @@ export default {
             }
             yield put({ type: 'setBusy', payload: { isBusy: false } });
         },
-        *paste({ clipboardData }, { call, put, select }) {
-            if (u.isNoW(clipboardData)) {
-                return;
-            }
-
-            const clipboardText = clipboardData.getData("text");
-            if (u.isNoW(clipboardText) || clipboardText.indexOf(u.CLIPBOARD_REDIS) !== 0) {
-                return;
-            }
-
+        *paste({ clipboardText }, { call, put, select }) {
             const base64Str = clipboardText.substring(u.CLIPBOARD_REDIS.length, clipboardText.length);
             let bytes;
             try {
-                // var a = window.atob(data);
                 bytes = u.base64ToBytesArray(base64Str);
-            } catch {
+            } catch (err) {
+                Message.error(err);
                 return;
             }
 
@@ -110,7 +101,7 @@ export default {
             }
             yield put({ type: 'setBusy', payload: { isBusy: false } });
             yield put({ type: 'getKeys' });   // Refresh
-        }
+        },
     },
 
     reducers: {
