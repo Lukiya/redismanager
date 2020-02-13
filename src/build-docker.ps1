@@ -21,6 +21,8 @@ docker build -t $imageName $targetDir
 docker tag redismanager lukiya/$imageName
 #Write-Host "#: exporting docker image..."
 #docker save $imageName -o $targetDir$imageName.tar
+Write-Host "#: pushing docker image"
+docker push lukiya/$imageName
 Write-Host "#: clear temperary files..."
 Remove-Item $targetDir/* -Exclude *.tar
 Write-Host "#: done"
