@@ -1,7 +1,7 @@
 import { message } from 'antd';
 import copy from 'copy-to-clipboard';
 
-var u = {
+const u = {
     CLIPBOARD_REDIS: "REDIS:",
     isNoW: (obj) => {
         if (obj === undefined || obj === null || obj.toString().trim() === "") {
@@ -12,14 +12,15 @@ var u = {
         }
     },
     isXml: (str) => {
-        var startPattern = /^\s*<[^>]+>/;
-        var endPattern = /<\/[^>]+>\s*$/;
+        const startPattern = /^\s*<[^>]+>/;
+        const endPattern = /<\/[^>]+>\s*$/;
         return startPattern.test(str) && endPattern.test(str);
     },
     isJson: (str) => {
-        var startPattern = /^\s*[\{\[]/;
-        var endPattern = /[\}\]]\s*$/;
-        return startPattern.test(str) && endPattern.test(str);
+        const pattern = /(^\s*\[[^\]]*\]\s*$)|(^\s*\{[^\}]*\}\s*$)/;
+        const a = pattern.test(str);
+        console.log(a);
+        return a;
     },
     isSuccess: (msgCode) => {
         if (msgCode === "") {
@@ -33,7 +34,7 @@ var u = {
     deepClone: item => {
         if (!item) { return item; } // null, undefined values check
 
-        var types = [Number, String, Boolean],
+        let types = [Number, String, Boolean],
             result;
 
         // normalizing primitives if someone did new String('aaa'), or new Number('444');
@@ -59,7 +60,7 @@ var u = {
                     } else {
                         // it is an object literal
                         result = {};
-                        for (var i in item) {
+                        for (let i in item) {
                             result[i] = u.deepClone(item[i]);
                         }
                     }
@@ -84,9 +85,9 @@ var u = {
         copy(u.CLIPBOARD_REDIS + content);
     },
     base64ToBytesArray: (base64) => {
-        var binStr = window.atob(base64);
-        var len = binStr.length;
-        var bytes = new Array(len);
+        const binStr = window.atob(base64);
+        const len = binStr.length;
+        let bytes = new Array(len);
         for (var i = 0; i < len; i++) {
             bytes[i] = binStr.charCodeAt(i);
         }

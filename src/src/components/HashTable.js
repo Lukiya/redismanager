@@ -117,7 +117,6 @@ class HashTable extends Component {
                 editingEntry: {
                     Key: this.props.redisKey,
                     Type: 'hash',
-                    // Field: '',
                     isNew: true,
                 },
             },

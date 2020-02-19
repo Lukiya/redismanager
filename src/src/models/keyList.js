@@ -36,16 +36,16 @@ export default {
 
             switch (resp.Type) {
                 case "hash":
-                    yield put({ type: 'hash/getHashElements', redisKey: key });
+                    yield put({ type: 'hash/getHashElements', redisKey: key, db: state.db });
                     break;
                 case "list":
-                    yield put({ type: 'list/getListElements', redisKey: key });
+                    yield put({ type: 'list/getListElements', redisKey: key, db: state.db });
                     break;
                 case "set":
-                    yield put({ type: 'set/getSetElements', redisKey: key });
+                    yield put({ type: 'set/getSetElements', redisKey: key, db: state.db });
                     break;
                 case "zset":
-                    yield put({ type: 'zset/getZSetElements', redisKey: key });
+                    yield put({ type: 'zset/getZSetElements', redisKey: key, db: state.db });
                     break;
                 default:
                     break;
@@ -178,7 +178,7 @@ export default {
             if (u.isNoW(state.selectedRowKeys) || state.selectedRowKeys.length === 0) {
                 return state;
             }
-            
+
             const keys = state.selectedRowKeys.join(",");
 
             const f = document.createElement("form");
