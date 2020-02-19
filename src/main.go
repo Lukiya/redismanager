@@ -51,12 +51,13 @@ func newApp() *iris.Application {
 	v1.Get("/list", handlers.GetListElements)
 	v1.Get("/set", handlers.GetSetElements)
 	v1.Get("/zset", handlers.GetZSetElements)
-	v1.Post("/entry", handlers.SaveRedisEntry)
-	v1.Delete("/keys", handlers.DeleteRedisKeys)
+	v1.Post("/entry", handlers.SaveEntry)
 	v1.Post("/export/keys", handlers.ExportKeys)
 	v1.Post("/import/keys", handlers.ImportKeys)
 	v1.Post("/export/file", handlers.ExportFile)
 	v1.Post("/import/file", handlers.ImportFile)
+	v1.Delete("/keys", handlers.DeleteKeys)
+	v1.Delete("/members", handlers.DeleteMembers)
 
 	return app
 }

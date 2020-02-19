@@ -246,8 +246,8 @@ func GetZSetElements(ctx iris.Context) {
 	}
 }
 
-// GetZSetElements Post /api/v1/entry
-func SaveRedisEntry(ctx iris.Context) {
+// SaveEntry Post /api/v1/entry
+func SaveEntry(ctx iris.Context) {
 	cmd := new(core.SaveRedisEntryCommand)
 	ctx.ReadJSON(cmd)
 
@@ -308,8 +308,8 @@ func SaveRedisEntry(ctx iris.Context) {
 	}
 }
 
-// DeleteRedisKeys DELETE /api/v1/entries
-func DeleteRedisKeys(ctx iris.Context) {
+// DeleteKeys DELETE /api/v1/keys
+func DeleteKeys(ctx iris.Context) {
 	entries := make([]*core.RedisEntry, 0)
 	ctx.ReadJSON(&entries)
 
@@ -323,7 +323,41 @@ func DeleteRedisKeys(ctx iris.Context) {
 	for _, entry := range entries {
 		pipe.Del(entry.Key)
 	}
-	pipe.Exec()
+	_, err := pipe.Exec()
+	handleError(ctx, err)
+}
+
+// DeleteMembers DELETE /api/v1/entries
+func DeleteMembers(ctx iris.Context) {
+	entries := make([]*core.RedisEntry, 0)
+	ctx.ReadJSON(&entries)
+
+	if len(entries) == 0 {
+		ctx.WriteString("entries array is missing")
+		return
+	}
+
+	client := getClient(ctx)
+	pipe := client.Pipeline()
+
+	for _, entry := range entries {
+		switch entry.Type {
+		case core.RedisType_Hash:
+			pipe.HDel(entry.Key, entry.Field)
+			break
+		case core.RedisType_List:
+			pipe.LRem(entry.Key, 0, entry.Value)
+			break
+		case core.RedisType_Set:
+			pipe.SRem(entry.Key, entry.Value)
+			break
+		case core.RedisType_ZSet:
+			pipe.ZRem(entry.Key, entry.Value)
+			break
+		}
+	}
+	_, err := pipe.Exec()
+	handleError(ctx, err)
 }
 
 // Export POST /api/v1/export/keys

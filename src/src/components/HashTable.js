@@ -129,14 +129,14 @@ class HashTable extends Component {
         });
     };
 
-    deleteEntry = (record) => {
+    deleteMember = (record) => {
         const self = this;
         Modal.confirm({
             title: 'Do you want to delete this entry?',
             content: 'This operation cannot be undone.',
             onOk() {
                 self.props.dispatch({
-                    type: 'hash/deleteEntry',
+                    type: 'hash/deleteMember',
                     db: self.props.selectedDB,
                     record,
                 });
@@ -167,20 +167,21 @@ class HashTable extends Component {
             title: 'Action',
             dataIndex: '',
             key: 'x',
-            render: (text, record) => <Button type="danger" icon="delete" size="small" onClick={() => this.deleteEntry(record)} loading={this.props.isBusy} title="Delete"></Button>,
+            render: (text, record) => <Button type="danger" icon="delete" size="small" onClick={() => this.deleteMember(record)} loading={this.props.isBusy} title="Delete"></Button>,
         },
     ]
 
     render() {
-        const data = []
-        if (!u.isNoW(this.props.list)) {
-            var list = this.props.list[this.props.redisKey]
-            if (!u.isNoW(list)) {
-                for (var key in list) {
-                    data.push({ "Field": key, "Value": list[key] })
-                }
-            }
-        }
+        // const data = []
+        // if (!u.isNoW(this.props.list)) {
+        //     var list = this.props.list[this.props.redisKey]
+        //     if (!u.isNoW(list)) {
+        //         for (var key in list) {
+        //             data.push({ "Field": key, "Value": list[key] })
+        //         }
+        //     }
+        // }
+        const data = this.props.list[this.props.redisKey];
 
         let pageSize = 5
         if (!u.isNoW(this.props.configs) && !u.isNoW(this.props.configs.PageSize) && !u.isNoW(this.props.configs.PageSize.SubList)) {

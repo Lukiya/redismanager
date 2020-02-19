@@ -85,6 +85,14 @@ export function deleteKeys(db, entries) {
     });
 }
 
+export function deleteMembers(db, entries) {
+    return request({
+        url: '/members?db=' + encodeURIComponent(db),
+        method: 'DELETE',
+        data: entries,
+    });
+}
+
 export function exportKeys(db, keys) {
     return request({
         url: '/export/keys?db=' + encodeURIComponent(db),

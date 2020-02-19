@@ -1,4 +1,4 @@
-import { deleteKeys, getHashElements } from '../services/api';
+import { deleteMembers, getHashElements } from '../services/api';
 import u from '../utils/utils';
 
 export default {
@@ -10,44 +10,68 @@ export default {
     },
 
     effects: {
-        *getHashElements({ db, redisKey }, { call, put }) {
+        *getHashElements({ db, redisKey }, { call, put, select }) {
             yield put({ type: 'setBusy', payload: { isBusy: true } });
             const resp = yield call(getHashElements, db, redisKey);
-            yield put({ type: 'saveList', payload: { redisKey: redisKey, list: resp } });
+            yield put({ type: 'saveList', payload: { redisKey: redisKey, jsonObj: resp } });
             yield put({ type: 'setBusy', payload: { isBusy: false } });
+
+
+            const state = yield select(states => states["hash"]);
+            if (state) {
+                console.log(state);
+            }
+            if (state.list[redisKey].length === 0) {
+                yield put({ type: 'keyList/removeEntries', payload: { entries: new Array({ Key: redisKey }) } });
+            }
         },
-        *deleteEntry({ db, record }, { call, put }) {
+        *deleteMember({ db, record }, { call, put }) {
             yield put({ type: 'setBusy', payload: { isBusy: true } });
-            const msgCode = yield call(deleteKeys, db, new Array(record));
+            const msgCode = yield call(deleteMembers, db, new Array(record));
             yield put({ type: 'setBusy', payload: { isBusy: false } });
 
             if (u.isSuccess(msgCode)) {
-                yield put({ type: 'removeEntry', entry: record });
+                yield put({ type: 'getHashElements', db: db, redisKey: record.Key });
             }
         },
     },
 
     reducers: {
-        saveList(state, { payload: { redisKey, list } }) {
-            state.list[redisKey] = list;
-            return state
+        saveList(state, { payload: { redisKey, jsonObj } }) {
+            const data = []
+            if (!u.isNoW(jsonObj)) {
+                for (var propName in jsonObj) {
+                    data.push({
+                        "Key": redisKey,
+                        "Type": "hash",
+                        "Field": propName,
+                        "Value": jsonObj[propName],
+                    })
+                }
+            }
+            state.list[redisKey] = data;
+            return state;
         },
         setBusy(state, { payload: { isBusy } }) {
             return {
                 ...state,
                 isBusy
-            }
+            };
         },
-        removeEntry(state, { entry }) {
-            const newList = state.list.filter(x => {
-                return x.Key !== entry.Key && x.Field !== entry.Field;
-            });
+        // removeEntry(state, { entry }) {
+        //     const newList = state.list[entry.Key].filter(x => {
+        //         return x.Field !== entry.Field;
+        //     });
 
-            return {
-                ...state,
-                selectedEntries: [],
-                list: newList,
-            }
-        },
+        //     // state.list[entry.Key] = state.list[entry.Key].filter(x => {
+        //     //     return x.Field !== entry.Field;
+        //     // });
+
+        //     // state.list[entry.Key] = newList;
+        //     return {
+        //         ...state,
+        //         ...state.list[entry.Key]
+        //     };
+        // },
     },
 };
