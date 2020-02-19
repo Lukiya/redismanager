@@ -2,6 +2,34 @@ import { getEntry, saveEntry } from '../services/api';
 import vkbeautify from 'vkbeautify'
 import u from '../utils/utils';
 
+const format = (mode, input, min) => {
+    if (min) {
+        if (mode === "javascript") {
+            input = vkbeautify.jsonmin(input);
+        } else if (mode === "xml") {
+            input = vkbeautify.xmlmin(input);
+        }
+    } else {
+        if (mode === "javascript") {
+            input = vkbeautify.json(input, 2);
+        } else if (mode === "xml") {
+            input = vkbeautify.xml(input, 2);
+        }
+    }
+
+    return input;
+};
+
+const getMode = (value) => {
+    let valueEditorMode = 'text';
+    if (u.isJson(value)) {
+        valueEditorMode = "javascript";
+    } else if (u.isXml(value)) {
+        valueEditorMode = "xml";
+    }
+    return valueEditorMode;
+};
+
 export default {
     namespace: 'editor',
 
@@ -81,7 +109,7 @@ export default {
             if (editingEntry.isNew) {
                 state.editingEntry.IsNew = true;
                 state.editingEntry.Type = editingEntry.Type;
-                state.editingEntry.Key = '';
+                state.editingEntry.Key = editingEntry.Key;
                 state.editingEntry.Value = '';
                 state.editingEntry.Field = '';
                 state.editingEntry.TTL = -1;
@@ -104,12 +132,7 @@ export default {
             }
         },
         beautify(state, { payload: { valueEditorMode } }) {
-            let newValue = state.editingEntry.Value;
-            if (valueEditorMode === "javascript") {
-                newValue = vkbeautify.json(newValue, 2);
-            } else if (valueEditorMode === "xml") {
-                newValue = vkbeautify.xml(newValue, 2);
-            }
+            const newValue = format(valueEditorMode, state.editingEntry.Value, false);
 
             return {
                 ...state,
@@ -120,12 +143,7 @@ export default {
             }
         },
         minify(state, { payload: { valueEditorMode } }) {
-            let newValue = state.editingEntry.Value;
-            if (valueEditorMode === "javascript") {
-                newValue = vkbeautify.jsonmin(newValue);
-            } else if (valueEditorMode === "xml") {
-                newValue = vkbeautify.xmlmin(newValue);
-            }
+            const newValue = format(valueEditorMode, state.editingEntry.Value, true);
 
             return {
                 ...state,
@@ -167,12 +185,7 @@ export default {
             }
         },
         setValue(state, { payload: { value } }) {
-            let valueEditorMode = 'text';
-            if (u.isJson(value)) {
-                valueEditorMode = "javascript";
-            } else if (u.isXml(value)) {
-                valueEditorMode = "xml";
-            }
+            const valueEditorMode = getMode(value);
 
             if (state.valueEditorMode !== valueEditorMode) {
                 return {
@@ -189,12 +202,7 @@ export default {
             }
         },
         setEntry(state, { payload: { entry } }) {
-            let valueEditorMode = 'text';
-            if (u.isJson(entry.Value)) {
-                valueEditorMode = "javascript";
-            } else if (u.isXml(entry.Value)) {
-                valueEditorMode = "xml";
-            }
+            const valueEditorMode = getMode(entry.Value);
 
             entry.isNew = false;
             return {

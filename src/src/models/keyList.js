@@ -174,5 +174,27 @@ export default {
                 selectedEntries,
             }
         },
+        exportFile(state, { _ }) {
+            if (u.isNoW(state.selectedRowKeys) || state.selectedRowKeys.length === 0) {
+                return state;
+            }
+            
+            const keys = state.selectedRowKeys.join(",");
+
+            const f = document.createElement("form");
+            f.setAttribute("action", process.env.apiURL + "/export/file?db=" + state.db);
+            f.setAttribute("method", "post");
+            f.setAttribute("target", "download");
+            const i = document.createElement("input");
+            i.setAttribute("type", "hidden");
+            i.setAttribute("name", "keys");
+            i.setAttribute("value", keys);
+            f.append(i);
+            document.body.append(f);
+            f.submit();
+            f.remove();
+
+            return state;
+        }
     },
 };

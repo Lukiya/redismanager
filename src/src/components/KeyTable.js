@@ -232,7 +232,9 @@ class KeyTable extends Component {
     };
 
     exportFile = () => {
-
+        this.props.dispatch({
+            type: 'keyList/exportFile',
+        });
     }
 
     columns = [
@@ -304,8 +306,8 @@ class KeyTable extends Component {
                         <Button type="primary" icon="file-add">New <Icon type="down" /></Button>
                     </Dropdown>
                     <Button type="default" icon="redo" onClick={this.loadKeys} title="Refresh"></Button>
-                    {/* <Button type="default" icon="import" onClick={this.loadKeys} title="Import"></Button>
-                    <Button type="default" icon="export" disabled={!hasSelection} onClick={this.exportFile} title="Export"></Button> */}
+                    <Button type="default" icon="import" onClick={this.loadKeys} title="Import"></Button>
+                    <Button type="default" icon="export" disabled={!hasSelection} onClick={this.exportFile} title="Export"></Button>
                     <Button type="danger" icon="delete" disabled={!hasSelection} onClick={this.removeKeys} title="Delete"></Button>
                 </div>
                 <Hotkeys keyName="del" onKeyUp={this.removeKeys.bind(document)} filter={(e) => {

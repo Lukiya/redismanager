@@ -58,8 +58,13 @@ tr.str_row .ant-table-row-expand-icon {
     margin-right: 5px;
 }
 
-ul.nodeList, ul.nodeList li {
+ul.nodeList,
+ul.nodeList li {
     padding: 0;
     margin: 0;
     list-style: none;
+}
+
+.ant-table-title {
+    text-align: right;
 }

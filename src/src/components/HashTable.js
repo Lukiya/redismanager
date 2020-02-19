@@ -107,7 +107,22 @@ class HashTable extends Component {
                 },
             },
         });
-    }
+    };
+
+    addClicked = () => {
+        this.props.dispatch({
+            type: 'editor/show',
+            payload: {
+                db: this.props.selectedDB,
+                editingEntry: {
+                    Key: this.props.redisKey,
+                    Type: 'hash',
+                    // Field: '',
+                    isNew: true,
+                },
+            },
+        });
+    };
 
     onRow = (record) => {
         return {
@@ -147,17 +162,21 @@ class HashTable extends Component {
         if (!u.isNoW(this.props.configs) && !u.isNoW(this.props.configs.PageSize) && !u.isNoW(this.props.configs.PageSize.SubList)) {
             pageSize = this.props.configs.PageSize.SubList
         }
+        const btnAdd = <Button type="primary" size="small" onClick={this.addClicked}>Add</Button>
 
         return (
-            <Table rowKey={x => x.Field}
-                className="sublist"
-                rowClassName="pointer"
-                onRow={this.onRow}
-                columns={this.columns}
-                dataSource={data}
-                pagination={{ pageSize: pageSize }}
-                size="small"
-                loading={this.props.isBusy} />
+            <div>
+                <Table rowKey={x => x.Field}
+                    className="sublist"
+                    rowClassName="pointer"
+                    onRow={this.onRow}
+                    columns={this.columns}
+                    dataSource={data}
+                    pagination={{ pageSize: pageSize }}
+                    size="small"
+                    title={() => btnAdd}
+                    loading={this.props.isBusy} />
+            </div>
         )
     }
 }

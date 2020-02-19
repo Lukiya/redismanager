@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"io"
 
 	"github.com/Lukiya/redismanager/src/go/core"
 
@@ -118,16 +117,20 @@ func (x *Exporter) ExportZipFile(keys ...string) (r []byte, err error) {
 		return
 	}
 
-	var buf bytes.Buffer
-	zipWriter := zip.NewWriter(&buf)
-	defer zipWriter.Close()
+	buf := new(bytes.Buffer)
+	w := zip.NewWriter(buf)
 
-	var w io.Writer
-	w, err = zipWriter.Create("data")
+	f, err := w.Create("compressed")
 	if u.LogError(err) {
 		return
 	}
-	_, err = w.Write(data)
+
+	_, err = f.Write(data)
+	if u.LogError(err) {
+		return
+	}
+
+	err = w.Close()
 	if u.LogError(err) {
 		return
 	}

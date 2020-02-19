@@ -55,7 +55,7 @@ func newApp() *iris.Application {
 	v1.Delete("/entries", handlers.DeleteRedisEntries)
 	v1.Post("/export/keys", handlers.ExportKeys)
 	v1.Post("/import/keys", handlers.ImportKeys)
-	v1.Get("/export/file", handlers.ExportFile)
+	v1.Post("/export/file", handlers.ExportFile)
 	v1.Post("/import/file", handlers.ImportFile)
 
 	return app
