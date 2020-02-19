@@ -215,7 +215,7 @@ class KeyTable extends Component {
 
     };
 
-    removeKeys = () => {
+    deleteKeys = () => {
         const self = this;
         const hasSelection = !u.isNoW(self.props.selectedEntries) && self.props.selectedEntries.length > 0;
         if (!hasSelection) return;
@@ -225,7 +225,7 @@ class KeyTable extends Component {
             content: 'This operation cannot be undone.',
             onOk() {
                 self.props.dispatch({
-                    type: 'keyList/deleteEntries',
+                    type: 'keyList/deleteKeys',
                 });
             },
         });
@@ -308,9 +308,9 @@ class KeyTable extends Component {
                     <Button type="default" icon="redo" onClick={this.loadKeys} title="Refresh"></Button>
                     <Button type="default" icon="import" onClick={this.loadKeys} title="Import"></Button>
                     <Button type="default" icon="export" disabled={!hasSelection} onClick={this.exportFile} title="Export"></Button>
-                    <Button type="danger" icon="delete" disabled={!hasSelection} onClick={this.removeKeys} title="Delete"></Button>
+                    <Button type="danger" icon="delete" disabled={!hasSelection} onClick={this.deleteKeys} title="Delete"></Button>
                 </div>
-                <Hotkeys keyName="del" onKeyUp={this.removeKeys.bind(document)} filter={(e) => {
+                <Hotkeys keyName="del" onKeyUp={this.deleteKeys.bind(document)} filter={(e) => {
                     return u.isNoW(e.target.type) || e.target.type === "checkbox";
                 }} />
                 <Table rowKey={x => x.Key}

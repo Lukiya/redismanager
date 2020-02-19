@@ -18,9 +18,7 @@ const u = {
     },
     isJson: (str) => {
         const pattern = /(^\s*\[[^\]]*\]\s*$)|(^\s*\{[^\}]*\}\s*$)/;
-        const a = pattern.test(str);
-        console.log(a);
-        return a;
+        return pattern.test(str);
     },
     isSuccess: (msgCode) => {
         if (msgCode === "") {

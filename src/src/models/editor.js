@@ -116,6 +116,7 @@ export default {
 
                 state.keyEditorEnabled = true;
                 state.valueEditorEnabled = true;
+                state.ttlEditorEnabled = editingEntry.Type === "string";
                 state.fieldEditorEnabled = editingEntry.Type === "hash" || editingEntry.Type === "zset";
             }
 

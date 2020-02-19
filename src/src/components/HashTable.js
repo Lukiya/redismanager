@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
-import { Table, Input, Button, Icon } from 'antd';
+import { Table, Input, Button, Icon, Modal } from 'antd';
 import Highlighter from 'react-highlight-words';
 import u from '../utils/utils';
 
@@ -109,6 +109,12 @@ class HashTable extends Component {
         });
     };
 
+    onCell = (record) => {
+        return {
+            onClick: event => this.showEditor(record), // 点击行
+        };
+    };
+
     addClicked = () => {
         this.props.dispatch({
             type: 'editor/show',
@@ -123,10 +129,19 @@ class HashTable extends Component {
         });
     };
 
-    onRow = (record) => {
-        return {
-            onClick: event => this.showEditor(record), // 点击行
-        };
+    deleteEntry = (record) => {
+        const self = this;
+        Modal.confirm({
+            title: 'Do you want to delete this entry?',
+            content: 'This operation cannot be undone.',
+            onOk() {
+                self.props.dispatch({
+                    type: 'hash/deleteEntry',
+                    db: self.props.selectedDB,
+                    record,
+                });
+            },
+        });
     };
 
     columns = [
@@ -135,6 +150,8 @@ class HashTable extends Component {
             dataIndex: 'Field',
             key: 'Field',
             defaultSortOrder: "ascend",
+            onCell: this.onCell,
+            className: "pointer",
             sorter: (a, b) => a.Field.localeCompare(b.Field),
             ...this.getColumnSearchProps('Field'),
         },
@@ -142,7 +159,15 @@ class HashTable extends Component {
             title: 'Value',
             dataIndex: 'Value',
             key: 'Value',
+            onCell: this.onCell,
+            className: "pointer",
             ...this.getColumnSearchProps('Value'),
+        },
+        {
+            title: 'Action',
+            dataIndex: '',
+            key: 'x',
+            render: (text, record) => <Button type="danger" icon="delete" size="small" onClick={() => this.deleteEntry(record)} loading={this.props.isBusy} title="Delete"></Button>,
         },
     ]
 
@@ -164,18 +189,14 @@ class HashTable extends Component {
         const btnAdd = <Button type="primary" size="small" onClick={this.addClicked}>Add</Button>
 
         return (
-            <div>
-                <Table rowKey={x => x.Field}
-                    className="sublist"
-                    rowClassName="pointer"
-                    onRow={this.onRow}
-                    columns={this.columns}
-                    dataSource={data}
-                    pagination={{ pageSize: pageSize }}
-                    size="small"
-                    title={() => btnAdd}
-                    loading={this.props.isBusy} />
-            </div>
+            <Table rowKey={x => x.Field}
+                className="sublist"
+                columns={this.columns}
+                dataSource={data}
+                pagination={{ pageSize: pageSize }}
+                size="small"
+                title={() => btnAdd}
+                loading={this.props.isBusy} />
         )
     }
 }

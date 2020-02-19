@@ -77,9 +77,9 @@ export function saveEntry(db, editingEntry, backupEntry) {
     });
 }
 
-export function deleteEntries(db, entries) {
+export function deleteKeys(db, entries) {
     return request({
-        url: '/entries?db=' + encodeURIComponent(db),
+        url: '/keys?db=' + encodeURIComponent(db),
         method: 'DELETE',
         data: entries,
     });

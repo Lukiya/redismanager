@@ -115,6 +115,20 @@ class SetTable extends Component {
         };
     };
 
+    addClicked = () => {
+        this.props.dispatch({
+            type: 'editor/show',
+            payload: {
+                db: this.props.selectedDB,
+                editingEntry: {
+                    Key: this.props.redisKey,
+                    Type: 'set',
+                    isNew: true,
+                },
+            },
+        });
+    };
+
     columns = [
         {
             title: 'Member',
@@ -140,6 +154,8 @@ class SetTable extends Component {
         if (!u.isNoW(this.props.configs) && !u.isNoW(this.props.configs.PageSize) && !u.isNoW(this.props.configs.PageSize.SubList)) {
             pageSize = this.props.configs.PageSize.SubList
         }
+        const btnAdd = <Button type="primary" size="small" onClick={this.addClicked}>Add</Button>
+
         return (
             <Table rowKey={x => x.Field}
                 className="sublist"
@@ -149,6 +165,7 @@ class SetTable extends Component {
                 dataSource={data}
                 pagination={{ pageSize: pageSize }}
                 size="small"
+                title={() => btnAdd}
                 loading={this.props.isBusy} />
         )
     }

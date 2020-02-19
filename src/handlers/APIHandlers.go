@@ -308,8 +308,8 @@ func SaveRedisEntry(ctx iris.Context) {
 	}
 }
 
-// DeleteRedisEntries DELETE /api/v1/entries
-func DeleteRedisEntries(ctx iris.Context) {
+// DeleteRedisKeys DELETE /api/v1/entries
+func DeleteRedisKeys(ctx iris.Context) {
 	entries := make([]*core.RedisEntry, 0)
 	ctx.ReadJSON(&entries)
 

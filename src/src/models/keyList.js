@@ -1,4 +1,4 @@
-import { getKeys, deleteEntries, getEntry, exportKeys, importKeys } from '../services/api';
+import { getKeys, deleteKeys, getEntry, exportKeys, importKeys } from '../services/api';
 import { Message } from 'antd';
 import u from '../utils/utils';
 
@@ -51,14 +51,14 @@ export default {
                     break;
             }
         },
-        *deleteEntries({ _ }, { call, put, select }) {
+        *deleteKeys({ _ }, { call, put, select }) {
             const state = yield select(states => states["keyList"]);
             if (state.selectedEntries.length === 0) {
                 return;
             }
 
             yield put({ type: 'setBusy', payload: { isBusy: true } });
-            const msgCode = yield call(deleteEntries, state.db, state.selectedEntries);
+            const msgCode = yield call(deleteKeys, state.db, state.selectedEntries);
             yield put({ type: 'setBusy', payload: { isBusy: false } });
             if (u.isSuccess(msgCode)) {
                 yield put({ type: 'removeEntries', payload: { entries: state.selectedEntries } });

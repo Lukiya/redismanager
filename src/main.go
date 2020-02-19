@@ -52,7 +52,7 @@ func newApp() *iris.Application {
 	v1.Get("/set", handlers.GetSetElements)
 	v1.Get("/zset", handlers.GetZSetElements)
 	v1.Post("/entry", handlers.SaveRedisEntry)
-	v1.Delete("/entries", handlers.DeleteRedisEntries)
+	v1.Delete("/keys", handlers.DeleteRedisKeys)
 	v1.Post("/export/keys", handlers.ExportKeys)
 	v1.Post("/import/keys", handlers.ImportKeys)
 	v1.Post("/export/file", handlers.ExportFile)

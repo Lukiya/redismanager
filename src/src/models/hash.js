@@ -1,22 +1,30 @@
-import { getHashElements } from '../services/api';
+import { deleteKeys, getHashElements } from '../services/api';
+import u from '../utils/utils';
 
 export default {
     namespace: 'hash',
 
     state: {
-        // db: 0,
         list: {},
         isBusy: false
     },
 
     effects: {
         *getHashElements({ db, redisKey }, { call, put }) {
-            // yield put({ type: 'setDB', payload: { db } });
             yield put({ type: 'setBusy', payload: { isBusy: true } });
             const resp = yield call(getHashElements, db, redisKey);
             yield put({ type: 'saveList', payload: { redisKey: redisKey, list: resp } });
             yield put({ type: 'setBusy', payload: { isBusy: false } });
-        }
+        },
+        *deleteEntry({ db, record }, { call, put }) {
+            yield put({ type: 'setBusy', payload: { isBusy: true } });
+            const msgCode = yield call(deleteKeys, db, new Array(record));
+            yield put({ type: 'setBusy', payload: { isBusy: false } });
+
+            if (u.isSuccess(msgCode)) {
+                yield put({ type: 'removeEntry', entry: record });
+            }
+        },
     },
 
     reducers: {
@@ -30,11 +38,16 @@ export default {
                 isBusy
             }
         },
-        // setDB(state, { payload: { db } }) {
-        //     return {
-        //         ...state,
-        //         db
-        //     }
-        // }
+        removeEntry(state, { entry }) {
+            const newList = state.list.filter(x => {
+                return x.Key !== entry.Key && x.Field !== entry.Field;
+            });
+
+            return {
+                ...state,
+                selectedEntries: [],
+                list: newList,
+            }
+        },
     },
 };
