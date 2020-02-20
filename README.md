@@ -34,7 +34,10 @@ This is the configuration file for Redis Manager, here's an example:
         ],
         "Password": ""        // Password for redis server
     },
-    "PageSize": 5,            // Page size for key member list
+    "PageSize": {
+        "KeyList": 15,        // Page size for key list
+        "SubList": 10         // Page size for sub member list
+    },
     "ListenAddr": ":16379"    // Listen address and port
 }
 ```
