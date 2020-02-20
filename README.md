@@ -48,7 +48,7 @@ Run excutable file or run an docker image, then open a broswer, and access http:
 ## Docker using example
 #### Use default settings
 ``` bash
-docker run --name redismanager -d --restart always -p 16379:16379 -v lukiya/redismanager
+docker run --name redismanager -d --restart always -p 16379:16379 lukiya/redismanager
 ```
 #### Use custom settings
 ``` bash
