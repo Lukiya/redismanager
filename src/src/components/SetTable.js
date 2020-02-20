@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
-import { Table, Input, Button, Icon } from 'antd';
+import { Table, Input, Button, Icon, Modal } from 'antd';
 import Highlighter from 'react-highlight-words';
 import u from '../utils/utils';
 
@@ -109,9 +109,9 @@ class SetTable extends Component {
         });
     }
 
-    onRow = (record) => {
+    onCell = (record) => {
         return {
-            onClick: event => this.showEditor(record), // 点击行
+            onClick: event => this.showEditor(record),
         };
     };
 
@@ -129,27 +129,43 @@ class SetTable extends Component {
         });
     };
 
+    deleteMember = (record) => {
+        const self = this;
+        Modal.confirm({
+            title: 'Do you want to delete this entry?',
+            content: 'This operation cannot be undone.',
+            onOk() {
+                self.props.dispatch({
+                    type: 'set/deleteMember',
+                    db: self.props.selectedDB,
+                    record,
+                });
+            },
+        });
+    };
+
     columns = [
         {
             title: 'Member',
             dataIndex: 'Field',
             key: 'Field',
             defaultSortOrder: "ascend",
+            onCell: this.onCell,
+            className: "pointer",
             sorter: (a, b) => a.Field.localeCompare(b.Field),
             ...this.getColumnSearchProps('Field'),
-        }
+        },
+        {
+            title: 'Action',
+            dataIndex: '',
+            key: 'x',
+            render: (text, record) => <Button type="danger" icon="delete" size="small" onClick={() => this.deleteMember(record)} loading={this.props.isBusy} title="Delete"></Button>,
+        },
     ]
 
     render() {
-        const data = []
-        if (!u.isNoW(this.props.list)) {
-            var list = this.props.list[this.props.redisKey]
-            if (!u.isNoW(list)) {
-                for (var i in list) {
-                    data.push({ "Field": list[i] });
-                }
-            }
-        }
+        const data = this.props.list[this.props.redisKey];
+
         let pageSize = 5
         if (!u.isNoW(this.props.configs) && !u.isNoW(this.props.configs.PageSize) && !u.isNoW(this.props.configs.PageSize.SubList)) {
             pageSize = this.props.configs.PageSize.SubList
@@ -159,8 +175,6 @@ class SetTable extends Component {
         return (
             <Table rowKey={x => x.Field}
                 className="sublist"
-                rowClassName="pointer"
-                onRow={this.onRow}
                 columns={this.columns}
                 dataSource={data}
                 pagination={{ pageSize: pageSize }}

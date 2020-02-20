@@ -172,15 +172,6 @@ class HashTable extends Component {
     ]
 
     render() {
-        // const data = []
-        // if (!u.isNoW(this.props.list)) {
-        //     var list = this.props.list[this.props.redisKey]
-        //     if (!u.isNoW(list)) {
-        //         for (var key in list) {
-        //             data.push({ "Field": key, "Value": list[key] })
-        //         }
-        //     }
-        // }
         const data = this.props.list[this.props.redisKey];
 
         let pageSize = 5

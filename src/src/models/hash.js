@@ -17,7 +17,6 @@ export default {
             yield put({ type: 'setBusy', payload: { isBusy: false } });
 
             const state = yield select(states => states["hash"]);
-            console.log(state.list[redisKey]);
             if (state.list[redisKey].length === 0) {
                 yield put({ type: 'keyList/removeEntries', payload: { entries: new Array({ Key: redisKey }) } });
             }
@@ -43,7 +42,7 @@ export default {
                         "Type": "hash",
                         "Field": propName,
                         "Value": jsonObj[propName],
-                    })
+                    });
                 }
             }
             state.list[redisKey] = data;
@@ -55,20 +54,5 @@ export default {
                 isBusy
             };
         },
-        // removeEntry(state, { entry }) {
-        //     const newList = state.list[entry.Key].filter(x => {
-        //         return x.Field !== entry.Field;
-        //     });
-
-        //     // state.list[entry.Key] = state.list[entry.Key].filter(x => {
-        //     //     return x.Field !== entry.Field;
-        //     // });
-
-        //     // state.list[entry.Key] = newList;
-        //     return {
-        //         ...state,
-        //         ...state.list[entry.Key]
-        //     };
-        // },
     },
 };

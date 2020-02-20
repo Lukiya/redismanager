@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
-import { Table, Input, Button, Icon } from 'antd';
+import { Table, Input, Button, Icon, Modal } from 'antd';
 import Highlighter from 'react-highlight-words';
 import u from '../utils/utils';
 
@@ -115,6 +115,12 @@ class ZSetTable extends Component {
         };
     };
 
+    onCell = (record) => {
+        return {
+            onClick: event => this.showEditor(record),
+        };
+    };
+
     addClicked = () => {
         this.props.dispatch({
             type: 'editor/show',
@@ -129,12 +135,29 @@ class ZSetTable extends Component {
         });
     };
 
+    deleteMember = (record) => {
+        const self = this;
+        Modal.confirm({
+            title: 'Do you want to delete this entry?',
+            content: 'This operation cannot be undone.',
+            onOk() {
+                self.props.dispatch({
+                    type: 'zset/deleteMember',
+                    db: self.props.selectedDB,
+                    record,
+                });
+            },
+        });
+    };
+
     columns = [
         {
             title: 'Score',
             dataIndex: 'Field',
             key: 'Field',
             defaultSortOrder: "ascend",
+            onCell: this.onCell,
+            className: "pointer",
             sorter: (a, b) => a.Field - b.Field,
             ...this.getColumnSearchProps('Field'),
         },
@@ -142,21 +165,22 @@ class ZSetTable extends Component {
             title: 'Member',
             dataIndex: 'Value',
             key: 'Value',
+            onCell: this.onCell,
+            className: "pointer",
             sorter: (a, b) => a.Value.localeCompare(b.Value),
             ...this.getColumnSearchProps('Value'),
-        }
+        },
+        {
+            title: 'Action',
+            dataIndex: '',
+            key: 'x',
+            render: (text, record) => <Button type="danger" icon="delete" size="small" onClick={() => this.deleteMember(record)} loading={this.props.isBusy} title="Delete"></Button>,
+        },
     ]
 
     render() {
-        const data = []
-        if (!u.isNoW(this.props.list)) {
-            var list = this.props.list[this.props.redisKey]
-            if (!u.isNoW(list)) {
-                for (var i in list) {
-                    data.push({ "Field": list[i].Score, "Value": list[i].Member })
-                }
-            }
-        }
+        const data = this.props.list[this.props.redisKey];
+
         let pageSize = 10
         if (!u.isNoW(this.props.configs) && !u.isNoW(this.props.configs.PageSize) && !u.isNoW(this.props.configs.PageSize.SubList)) {
             pageSize = this.props.configs.PageSize.SubList
@@ -166,8 +190,6 @@ class ZSetTable extends Component {
         return (
             <Table rowKey={x => x.Value}
                 className="sublist"
-                rowClassName="pointer"
-                onRow={this.onRow}
                 columns={this.columns}
                 dataSource={data}
                 pagination={{ pageSize: pageSize }}

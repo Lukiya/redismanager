@@ -18,7 +18,6 @@ export default {
             yield put({ type: 'setBusy', payload: { isBusy: false } });
 
             const state = yield select(states => states["list"]);
-            console.log(state.list[redisKey]);
             if (state.list[redisKey].length === 0) {
                 yield put({ type: 'keyList/removeEntries', payload: { entries: new Array({ Key: redisKey }) } });
             }
@@ -44,7 +43,7 @@ export default {
                         "Type": "list",
                         "Field": propName,
                         "Value": jsonObj[propName],
-                    })
+                    });
                 }
             }
             state.list[redisKey] = data;
