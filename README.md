@@ -49,6 +49,3 @@ Run excutable file or run an docker image, then open a broswer, and access http:
 #### From docker hub
 1. docker pull lukiya/redismanager
 2. docker run --name redismanager -d --restart always -p 16379:16379 -v /data/redismanager/configs.json:/app/configs.json lukiya/redismanager
-#### From local image
-1. docker load -i ./dist/docker/redismanager.tar
-2. docker run --name redismanager -d --restart always -p 16379:16379 -v /data/redismanager/configs.json:/app/configs.json redismanager
