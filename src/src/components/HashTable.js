@@ -111,7 +111,7 @@ class HashTable extends Component {
 
     onCell = (record) => {
         return {
-            onClick: event => this.showEditor(record), // 点击行
+            onClick: event => this.showEditor(record),
         };
     };
 

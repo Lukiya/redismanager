@@ -16,11 +16,8 @@ export default {
             yield put({ type: 'saveList', payload: { redisKey: redisKey, jsonObj: resp } });
             yield put({ type: 'setBusy', payload: { isBusy: false } });
 
-
             const state = yield select(states => states["hash"]);
-            if (state) {
-                console.log(state);
-            }
+            console.log(state.list[redisKey]);
             if (state.list[redisKey].length === 0) {
                 yield put({ type: 'keyList/removeEntries', payload: { entries: new Array({ Key: redisKey }) } });
             }
