@@ -45,7 +45,12 @@ This is the configuration file for Redis Manager, here's an example:
 Run excutable file or run an docker image, then open a broswer, and access http://localhost:16379 (or http://RemoteIP:Port) to start using it.
 
 
-## Docker using guide
-#### From docker hub
-1. docker pull lukiya/redismanager
-2. docker run --name redismanager -d --restart always -p 16379:16379 -v /data/redismanager/configs.json:/app/configs.json lukiya/redismanager
+## Docker using example
+#### Use default settings
+``` bash
+docker run --name redismanager -d --restart always -p 16379:16379 -v lukiya/redismanager
+```
+#### Use custom settings
+``` bash
+docker run --name redismanager -d --restart always -p 16379:16379 -v /data/redismanager/configs.json:/app/configs.json lukiya/redismanager
+```
