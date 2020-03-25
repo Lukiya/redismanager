@@ -17,7 +17,7 @@ import (
 
 	"github.com/Lukiya/redismanager/src/go/core"
 	"github.com/kataras/iris/v12"
-	u "github.com/syncfuture/go/util"
+	"github.com/syncfuture/go/u"
 )
 
 const (

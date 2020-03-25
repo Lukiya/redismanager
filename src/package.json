@@ -8,7 +8,7 @@
     "precommit": "lint-staged"
   },
   "dependencies": {
-    "antd": "^3.19.5",
+    "antd": "^4.0.4",
     "axios": "^0.19.1",
     "clipboard": "^2.0.4",
     "codemirror": "^5.51.0",

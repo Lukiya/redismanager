@@ -3,7 +3,7 @@ package io
 import (
 	"encoding/json"
 
-	u "github.com/syncfuture/go/util"
+	"github.com/syncfuture/go/u"
 )
 
 type ExportFileEntry struct {
