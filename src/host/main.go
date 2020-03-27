@@ -27,7 +27,7 @@ func newApp() *iris.Application {
 			ctx.Header("Access-Control-Allow-Origin", "*")
 			ctx.Header("Access-Control-Allow-Credentials", "true")
 			ctx.Header("Access-Control-Allow-Methods", "DELETE")
-			ctx.Header("Access-Control-Allow-Headers", "Access-Control-Allow-Origin, Content-Type")
+			ctx.Header("Access-Control-Allow-Headers", "Access-Control-Allow-Origin, Content-Type, x-requested-with")
 			ctx.Next()
 		}
 
@@ -64,7 +64,7 @@ func newApp() *iris.Application {
 
 func main() {
 	fmt.Println("------------------------------------------------")
-	fmt.Println("-             Redis Manager v1.1.0             -")
+	fmt.Println("-             Redis Manager v1.0.0             -")
 	fmt.Println("------------------------------------------------")
 	app := newApp()
 	listenAddr := core.ConfigProvider.GetStringDefault("ListenAddr", ":16379")

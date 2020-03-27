@@ -15,7 +15,7 @@ export default (props: any) => {
     }
     return (
         <Menu theme="dark" mode="inline" selectedKeys={selectedKeys}>
-            {dbs.map((v: number[]) => <Menu.Item key={'|' + v + '|'}><Link className="pointer" to={'/db/' + v}><DatabaseFilled />db{v}</Link></Menu.Item>)}
+            {dbs.map((v: number[]) => <Menu.Item key={'|' + v + '|'}><Link to={'/db/' + v}><DatabaseFilled />db{v}</Link></Menu.Item>)}
         </Menu>
     )
 }

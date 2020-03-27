@@ -17,7 +17,7 @@ import (
 
 	"github.com/Lukiya/redismanager/src/go/core"
 	"github.com/kataras/iris/v12"
-	"github.com/syncfuture/go/u"
+	u "github.com/syncfuture/go/util"
 )
 
 const (
@@ -436,5 +436,15 @@ func ExportFile(ctx iris.Context) {
 
 // Import POST /api/v1/import/file
 func ImportFile(ctx iris.Context) {
+	file, info, err := ctx.FormFile("file")
+	if handleError(ctx, err) {
+		return
+	}
+	defer file.Close()
 
+	client := getClient(ctx)
+	importer := io.NewImporter(client)
+
+	_, err = importer.ImportZipFile(file, info.Size)
+	handleError(ctx, err)
 }

@@ -4,7 +4,7 @@ import (
 	"strconv"
 
 	"github.com/go-redis/redis/v7"
-	"github.com/syncfuture/go/u"
+	u "github.com/syncfuture/go/util"
 )
 
 type SaveRedisEntryCommand struct {

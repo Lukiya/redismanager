@@ -13,11 +13,11 @@ export default (props: any) => {
     for (let i = 0; i < addrs.length; i++) {
         nodes.push(<li key={i}>{addrs[i]}</li>);
     }
-    const nodesList = <ul className="nodeList">{nodes}</ul>
+    const nodesList = <ul className="ulist">{nodes}</ul>
 
     return (
         <Popover content={nodesList} trigger="focus">
-            <Button type="dashed"><GoldOutlined /> Nodes</Button>
+            <Button size="small" type="dashed"><GoldOutlined /> Nodes</Button>
         </Popover>
     )
 }

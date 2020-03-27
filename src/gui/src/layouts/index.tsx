@@ -1,14 +1,16 @@
 import React from 'react'
 import { Layout } from 'antd';
-import { ILayoutModelState, Link, connect, Dispatch } from 'umi';
+import { ILayoutModelState, Link, connect, Loading, Dispatch } from 'umi';
 import NodeList from '@/components/NodeList'
 import DBList from '@/components/DBList'
+import HelpButton from '@/components/HelpButton';
 import './index.css';
 
 const { Header, Sider, Content } = Layout;
 
 interface IPageProps {
     model: ILayoutModelState;
+    loading: boolean;
     dispatch: Dispatch;
 }
 
@@ -27,16 +29,12 @@ class AppLayout extends React.Component<IPageProps> {
                     <div className="logo"><Link to="/">Redis Manager</Link></div>
                     <DBList dbs={model.DBs} selectedKeys={['|' + model.SelectedDB + '|']} />
                 </Sider>
-                <Layout className="site-layout">
-                    <Header className="site-layout-background" style={{ padding: 0 }}>
+                <Layout className="layout">
+                    <Header className="header">
+                        <HelpButton/>
                         <NodeList configs={model.Configs} />
                     </Header>
-                    <Content className="site-layout-background" style={{
-                        margin: '24px 16px',
-                        padding: 24,
-                        minHeight: 280,
-                    }}
-                    >
+                    <Content className="content">
                         {this.props.children}
                     </Content>
                 </Layout>
@@ -45,6 +43,7 @@ class AppLayout extends React.Component<IPageProps> {
     }
 }
 
-export default connect(({ layout }: { layout: ILayoutModelState; }) => ({
+export default connect(({ layout, loading }: { layout: ILayoutModelState; loading: Loading }) => ({
     model: layout,
+    loading: loading.models.layout,
 }))(AppLayout);
