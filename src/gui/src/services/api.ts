@@ -55,17 +55,6 @@ export function getEntry(db: number, key: string, field: string) {
     }
 }
 
-// export function minify(code) {
-//     return request({
-//         url: '/min',
-//         method: 'POST',
-//         data: {
-//             code: code,
-//         },
-//         transformResponse: [(data) => { return data; }]
-//     });
-// }
-
 export function saveEntry(db: number, editingEntry: any, backupEntry: any) {
     return request({
         url: '/entry?db=' + encodeURIComponent(db),

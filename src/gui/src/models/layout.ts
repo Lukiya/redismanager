@@ -1,6 +1,5 @@
 import { Effect, Reducer, Subscription } from 'umi';
 import { getDBs, getConfigs } from '@/services/api';
-import u from '@/utils/u';
 
 export interface ILayoutModelState {
     DBs: number[];
@@ -17,7 +16,7 @@ export interface ILayoutModel {
         fetchConfigs: Effect;
     };
     reducers: {
-        saveState: Reducer<ILayoutModelState>;
+        setState: Reducer<ILayoutModelState>;
     };
     subscriptions: { setup: Subscription };
 }
@@ -38,15 +37,15 @@ const LayoutModel: ILayoutModel = {
         },
         *fetchDBs({ _ }, { call, put }) {
             const resp = yield call(getDBs);
-            yield put({ type: 'saveState', payload: { DBs: resp } });
+            yield put({ type: 'setState', payload: { DBs: resp } });
         },
         *fetchConfigs({ _ }, { call, put }) {
             const resp = yield call(getConfigs);
-            yield put({ type: 'saveState', payload: { Configs: resp } });
+            yield put({ type: 'setState', payload: { Configs: resp } });
         },
     },
     reducers: {
-        saveState(state, action) {
+        setState(state, action) {
             return {
                 ...state,
                 ...action.payload,
@@ -62,7 +61,7 @@ const LayoutModel: ILayoutModel = {
                     selectedDB = parseInt(t[1]);
                 }
 
-                dispatch({ type: "saveState", payload: { SelectedDB: selectedDB } });
+                dispatch({ type: "setState", payload: { SelectedDB: selectedDB } });
             });
         }
     },

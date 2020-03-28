@@ -1,17 +1,42 @@
 import React from 'react'
-import { IKeyListModelState, IKeyDTO, connect, Loading, Dispatch } from 'umi';
+import { IRedisEntry, IEntryTableModelState, ILayoutModelState, connect, Loading, Dispatch } from 'umi';
 import { Table, Dropdown, Button, Menu } from 'antd'
 import { ColumnProps } from 'antd/es/table';
 import { DownOutlined, RedoOutlined, ExportOutlined, DeleteOutlined, FileAddOutlined } from '@ant-design/icons';
+import { hash } from '@/utils/sha1'
+import u from '@/utils/u';
+import HashTable from '@/components/HashTable'
 
 interface IPageProps {
-    model: IKeyListModelState;
+    model: IEntryTableModelState;
     loading: boolean;
+    configs: any;
     dispatch: Dispatch;
 }
 
-class KeyListPage extends React.Component<IPageProps> {
-    onCell = (record: any) => {
+class KeysPage extends React.Component<IPageProps> {
+    onExpand = (expanded: boolean, record: IRedisEntry) => {
+        if (expanded) {
+            const { model, dispatch } = this.props;
+            dispatch({
+                type: 'keytable/fetchSubEntries', payload: {
+                    db: model.DB,
+                    key: record.Key,
+                    type: record.Type,
+                }
+            });
+        }
+    };
+
+    expandedRowRender = (record: IRedisEntry) => {
+        const { model } = this.props;
+        const entries = model[hash(record.Key)]
+        return (
+            <HashTable entries={entries} />
+        )
+    };
+
+    onKeyCell = (record: IRedisEntry) => {
         return {
             onClick: () => {
                 const { model, dispatch } = this.props;
@@ -30,7 +55,17 @@ class KeyListPage extends React.Component<IPageProps> {
         };
     };
 
-    _columns: ColumnProps<IKeyDTO>[] = [
+    onSelectionChanged = (SelectedRowKeys: React.Key[], SelectedEntries: IRedisEntry[]) => {
+        this.props.dispatch({
+            type: 'keytable/setState',
+            payload: {
+                SelectedRowKeys,
+                SelectedEntries,
+            },
+        });
+    };
+
+    _columns: ColumnProps<IRedisEntry>[] = [
         {
             title: 'Key',
             dataIndex: 'Key',
@@ -38,7 +73,7 @@ class KeyListPage extends React.Component<IPageProps> {
             defaultSortOrder: "ascend",
             sorter: (a: any, b: any) => a.Key.localeCompare(b.Key),
             // ...this.getColumnSearchProps('Key'),
-            onCell: this.onCell,
+            onCell: this.onKeyCell,
             className: "pointer",
         },
         {
@@ -66,7 +101,12 @@ class KeyListPage extends React.Component<IPageProps> {
     ];
 
     render() {
-        const { model, loading } = this.props;
+        const { model, loading, configs } = this.props;
+        let pageSize = 15;
+        if (!u.isNoW(configs) && !u.isNoW(configs.PageSize) && !u.isNoW(configs.PageSize.Keys)) {
+            pageSize = configs.PageSize.Keys;
+        }
+
         const menu = (
             <Menu>
                 <Menu.Item key="string">string</Menu.Item>
@@ -76,6 +116,7 @@ class KeyListPage extends React.Component<IPageProps> {
                 <Menu.Item key="zset">zset</Menu.Item>
             </Menu>
         );
+
         return (
             <div>
                 <div className="toolbar">
@@ -87,20 +128,28 @@ class KeyListPage extends React.Component<IPageProps> {
                     <Button size="small" type="danger" title="Delete"><DeleteOutlined /></Button>
                 </div>
 
-                <Table<IKeyDTO>
-                    rowKey={x => x.Key}
+                <Table<IRedisEntry>
+                    rowKey="Key"
                     columns={this._columns}
-                    dataSource={model.Keys}
+                    dataSource={model.Entries}
                     loading={loading}
-                    size="small"
+                    onExpand={this.onExpand}
+                    expandedRowRender={this.expandedRowRender}
+                    rowSelection={{
+                        selectedRowKeys: model.SelectedRowKeys,
+                        onChange: this.onSelectionChanged,
+                    }}
+                    pagination={{ pageSize: pageSize, hideOnSinglePage: true }}
                     bordered={true}
+                    size="small"
                 />
             </div>
         );
     }
 }
 
-export default connect(({ keylist, loading }: { keylist: IKeyListModelState; loading: Loading }) => ({
-    model: keylist,
-    loading: loading.models.keylist,
-}))(KeyListPage);
+export default connect(({ layout, keytable, loading }: { layout: ILayoutModelState; keytable: IEntryTableModelState; loading: Loading }) => ({
+    model: keytable,
+    configs: layout.Configs,
+    loading: loading.models.keytable,
+}))(KeysPage);
