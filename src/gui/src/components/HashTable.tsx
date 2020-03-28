@@ -1,5 +1,5 @@
 import React from 'react'
-import { IRedisEntry, IEntryTableModelState, ILayoutModelState, connect, Loading } from 'umi';
+import { IRedisEntry, ILayoutModelState, connect } from 'umi';
 import { Table, Button } from 'antd'
 import { ColumnProps } from 'antd/es/table';
 import { DeleteOutlined } from '@ant-design/icons';
@@ -42,7 +42,7 @@ class HashTable extends React.Component<IPageProps> {
     ];
 
     render() {
-        const { loading, configs, entries } = this.props;
+        const { configs, entries } = this.props;
         let pageSize = 15;
         if (!u.isNoW(configs) && !u.isNoW(configs.PageSize) && !u.isNoW(configs.PageSize.SubList)) {
             pageSize = configs.PageSize.SubList;
@@ -61,7 +61,6 @@ class HashTable extends React.Component<IPageProps> {
     }
 }
 
-export default connect(({ layout, loading }: { layout: ILayoutModelState; loading: Loading }) => ({
+export default connect(({ layout, }: { layout: ILayoutModelState; }) => ({
     configs: layout.Configs,
-    loading: loading.models.keytable,
 }))(HashTable);
