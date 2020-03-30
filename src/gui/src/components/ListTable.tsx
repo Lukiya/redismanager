@@ -4,13 +4,14 @@ import { Table, Button } from 'antd'
 import { ColumnProps } from 'antd/es/table';
 import { DeleteOutlined } from '@ant-design/icons';
 import u from '@/utils/u';
+import TableComponent from './TableComponent';
 
 interface IPageProps {
     configs: any;
     entries: [];
 }
 
-class ListTable extends React.Component<IPageProps> {
+class ListTable extends TableComponent<IPageProps> {
     _columns: ColumnProps<IRedisEntry>[] = [
         {
             title: 'Index',
@@ -20,7 +21,7 @@ class ListTable extends React.Component<IPageProps> {
             // onCell: this.onCell,
             className: "pointer",
             sorter: (a, b) => a.Field - b.Field,
-            // ...this.getColumnSearchProps('Field'),
+            ...this.getColumnSearchProps('Field'),
         },
         {
             title: 'Value',
@@ -28,7 +29,7 @@ class ListTable extends React.Component<IPageProps> {
             key: 'Value',
             // onCell: this.onCell,
             className: "pointer",
-            // ...this.getColumnSearchProps('Value'),
+            ...this.getColumnSearchProps('Value'),
         },
         {
             title: 'Action',

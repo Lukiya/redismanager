@@ -5,6 +5,7 @@ import { ColumnProps } from 'antd/es/table';
 import { DownOutlined, RedoOutlined, ExportOutlined, DeleteOutlined, FileAddOutlined } from '@ant-design/icons';
 import { hash } from '@/utils/sha1'
 import u from '@/utils/u';
+import TableComponent from '@/components/TableComponent'
 import HashTable from '@/components/HashTable'
 import ListTable from '@/components/ListTable'
 import SetTable from '@/components/SetTable'
@@ -17,7 +18,7 @@ interface IPageProps {
     dispatch: Dispatch;
 }
 
-class KeysPage extends React.Component<IPageProps> {
+class KeysPage extends TableComponent<IPageProps> {
     rowClassName = (record: IRedisEntry) => {
         if (record.Type === u.STRING) {
             return "str_row";
@@ -98,7 +99,7 @@ class KeysPage extends React.Component<IPageProps> {
             key: 'Key',
             defaultSortOrder: "ascend",
             sorter: (a: any, b: any) => a.Key.localeCompare(b.Key),
-            // ...this.getColumnSearchProps('Key'),
+            ...this.getColumnSearchProps("Key"),
             onCell: this.onKeyCell,
             className: "pointer",
         },

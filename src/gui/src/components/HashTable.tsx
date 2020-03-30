@@ -4,13 +4,14 @@ import { Table, Button } from 'antd'
 import { ColumnProps } from 'antd/es/table';
 import { DeleteOutlined } from '@ant-design/icons';
 import u from '@/utils/u';
+import TableComponent from './TableComponent';
 
 interface IPageProps {
     configs: any;
     entries: [];
 }
 
-class HashTable extends React.Component<IPageProps> {
+class HashTable extends TableComponent<IPageProps> {
     _columns: ColumnProps<IRedisEntry>[] = [
         {
             title: 'Field',
@@ -20,7 +21,7 @@ class HashTable extends React.Component<IPageProps> {
             // onCell: this.onCell,
             className: "pointer",
             sorter: (a, b) => a.Field.localeCompare(b.Field),
-            // ...this.getColumnSearchProps('Field'),
+            ...this.getColumnSearchProps('Field'),
         },
         {
             title: 'Value',
@@ -28,7 +29,7 @@ class HashTable extends React.Component<IPageProps> {
             key: 'Value',
             // onCell: this.onCell,
             className: "pointer",
-            // ...this.getColumnSearchProps('Value'),
+            ...this.getColumnSearchProps('Value'),
         },
         {
             title: 'Action',

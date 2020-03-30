@@ -4,13 +4,14 @@ import { Table, Button } from 'antd'
 import { ColumnProps } from 'antd/es/table';
 import { DeleteOutlined } from '@ant-design/icons';
 import u from '@/utils/u';
+import TableComponent from './TableComponent';
 
 interface IPageProps {
     configs: any;
     entries: [];
 }
 
-class ZSetTable extends React.Component<IPageProps> {
+class ZSetTable extends TableComponent<IPageProps> {
     _columns: ColumnProps<IRedisEntry>[] = [
         {
             title: 'Score',
@@ -20,15 +21,16 @@ class ZSetTable extends React.Component<IPageProps> {
             // onCell: this.onCell,
             className: "pointer",
             sorter: (a, b) => a.Field - b.Field,
-            // ...this.getColumnSearchProps('Field'),
+            ...this.getColumnSearchProps('Field'),
         },
         {
             title: 'Member',
             dataIndex: 'Value',
             key: 'Value',
+            sorter: (a, b) => b.Value.localeCompare(a.Value),
             // onCell: this.onCell,
             className: "pointer",
-            // ...this.getColumnSearchProps('Value'),
+            ...this.getColumnSearchProps('Value'),
         },
         {
             title: 'Action',

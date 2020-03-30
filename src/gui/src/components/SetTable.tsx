@@ -4,13 +4,14 @@ import { Table, Button } from 'antd'
 import { ColumnProps } from 'antd/es/table';
 import { DeleteOutlined } from '@ant-design/icons';
 import u from '@/utils/u';
+import TableComponent from './TableComponent';
 
 interface IPageProps {
     configs: any;
     entries: [];
 }
 
-class SetTable extends React.Component<IPageProps> {
+class SetTable extends TableComponent<IPageProps> {
     _columns: ColumnProps<IRedisEntry>[] = [
         {
             title: 'Member',
@@ -19,8 +20,8 @@ class SetTable extends React.Component<IPageProps> {
             // onCell: this.onCell,
             className: "pointer",
             defaultSortOrder: "ascend",
-            sorter: (a, b) => b.Field.localeCompare(a.Field),
-            // ...this.getColumnSearchProps('Value'),
+            sorter: (a, b) => b.Value.localeCompare(a.Value),
+            ...this.getColumnSearchProps('Value'),
         },
         {
             title: 'Action',
