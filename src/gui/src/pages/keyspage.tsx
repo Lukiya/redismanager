@@ -6,6 +6,9 @@ import { DownOutlined, RedoOutlined, ExportOutlined, DeleteOutlined, FileAddOutl
 import { hash } from '@/utils/sha1'
 import u from '@/utils/u';
 import HashTable from '@/components/HashTable'
+import ListTable from '@/components/ListTable'
+import SetTable from '@/components/SetTable'
+import ZSetTable from '@/components/ZSetTable'
 
 interface IPageProps {
     model: IEntryTableModelState;
@@ -15,6 +18,13 @@ interface IPageProps {
 }
 
 class KeysPage extends React.Component<IPageProps> {
+    rowClassName = (record: IRedisEntry) => {
+        if (record.Type === u.STRING) {
+            return "str_row";
+        }
+        return "";
+    };
+
     onExpand = (expanded: boolean, record: IRedisEntry) => {
         if (expanded) {
             const { model, dispatch } = this.props;
@@ -31,9 +41,25 @@ class KeysPage extends React.Component<IPageProps> {
     expandedRowRender = (record: IRedisEntry) => {
         const { model } = this.props;
         const entries = model[hash(record.Key)]
-        return (
-            <HashTable entries={entries} />
-        )
+        let subtable;
+        switch (record.Type) {
+            case u.HASH:
+                subtable = <HashTable entries={entries} />
+                break;
+            case u.LIST:
+                subtable = <ListTable entries={entries} />
+                break;
+            case u.SET:
+                subtable = <SetTable entries={entries} />
+                break;
+            case u.ZSET:
+                subtable = <ZSetTable entries={entries} />
+                break;
+            default:
+                subtable = <div>NOT SUPPORT</div>
+                break;
+        }
+        return subtable;
     };
 
     onKeyCell = (record: IRedisEntry) => {
@@ -133,6 +159,7 @@ class KeysPage extends React.Component<IPageProps> {
                     columns={this._columns}
                     dataSource={model.Entries}
                     loading={loading}
+                    rowClassName={this.rowClassName}
                     onExpand={this.onExpand}
                     expandedRowRender={this.expandedRowRender}
                     rowSelection={{

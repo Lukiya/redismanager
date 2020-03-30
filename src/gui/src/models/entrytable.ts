@@ -3,7 +3,7 @@ import { Effect, Reducer, Subscription } from 'umi';
 export interface IRedisEntry {
     Key: string;
     Type: string;
-    Field: string;
+    Field: any;
     Value: string;
     TTL: number;
     Length: number;

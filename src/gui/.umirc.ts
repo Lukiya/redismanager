@@ -8,7 +8,7 @@ export default defineConfig({
       component: '@/layouts/index',
       routes: [
         { path: '/', component: '@/pages/dashboard' },
-        { path: '/db/:id', component: '@/pages/keylist' },
+        { path: '/db/:id', component: '@/pages/keyspage' },
       ]
     }
   ],

@@ -10,20 +10,20 @@ interface IPageProps {
     entries: [];
 }
 
-class HashTable extends React.Component<IPageProps> {
+class ZSetTable extends React.Component<IPageProps> {
     _columns: ColumnProps<IRedisEntry>[] = [
         {
-            title: 'Field',
+            title: 'Score',
             dataIndex: 'Field',
             key: 'Field',
             defaultSortOrder: "ascend",
             // onCell: this.onCell,
             className: "pointer",
-            sorter: (a, b) => a.Field.localeCompare(b.Field),
+            sorter: (a, b) => a.Field - b.Field,
             // ...this.getColumnSearchProps('Field'),
         },
         {
-            title: 'Value',
+            title: 'Member',
             dataIndex: 'Value',
             key: 'Value',
             // onCell: this.onCell,
@@ -63,4 +63,4 @@ class HashTable extends React.Component<IPageProps> {
 
 export default connect(({ layout, }: { layout: ILayoutModelState; }) => ({
     configs: layout.Configs,
-}))(HashTable);
+}))(ZSetTable);

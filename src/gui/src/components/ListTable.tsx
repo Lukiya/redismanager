@@ -10,16 +10,16 @@ interface IPageProps {
     entries: [];
 }
 
-class HashTable extends React.Component<IPageProps> {
+class ListTable extends React.Component<IPageProps> {
     _columns: ColumnProps<IRedisEntry>[] = [
         {
-            title: 'Field',
+            title: 'Index',
             dataIndex: 'Field',
             key: 'Field',
             defaultSortOrder: "ascend",
             // onCell: this.onCell,
             className: "pointer",
-            sorter: (a, b) => a.Field.localeCompare(b.Field),
+            sorter: (a, b) => a.Field - b.Field,
             // ...this.getColumnSearchProps('Field'),
         },
         {
@@ -63,4 +63,4 @@ class HashTable extends React.Component<IPageProps> {
 
 export default connect(({ layout, }: { layout: ILayoutModelState; }) => ({
     configs: layout.Configs,
-}))(HashTable);
+}))(ListTable);

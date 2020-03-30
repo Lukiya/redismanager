@@ -6,13 +6,47 @@ import u from '@/utils/u';
 function convert(key: string, type: string, resp: any): any[] {
     const r = []
     if (!u.isNoW(resp)) {
-        for (var propName in resp) {
-            r.push({
-                "Key": key,
-                "Type": type,
-                "Field": propName,
-                "Value": resp[propName],
-            });
+        switch (type) {
+            case u.HASH:
+                for (var propName in resp) {
+                    r.push({
+                        "Key": key,
+                        "Type": type,
+                        "Field": propName,
+                        "Value": resp[propName],
+                    });
+                }
+                break;
+            case u.LIST:
+                resp.forEach((x: any, i: number) => {
+                    r.push({
+                        "Key": key,
+                        "Type": type,
+                        "Field": i,
+                        "Value": x,
+                    });
+                });
+                break;
+            case u.SET:
+                resp.forEach((x: any) => {
+                    r.push({
+                        "Key": key,
+                        "Type": type,
+                        "Field": x,
+                        "Value": x,
+                    });
+                });
+                break;
+            case u.ZSET:
+                resp.forEach((x: any) => {
+                    r.push({
+                        "Key": key,
+                        "Type": type,
+                        "Field": x.Score,
+                        "Value": x.Member,
+                    });
+                });
+                break;
         }
     }
     return r;
@@ -43,19 +77,19 @@ const KeyTableModel: IKeyTableModel = {
             let resp = null;
 
             switch (payload.type) {
-                case "hash":
+                case u.HASH:
                     resp = yield call(getHashElements, payload.db, payload.key);
                     data = convert(payload.key, "hash", resp);
                     break
-                case "list":
+                case u.LIST:
                     resp = yield call(getListElements, payload.db, payload.key);
                     data = convert(payload.key, "list", resp);
                     break
-                case "set":
+                case u.SET:
                     resp = yield call(getSetElements, payload.db, payload.key);
                     data = convert(payload.key, "set", resp);
                     break
-                case "zset":
+                case u.ZSET:
                     resp = yield call(getZSetElements, payload.db, payload.key);
                     data = convert(payload.key, "zset", resp);
                     break
