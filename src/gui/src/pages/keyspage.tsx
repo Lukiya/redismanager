@@ -10,6 +10,7 @@ import HashTable from '@/components/HashTable'
 import ListTable from '@/components/ListTable'
 import SetTable from '@/components/SetTable'
 import ZSetTable from '@/components/ZSetTable'
+import Editor from '@/components/Editor'
 import './keyspage.css';
 
 interface IPageProps {
@@ -72,10 +73,10 @@ class KeysPage extends TableComponent<IPageProps> {
                     type: 'editor/show',
                     payload: {
                         db: model.DB,
-                        editingEntry: {
+                        entry: {
                             Key: record.Key,
                             Type: record.Type,
-                            isNew: false
+                            IsNew: false
                         },
                     },
                 });
@@ -172,6 +173,8 @@ class KeysPage extends TableComponent<IPageProps> {
                     bordered={true}
                     size="small"
                 />
+
+                <Editor />
             </div>
         );
     }

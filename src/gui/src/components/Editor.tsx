@@ -92,23 +92,23 @@ class Editor extends React.Component<IPageProps>{
             >
                 <Skeleton loading={loading} active>
                     <Row gutter={8} align="middle">
-                        <Col md={12} lg={8} xl={9} xxl={9}>
-                            <Input addonBefore="Key" value={model.EditingEntry.Key} onChange={this.onKeyChange} disabled={!model.keyEditorEnabled} onPressEnter={this.save} />
+                        <Col md={12} lg={8} xl={8} xxl={9}>
+                            <Input addonBefore="Key" value={model.EditingEntry.Key} onChange={this.onKeyChange} disabled={!model.KeyEditorEnabled} onPressEnter={this.save} />
                         </Col>
-                        <Col md={12} lg={8} xl={9} xxl={9}>
-                            <Input addonBefore={model.fieldCaption} value={model.EditingEntry.Field} onChange={this.onFieldChange} disabled={!model.fieldEditorEnabled} onPressEnter={this.save} />
+                        <Col md={12} lg={8} xl={8} xxl={9}>
+                            <Input addonBefore="TEST" value={model.EditingEntry.Field} onChange={this.onFieldChange} disabled={!model.FieldEditorEnabled} onPressEnter={this.save} />
                         </Col>
-                        <Col md={12} lg={4} xl={3} xxl={3}>
-                            <Input addonBefore="TTL" value={model.EditingEntry.TTL} onChange={this.onTTLChange} disabled={!model.ttlEditorEnabled} onPressEnter={this.save} />
+                        <Col md={12} lg={3} xl={4} xxl={3}>
+                            <Input addonBefore="TTL" value={model.EditingEntry.TTL} onChange={this.onTTLChange} disabled={!model.TTLEditorEnabled} onPressEnter={this.save} />
                         </Col>
-                        <Col md={12} lg={4} xl={3} xxl={3}>
-                            <Button type="primary" onClick={this.save} loading={model.isBusy} title="Save"><SaveOutlined /></Button>
+                        <Col md={12} lg={5} xl={4} xxl={3}>
+                            <Button type="primary" onClick={this.save} loading={loading} title="Save"><SaveOutlined /></Button>
                             <Button type="dashed" onClick={this.beautify} title="Beautify" style={{ margin: "0 5px" }} disabled={!formatEnabled}><CodeOutlined /></Button>
                             <Button type="dashed" onClick={this.minify} title="Compress" disabled={!formatEnabled}><BoxPlotOutlined /></Button>
                         </Col>
                     </Row>
                     {
-                        model.valueEditorEnabled ?
+                        model.ValueEditorEnabled ?
                             <div style={{ marginTop: "5px" }}>
                                 <CodeMirror value={model.EditingEntry.Value} options={codemirrorOptions} onChange={this.onValueChanged} />
                             </div>

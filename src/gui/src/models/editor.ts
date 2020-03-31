@@ -33,19 +33,19 @@ function editorSwitch(entry: IRedisEntry): any {
         ValueEditorEnabled: true,
     };
 
-    if (entry.Type === u.STRING) {
-        r.FieldEditorEnabled = false;
-    }
-    else {
-        r.TTLEditorEnabled = !u.isNoW(entry.Field);
-        r.FieldEditorEnabled = entry.Type === u.HASH || entry.Type === u.ZSET;
-    }
-
     if (entry.IsNew) {
         r.KeyEditorEnabled = true;
         r.ValueEditorEnabled = true;
         r.TTLEditorEnabled = entry.Type === u.STRING;
         r.FieldEditorEnabled = entry.Type === u.HASH || entry.Type === u.ZSET;
+    } else {
+        r.TTLEditorEnabled = !u.isNoW(entry.Field);
+        r.FieldEditorEnabled = entry.Type === u.HASH || entry.Type === u.ZSET;
+    }
+
+    if (entry.Type === u.STRING) {
+        r.TTLEditorEnabled = true;
+        r.FieldEditorEnabled = false;
     }
 
     return r;
