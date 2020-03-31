@@ -10,6 +10,7 @@ import HashTable from '@/components/HashTable'
 import ListTable from '@/components/ListTable'
 import SetTable from '@/components/SetTable'
 import ZSetTable from '@/components/ZSetTable'
+import './keyspage.css';
 
 interface IPageProps {
     model: IEntryTableModelState;
