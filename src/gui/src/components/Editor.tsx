@@ -14,6 +14,7 @@ interface IPageProps {
     dispatch: Dispatch;
 }
 
+
 class Editor extends React.Component<IPageProps>{
     onTTLChange = ({ target: { value } }: { target: { value: any } }) => {
         this.props.dispatch({

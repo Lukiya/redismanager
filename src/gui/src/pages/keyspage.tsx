@@ -33,9 +33,9 @@ class KeysPage extends TableComponent<IPageProps> {
             const { model, dispatch } = this.props;
             dispatch({
                 type: 'keytable/fetchSubEntries', payload: {
-                    db: model.DB,
-                    key: record.Key,
-                    type: record.Type,
+                    DB: model.DB,
+                    Key: record.Key,
+                    Type: record.Type,
                 }
             });
         }
@@ -65,25 +65,6 @@ class KeysPage extends TableComponent<IPageProps> {
         return subtable;
     };
 
-    onKeyCell = (record: IRedisEntry) => {
-        return {
-            onClick: () => {
-                const { model, dispatch } = this.props;
-                dispatch({
-                    type: 'editor/show',
-                    payload: {
-                        db: model.DB,
-                        entry: {
-                            Key: record.Key,
-                            Type: record.Type,
-                            IsNew: false
-                        },
-                    },
-                });
-            },
-        };
-    };
-
     onSelectionChanged = (SelectedRowKeys: React.Key[], SelectedEntries: IRedisEntry[]) => {
         this.props.dispatch({
             type: 'keytable/setState',
@@ -94,6 +75,26 @@ class KeysPage extends TableComponent<IPageProps> {
         });
     };
 
+    showEditor = (record: IRedisEntry) => {
+        return {
+            onClick: () => {
+                const { model, dispatch } = this.props;
+                dispatch({
+                    type: 'editor/show',
+                    payload: {
+                        db: model.DB,
+                        entry: {
+                            Key: record.Key,
+                            Type: record.Type,
+                            Field: record.Field,
+                            IsNew: false
+                        },
+                    },
+                });
+            },
+        };
+    };
+
     _columns: ColumnProps<IRedisEntry>[] = [
         {
             title: 'Key',
@@ -102,7 +103,7 @@ class KeysPage extends TableComponent<IPageProps> {
             defaultSortOrder: "ascend",
             sorter: (a: any, b: any) => a.Key.localeCompare(b.Key),
             ...this.getColumnSearchProps("Key"),
-            onCell: this.onKeyCell,
+            onCell: this.showEditor,
             className: "pointer",
         },
         {

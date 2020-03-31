@@ -13,5 +13,20 @@ const u = {
             return false;
         }
     },
+
+    isSuccess: (msgCode: string): boolean => {
+        return msgCode === "";
+    },
+
+    isXml: (str: string) => {
+        const startPattern = /^\s*<[^>]+>/;
+        const endPattern = /<\/[^>]+>\s*$/;
+        return startPattern.test(str) && endPattern.test(str);
+    },
+
+    isJson: (str: string) => {
+        const pattern = /(^\s*\[[\s\S]*\]\s*$)|(^\s*\{[\s\S]*\}\s*$)/;
+        return pattern.test(str);
+    },
 }
 export default u

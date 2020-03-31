@@ -2,8 +2,14 @@ import React from 'react'
 import { Button, Input } from 'antd'
 import { SearchOutlined } from '@ant-design/icons';
 import Highlighter from 'react-highlight-words';
+import { IRedisEntry, Dispatch, IEntryTableModelState } from 'umi';
 
-class TableComponent<T> extends React.Component<T> {
+interface IPageProps {
+    model: IEntryTableModelState;
+    dispatch: Dispatch;
+}
+
+class TableComponent<T extends IPageProps> extends React.Component<T> {
     state = {
         searchText: '',
         searchedColumn: '',
@@ -75,4 +81,4 @@ class TableComponent<T> extends React.Component<T> {
     };
 }
 
-export default TableComponent 
+export default TableComponent

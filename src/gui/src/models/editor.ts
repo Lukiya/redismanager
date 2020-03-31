@@ -1,5 +1,5 @@
 import { Effect, Reducer, IRedisEntry } from 'umi';
-import { getEntry } from '@/services/api'
+import { getEntry, saveEntry } from '@/services/api'
 import u from '@/utils/u';
 
 export interface IEditorModelState {
@@ -18,10 +18,15 @@ export interface IEditorModel {
     state: IEditorModelState;
     effects: {
         show: Effect;
+        save: Effect;
     };
     reducers: {
         setState: Reducer<IEditorModelState>;
         hide: Reducer<IEditorModelState>;
+        setKey: Reducer<IEditorModelState>;
+        setField: Reducer<IEditorModelState>;
+        setTTL: Reducer<IEditorModelState>;
+        setValue: Reducer<IEditorModelState>;
     };
 }
 
@@ -33,22 +38,27 @@ function editorSwitch(entry: IRedisEntry): any {
         ValueEditorEnabled: true,
     };
 
-    if (entry.IsNew) {
-        r.KeyEditorEnabled = true;
-        r.ValueEditorEnabled = true;
-        r.TTLEditorEnabled = entry.Type === u.STRING;
+    if (entry.Type === u.STRING) {
+        r.FieldEditorEnabled = false;
+    } else if (entry.IsNew) {
         r.FieldEditorEnabled = entry.Type === u.HASH || entry.Type === u.ZSET;
     } else {
-        r.TTLEditorEnabled = !u.isNoW(entry.Field);
-        r.FieldEditorEnabled = entry.Type === u.HASH || entry.Type === u.ZSET;
-    }
-
-    if (entry.Type === u.STRING) {
-        r.TTLEditorEnabled = true;
-        r.FieldEditorEnabled = false;
+        r.TTLEditorEnabled = u.isNoW(entry.Field);
+        r.ValueEditorEnabled = !u.isNoW(entry.Field);
+        r.FieldEditorEnabled = !u.isNoW(entry.Field);
     }
 
     return r;
+}
+
+function getValueEditorMode(value: string): any {
+    let valueEditorMode = 'text';
+    if (u.isJson(value)) {
+        valueEditorMode = "javascript";
+    } else if (u.isXml(value)) {
+        valueEditorMode = "xml";
+    }
+    return valueEditorMode;
 }
 
 const EditorModel: IEditorModel = {
@@ -93,19 +103,78 @@ const EditorModel: IEditorModel = {
                 });
             }
         },
+        *save({ _ }, { call, put, select }) {
+            const state = yield select((x: any) => x["editor"]);
+
+            const msgCode = yield call(saveEntry, state.DB, state.EditingEntry, state.BackupEntry);
+
+            if (u.isSuccess(msgCode)) {
+                yield put({ type: 'hide' });
+                yield put({ type: 'keytable/refreshEntry', payload: { Key: state.EditingEntry.Key } });
+            }
+        },
     },
     reducers: {
-        setState(state: any, action) {
+        setState(state, { payload }) {
             return {
                 ...state,
-                ...action.payload,
+                ...payload,
             };
         },
         hide(state: any) {
             return {
                 ...state,
+                DB: -1,
                 Visible: false,
             };
+        },
+        setKey(state: any, { payload: { key } }) {
+            return {
+                ...state,
+                EditingEntry: {
+                    ...state.EditingEntry,
+                    Key: key
+                }
+            }
+        },
+        setField(state: any, { payload: { field } }) {
+            return {
+                ...state,
+                EditingEntry: {
+                    ...state.EditingEntry,
+                    Field: field
+                }
+            }
+        },
+        setTTL(state: any, { payload: { ttl } }) {
+            let newValue = parseInt(ttl);
+            if (isNaN(newValue) || newValue <= 0) {
+                newValue = -1;
+            }
+            return {
+                ...state,
+                EditingEntry: {
+                    ...state.EditingEntry,
+                    TTL: newValue
+                }
+            }
+        },
+        setValue(state: any, { payload: { value } }) {
+            const valueEditorMode = getValueEditorMode(value);
+
+            if (state.valueEditorMode !== valueEditorMode) {
+                return {
+                    ...state,
+                    ValueEditorMode: valueEditorMode,
+                    EditingEntry: {
+                        ...state.EditingEntry,
+                        Value: value
+                    }
+                }
+            } else {
+                state.EditingEntry.Value = value;
+                return state;
+            }
         },
     },
 };

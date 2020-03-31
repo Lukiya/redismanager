@@ -1,5 +1,5 @@
 import React from 'react'
-import { IRedisEntry, ILayoutModelState, connect } from 'umi';
+import { IRedisEntry, ILayoutModelState, connect, Dispatch, IEntryTableModelState } from 'umi';
 import { Table, Button } from 'antd'
 import { ColumnProps } from 'antd/es/table';
 import { DeleteOutlined } from '@ant-design/icons';
@@ -7,18 +7,40 @@ import u from '@/utils/u';
 import TableComponent from './TableComponent';
 
 interface IPageProps {
+    model: IEntryTableModelState;
     configs: any;
     entries: [];
+    dispatch: Dispatch
 }
 
 class ZSetTable extends TableComponent<IPageProps> {
+    showEditor = (record: IRedisEntry) => {
+        return {
+            onClick: () => {
+                const { model, dispatch } = this.props;
+                dispatch({
+                    type: 'editor/show',
+                    payload: {
+                        db: model.DB,
+                        entry: {
+                            Key: record.Key,
+                            Type: record.Type,
+                            Field: record.Field,
+                            IsNew: false
+                        },
+                    },
+                });
+            },
+        };
+    };
+
     _columns: ColumnProps<IRedisEntry>[] = [
         {
             title: 'Score',
             dataIndex: 'Field',
             key: 'Field',
             defaultSortOrder: "ascend",
-            // onCell: this.onCell,
+            onCell: this.showEditor,
             className: "pointer",
             sorter: (a, b) => a.Field - b.Field,
             ...this.getColumnSearchProps('Field'),
@@ -28,7 +50,7 @@ class ZSetTable extends TableComponent<IPageProps> {
             dataIndex: 'Value',
             key: 'Value',
             sorter: (a, b) => b.Value.localeCompare(a.Value),
-            // onCell: this.onCell,
+            onCell: this.showEditor,
             className: "pointer",
             ...this.getColumnSearchProps('Value'),
         },
@@ -63,6 +85,7 @@ class ZSetTable extends TableComponent<IPageProps> {
     }
 }
 
-export default connect(({ layout, }: { layout: ILayoutModelState; }) => ({
+export default connect(({ layout, keytable }: { layout: ILayoutModelState; keytable: IEntryTableModelState }) => ({
+    model: keytable,
     configs: layout.Configs,
 }))(ZSetTable);

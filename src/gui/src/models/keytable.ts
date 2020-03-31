@@ -1,5 +1,5 @@
 import { IEntryTableModel, IEntryTableModelState, Effect, Reducer } from 'umi';
-import { getKeys, getHashElements, getListElements, getSetElements, getZSetElements } from '@/services/api';
+import { getKeys, getHashElements, getListElements, getSetElements, getZSetElements, getEntry } from '@/services/api';
 import { hash } from '@/utils/sha1'
 import u from '@/utils/u';
 
@@ -56,6 +56,11 @@ interface IKeyTableModel extends IEntryTableModel {
     effects: {
         fetchEntries: Effect;
         fetchSubEntries: Effect;
+        refreshEntry: Effect;
+    };
+    reducers: {
+        setState: Reducer<IEntryTableModelState>;
+        setEntry: Reducer<IEntryTableModelState>;
     };
 }
 
@@ -69,40 +74,66 @@ const KeyTableModel: IKeyTableModel = {
 
     effects: {
         *fetchEntries({ payload }, { call, put }) {
-            const resp = yield call(getKeys, payload.db);
+            const resp = yield call(getKeys, payload.DB);
             yield put({ type: 'setState', payload: { Entries: resp } });
         },
         *fetchSubEntries({ payload }, { call, put }) {
             let data = [];
             let resp = null;
 
-            switch (payload.type) {
+            switch (payload.Type) {
                 case u.HASH:
-                    resp = yield call(getHashElements, payload.db, payload.key);
-                    data = convert(payload.key, "hash", resp);
+                    resp = yield call(getHashElements, payload.DB, payload.Key);
+                    data = convert(payload.Key, "hash", resp);
                     break
                 case u.LIST:
-                    resp = yield call(getListElements, payload.db, payload.key);
-                    data = convert(payload.key, "list", resp);
+                    resp = yield call(getListElements, payload.DB, payload.Key);
+                    data = convert(payload.Key, "list", resp);
                     break
                 case u.SET:
-                    resp = yield call(getSetElements, payload.db, payload.key);
-                    data = convert(payload.key, "set", resp);
+                    resp = yield call(getSetElements, payload.DB, payload.Key);
+                    data = convert(payload.Key, "set", resp);
                     break
                 case u.ZSET:
-                    resp = yield call(getZSetElements, payload.db, payload.key);
-                    data = convert(payload.key, "zset", resp);
+                    resp = yield call(getZSetElements, payload.DB, payload.Key);
+                    data = convert(payload.Key, "zset", resp);
                     break
             }
 
-            yield put({ type: 'setState', payload: { [hash(payload.key)]: data } });
+            yield put({ type: 'setState', payload: { [hash(payload.Key)]: data } });
+        },
+        *refreshEntry({ payload }, { call, put, select }) {
+            const state = yield select((x: any) => x["keytable"]);
+            const resp = yield call(getEntry, state.DB, payload.Key);
+            yield put({ type: 'setEntry', payload: { entry: resp } });
+            yield put({ type: 'fetchSubEntries', payload: { DB: state.DB, Type: resp.Type, Key: resp.Key } });
         },
     },
     reducers: {
-        setState(state, action) {
+        setState(state, { payload }) {
             return {
                 ...state,
-                ...action.payload,
+                ...payload,
+            };
+        },
+        setEntry(state: any, { payload }) {
+            let exists = false;
+            const newList = state?.Entries.map((x: any) => {
+                if (x.Key === payload.entry.Key) {
+                    exists = true;
+                    return payload.entry;
+                } else {
+                    return x;
+                }
+            });
+
+            if (!exists) {
+                newList?.push(payload.entry);
+            }
+
+            return {
+                ...state,
+                Entries: newList,
             };
         },
     },
@@ -112,7 +143,7 @@ const KeyTableModel: IKeyTableModel = {
                 var t = pathname.match(/^\/db\/(\d+)$/);
                 if (t !== null && t.length > 1) {
                     const db = parseInt(t[1]);
-                    dispatch({ type: "fetchEntries", payload: { db } });
+                    dispatch({ type: "fetchEntries", payload: { DB: db } });
                     dispatch({ type: "setState", payload: { DB: db } });
                 }
             });
