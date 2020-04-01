@@ -23,6 +23,7 @@
     "@umijs/test": "^3.0.16",
     "axios": "^0.19.2",
     "codemirror": "^5.52.2",
+    "copy-to-clipboard": "^3.3.1",
     "lint-staged": "^10.0.7",
     "prettier": "^1.19.1",
     "react": "^16.13.1",

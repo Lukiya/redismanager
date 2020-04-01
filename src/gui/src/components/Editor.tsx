@@ -97,7 +97,12 @@ class Editor extends React.Component<IPageProps>{
                             <Input addonBefore="Key" value={model.EditingEntry.Key} onChange={this.onKeyChange} disabled={!model.KeyEditorEnabled} onPressEnter={this.save} />
                         </Col>
                         <Col md={12} lg={8} xl={8} xxl={9}>
-                            <Input addonBefore="TEST" value={model.EditingEntry.Field} onChange={this.onFieldChange} disabled={!model.FieldEditorEnabled} onPressEnter={this.save} />
+                            {
+                                model.FieldCaption !== "" ?
+                                    <Input addonBefore={model.FieldCaption} value={model.EditingEntry.Field} onChange={this.onFieldChange} disabled={!model.FieldEditorEnabled} onPressEnter={this.save} />
+                                    : null
+                            }
+
                         </Col>
                         <Col md={12} lg={3} xl={4} xxl={3}>
                             <Input addonBefore="TTL" value={model.EditingEntry.TTL} onChange={this.onTTLChange} disabled={!model.TTLEditorEnabled} onPressEnter={this.save} />

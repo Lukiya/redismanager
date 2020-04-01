@@ -7,6 +7,7 @@ export interface IEditorModelState {
     BackupEntry: any;       // Backup entry, for undo using
     EditingEntry: any;      // Editing entry, for editing using
     ValueEditorMode: string;
+    FieldCaption: string;
     Visible: boolean;
     KeyEditorEnabled: boolean;
     FieldEditorEnabled: boolean;
@@ -45,10 +46,23 @@ function editorSwitch(entry: IRedisEntry): any {
     } else {
         r.TTLEditorEnabled = u.isNoW(entry.Field);
         r.ValueEditorEnabled = !u.isNoW(entry.Field);
-        r.FieldEditorEnabled = !u.isNoW(entry.Field);
+        r.FieldEditorEnabled = entry.Type !== u.SET && !u.isNoW(entry.Field);
     }
 
     return r;
+}
+
+function getFieldCaption(entry: IRedisEntry): string {
+    switch (entry.Type) {
+        case u.HASH:
+            return "Field";
+        case u.LIST:
+            return "Index";
+        case u.ZSET:
+            return "Score";
+        default:
+            return "";
+    }
 }
 
 function getValueEditorMode(value: string): any {
@@ -67,6 +81,7 @@ const EditorModel: IEditorModel = {
         BackupEntry: {},
         EditingEntry: {},
         ValueEditorMode: "text",
+        FieldCaption: "",
         Visible: false,
         KeyEditorEnabled: true,
         FieldEditorEnabled: true,
@@ -84,6 +99,7 @@ const EditorModel: IEditorModel = {
                     type: 'setState', payload: {
                         Visible: true,
                         DB: db,
+                        FieldCaption: getFieldCaption(resp),
                         EditingEntry: resp,
                         BackupEntry: resp,
                         ...editorSwitches,
@@ -96,6 +112,7 @@ const EditorModel: IEditorModel = {
                     type: 'setState', payload: {
                         Visible: true,
                         DB: db,
+                        FieldCaption: getFieldCaption(entry),
                         EditingEntry: entry,
                         BackupEntry: entry,
                         ...editorSwitches,
