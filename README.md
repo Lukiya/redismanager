@@ -13,12 +13,12 @@ Redis Manager is an open source, cross-platform and completely free redis manage
 * docker (optional) https://www.docker.com
 #### Build
 There are 6 powershell scripts for building source code.
-* **src/build-js.ps1**: build js file and generate bindata
-* **src/build-linux.ps1**: build linux executable file.
-* **src/build-mac.ps1**: build mac executable file.
-* **src/build-win.ps1**: build windows executable file.
-* **src/build-docker.ps1**: build docker image file.
-* **src/build.ps1**: build all platform executable file including docker image.
+* **build-js.ps1**: build js file and generate bindata
+* **build-linux.ps1**: build linux executable file.
+* **build-mac.ps1**: build mac executable file.
+* **build-win.ps1**: build windows executable file.
+* **build-docker.ps1**: build docker image file.
+* **build.ps1**: build all platform executable file including docker image.
 
 After built, all executable files will be saved under **dist** folder.
 #### configs.json
