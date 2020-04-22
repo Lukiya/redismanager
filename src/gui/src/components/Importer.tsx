@@ -8,6 +8,7 @@ const { Dragger } = Upload;
 interface IPageProps {
     db: number;
     dispatch: Dispatch;
+    selectedDB: number;
 }
 
 class Importer extends React.Component<IPageProps> {
@@ -46,7 +47,6 @@ class Importer extends React.Component<IPageProps> {
             okText: "Close",
             width: 500,
             content: uploader,
-            destroyOnClose: true,
         });
     };
 

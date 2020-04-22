@@ -202,7 +202,7 @@ class KeysPage extends TableComponent<IPageProps> {
                         <Button size="small" type="primary"><FileAddOutlined /> New <DownOutlined /></Button>
                     </Dropdown>
                     <Button size="small" type="default" title="Refresh" onClick={this.refresh}><RedoOutlined /></Button>
-                    <Importer db={model.DB} />
+                    <Importer db={model.DB} selectedDB={model.DB} />
                     <Button size="small" type="default" title="Export" disabled={!hasSelection} onClick={this.exportFile}><ExportOutlined /></Button>
                     <Button size="small" type="danger" title="Delete" disabled={!hasSelection} onClick={this.deleteKeys}><DeleteOutlined /></Button>
                 </div>
