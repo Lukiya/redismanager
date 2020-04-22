@@ -3,6 +3,9 @@
 $imageName = "redismanager"
 $targetDir = "./dist/docker"
 
+if (Test-Path $targetDir) {
+    Remove-Item $targetDir -Recurse
+}
 Copy-Item ./dist/linux $targetDir -Recurse
 Copy-Item ./Dockerfile $targetDir
 
