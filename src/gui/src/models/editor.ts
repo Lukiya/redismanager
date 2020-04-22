@@ -1,6 +1,25 @@
 import { Effect, Reducer, IRedisEntry } from 'umi';
 import { getEntry, saveEntry } from '@/services/api'
+import vkbeautify from 'vkbeautify'
 import u from '@/utils/u';
+
+const format = (mode: any, input: any, min: any) => {
+    if (min) {
+        if (mode === "javascript") {
+            input = vkbeautify.jsonmin(input);
+        } else if (mode === "xml") {
+            input = vkbeautify.xmlmin(input);
+        }
+    } else {
+        if (mode === "javascript") {
+            input = vkbeautify.json(input, 2);
+        } else if (mode === "xml") {
+            input = vkbeautify.xml(input, 2);
+        }
+    }
+
+    return input;
+};
 
 export interface IEditorModelState {
     DB: number;             // current DB
@@ -24,6 +43,8 @@ export interface IEditorModel {
     reducers: {
         setState: Reducer<IEditorModelState>;
         hide: Reducer<IEditorModelState>;
+        beautify: Reducer<IEditorModelState>;
+        minify: Reducer<IEditorModelState>;
         setKey: Reducer<IEditorModelState>;
         setField: Reducer<IEditorModelState>;
         setTTL: Reducer<IEditorModelState>;
@@ -100,6 +121,7 @@ const EditorModel: IEditorModel = {
                         Visible: true,
                         DB: db,
                         FieldCaption: getFieldCaption(resp),
+                        ValueEditorMode: getValueEditorMode(resp.Value),
                         EditingEntry: resp,
                         BackupEntry: resp,
                         ...editorSwitches,
@@ -113,6 +135,7 @@ const EditorModel: IEditorModel = {
                         Visible: true,
                         DB: db,
                         FieldCaption: getFieldCaption(entry),
+                        ValueEditorMode: getValueEditorMode(entry.Value),
                         EditingEntry: entry,
                         BackupEntry: entry,
                         ...editorSwitches,
@@ -144,6 +167,28 @@ const EditorModel: IEditorModel = {
                 DB: -1,
                 Visible: false,
             };
+        },
+        beautify(state: any) {
+            const newValue = format(state.ValueEditorMode, state.EditingEntry.Value, false);
+
+            return {
+                ...state,
+                EditingEntry: {
+                    ...state.EditingEntry,
+                    Value: newValue
+                }
+            }
+        },
+        minify(state: any) {
+            const newValue = format(state.ValueEditorMode, state.EditingEntry.Value, true);
+
+            return {
+                ...state,
+                EditingEntry: {
+                    ...state.EditingEntry,
+                    Value: newValue
+                }
+            }
         },
         setKey(state: any, { payload: { key } }) {
             return {

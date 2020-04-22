@@ -48,7 +48,6 @@ class Editor extends React.Component<IPageProps>{
         const { model } = this.props;
         this.props.dispatch({
             type: 'editor/beautify',
-            payload: { valueEditorMode: model.ValueEditorMode }
         });
     };
 
@@ -56,7 +55,6 @@ class Editor extends React.Component<IPageProps>{
         const { model } = this.props;
         this.props.dispatch({
             type: 'editor/minify',
-            payload: { valueEditorMode: model.ValueEditorMode }
         });
     };
 
