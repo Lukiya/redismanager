@@ -11,7 +11,6 @@ import ListTable from '@/components/ListTable'
 import SetTable from '@/components/SetTable'
 import ZSetTable from '@/components/ZSetTable'
 import Editor from '@/components/Editor'
-import './keyspage.css';
 import Importer from '@/components/Importer';
 
 interface IPageProps {
