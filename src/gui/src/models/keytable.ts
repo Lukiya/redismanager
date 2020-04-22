@@ -115,26 +115,25 @@ const KeyTableModel: IKeyTableModel = {
         },
         *deleteKeys({ _ }, { call, put, select }) {
             const state = yield select((x: any) => x["keytable"]);
-            if (state.selectedEntries.length === 0) {
+            if (state.SelectedEntries.length === 0) {
                 return;
             }
 
-            const msgCode = yield call(deleteKeys, state.db, state.selectedEntries);
+            const msgCode = yield call(deleteKeys, state.DB, state.SelectedEntries);
             if (u.isSuccess(msgCode)) {
-                yield put({ type: 'removeEntries', payload: { entries: state.selectedEntries } });
+                yield put({ type: 'removeEntries', payload: { entries: state.SelectedEntries } });
             }
-            // yield put({ type: 'setDeletingDialogVisible', payload: { flag: false } });
         },
         *copy({ _ }, { call, put, select }) {
             const state = yield select((x: any) => x["keytable"]);
-            if (state.selectedRowKeys.length === 0) {
+            if (state.SelectedRowKeys.length === 0) {
                 return;
             }
 
-            const resp = yield call(exportKeys, state.db, state.selectedRowKeys);
+            const resp = yield call(exportKeys, state.DB, state.SelectedRowKeys);
             if (u.isSuccess(resp.MsgCode)) {
                 u.copyToClipboard(resp.Data);
-                message.info(state.selectedRowKeys.length + " key(s) copied.");
+                message.info(state.SelectedRowKeys.length + " key(s) copied.");
             } else {
                 message.error(resp.MsgCode);
             }
@@ -150,13 +149,13 @@ const KeyTableModel: IKeyTableModel = {
             }
 
             const state = yield select((x: any) => x["keytable"]);
-            const resp = yield call(importKeys, state.db, bytes);
+            const resp = yield call(importKeys, state.DB, bytes);
             if (u.isSuccess(resp.MsgCode)) {
                 message.success(resp.Data + " key(s) pasted.");
             } else {
                 message.error(resp.MsgCode);
             }
-            yield put({ type: 'getKeys' });   // Refresh
+            yield put({ type: 'fetchEntries', payload: { DB: state.DB } });   // Refresh
         },
     },
     reducers: {
@@ -187,7 +186,7 @@ const KeyTableModel: IKeyTableModel = {
             };
         },
         removeEntries(state: any, { payload: { entries } }) {
-            const newList = state.list.filter((x: IRedisEntry) => {
+            const newList = state?.Entries.filter((x: IRedisEntry) => {
                 let found = false;
                 for (let i = 0; i < entries.length; i++) {
                     if (entries[i].Key === x.Key) {
@@ -200,8 +199,9 @@ const KeyTableModel: IKeyTableModel = {
 
             return {
                 ...state,
-                selectedEntries: [],
-                list: newList,
+                SelectedEntries: [],
+                SelectedRowKeys: [],
+                Entries: newList,
             }
         },
     },

@@ -20,7 +20,7 @@ const ImporterModel: IImporterModel = {
         *uploadFile({ db, data, options }, { call, put }) {
             const msgCode = yield call(importFile, db, data);
             yield put({ type: 'handleMsgCode', payload: { msgCode, options } });
-            yield put({ type: 'keytable/fetchEntries' });
+            yield put({ type: 'keytable/fetchEntries', payload: { DB: db } });   // Refresh
         },
     },
     reducers: {

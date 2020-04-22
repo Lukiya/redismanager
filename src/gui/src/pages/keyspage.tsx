@@ -3,6 +3,7 @@ import { IRedisEntry, IEntryTableModelState, ILayoutModelState, connect, Loading
 import { Table, Dropdown, Button, Menu, Modal } from 'antd'
 import { ColumnProps } from 'antd/es/table';
 import { DownOutlined, RedoOutlined, ExportOutlined, DeleteOutlined, FileAddOutlined } from '@ant-design/icons';
+import Hotkeys from 'react-hot-keys';
 import { hash } from '@/utils/sha1'
 import u from '@/utils/u';
 import TableComponent from '@/components/TableComponent'
@@ -21,6 +22,41 @@ interface IPageProps {
 }
 
 class KeysPage extends TableComponent<IPageProps> {
+    componentDidMount() {
+        const self = this;
+
+        // Copy
+        document.oncopy = e => {
+            self.props.dispatch({
+                type: 'keytable/copy',
+
+            });
+        };
+        // Paste
+        document.onpaste = e => {
+            const clipboardData = e.clipboardData;
+            if (u.isNoW(clipboardData)) {
+                return;
+            }
+
+            const clipboardText = clipboardData?.getData("text");
+            if (u.isNoW(clipboardText) || clipboardText?.indexOf(u.CLIPBOARD_REDIS) !== 0) {
+                return;
+            }
+
+            Modal.confirm({
+                title: 'Paste Confirm',
+                content: 'If key exists, paste data will override it, continue?',
+                onOk() {
+                    self.props.dispatch({
+                        type: 'keytable/paste',
+                        clipboardText: clipboardText,
+                    });
+                },
+            });
+        };
+    }
+
     rowClassName = (record: IRedisEntry) => {
         if (record.Type === u.STRING) {
             return "str_row";
@@ -206,6 +242,10 @@ class KeysPage extends TableComponent<IPageProps> {
                     <Button size="small" type="default" title="Export" disabled={!hasSelection} onClick={this.exportFile}><ExportOutlined /></Button>
                     <Button size="small" type="danger" title="Delete" disabled={!hasSelection} onClick={this.deleteKeys}><DeleteOutlined /></Button>
                 </div>
+
+                <Hotkeys keyName="del" onKeyUp={this.deleteKeys.bind(document)} filter={(e: any) => {
+                    return u.isNoW(e.target.type) || e.target.type === "checkbox";
+                }} />
 
                 <Table<IRedisEntry>
                     rowKey="Key"
