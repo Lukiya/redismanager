@@ -22,7 +22,7 @@ There are 6 powershell scripts for building source code.
 
 After built, all executable files will be saved under **dist** folder.
 #### configs.json
-This is the configuration file for Redis Manager, here's an example:
+This is the configuration file for Redis Manager, here's an example with instructions:
 ``` javascript
 {
     "Log": {
