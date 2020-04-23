@@ -43,8 +43,6 @@ This is the configuration file for Redis Manager, here's an example with instruc
 ```
 #### You are all set
 Run excutable file or run an docker image, then open a broswer, and access http://localhost:16379 (or http://RemoteIP:Port) to start using it.
-
-
 ## Docker using example
 #### Use default settings
 ``` bash
@@ -54,3 +52,6 @@ docker run --name redismanager -d --restart always -p 16379:16379 lukiya/redisma
 ``` bash
 docker run --name redismanager -d --restart always -p 16379:16379 -v /data/redismanager/configs.json:/app/configs.json lukiya/redismanager
 ```
+## Other
+* For redis cluster, Make sure you adding all nodes into configuration array.
+* For Mac, make sure you allow it to run in security settings.
