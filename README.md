@@ -1,7 +1,7 @@
 # Redis Manager
 ## Intro
 
-Redis Manager is an open source, cross-platform and completely free redis management GUI. Its server side is writen by GO, and client side is writen by react + umi + ant design ui.
+Redis Manager is an open source, cross-platform and completely free redis management GUI. Its server host side is writen by GO, and GUI side is writen by react + umi + ant design.
 
 ## Quick start
 #### Using excutable files
@@ -46,12 +46,13 @@ Run excutable file or run an docker image, then open a broswer, and access http:
 #### DEV environment
 * golang https://golang.org
 * node.js https://nodejs.org/en/download
-* react https://reactjs.org/
-* umijs https://umijs.org/
-* ant design https://ant.design/
 * powershell https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell
 * upx (optional) https://github.com/upx/upx/releases
 * docker (optional) https://www.docker.com
+#### GUI DEV documents
+* react https://reactjs.org/
+* umijs https://umijs.org/
+* ant design https://ant.design/
 #### Build
 There are 6 powershell scripts for building source code.
 * **build-js.ps1**: build js file and generate bindata
