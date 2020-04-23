@@ -1,6 +1,6 @@
 import React from 'react'
 import { IRedisEntry, ILayoutModelState, connect, Dispatch, IEntryTableModelState } from 'umi';
-import { Table, Button } from 'antd'
+import { Table, Button, Modal } from 'antd'
 import { ColumnProps } from 'antd/es/table';
 import { DeleteOutlined } from '@ant-design/icons';
 import u from '@/utils/u';
@@ -34,6 +34,20 @@ class HashTable extends TableComponent<IPageProps> {
         };
     };
 
+    deleteMember = (record: IRedisEntry) => {
+        const { dispatch } = this.props;
+        Modal.confirm({
+            title: 'Do you want to delete this member?',
+            content: 'This operation cannot be undone.',
+            onOk() {
+                dispatch({
+                    type: 'keytable/deleteMembers',
+                    payload: { Type: record.Type, Key: record.Key, Entries: [record] },
+                });
+            },
+        });
+    };
+
     _columns: ColumnProps<IRedisEntry>[] = [
         {
             title: 'Field',
@@ -59,7 +73,7 @@ class HashTable extends TableComponent<IPageProps> {
             key: 'x',
             width: 70,
             className: "ar",
-            render: () => <Button type="danger" size="small" title="Delete"><DeleteOutlined /></Button>,
+            render: (_, record) => <Button type="danger" size="small" title="Delete" onClick={() => this.deleteMember(record)}><DeleteOutlined /></Button>,
         },
     ];
 

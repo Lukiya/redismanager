@@ -1,5 +1,5 @@
 import { IEntryTableModel, IEntryTableModelState, Effect, Reducer, IRedisEntry } from 'umi';
-import { getKeys, getHashElements, getListElements, getSetElements, getZSetElements, getEntry, deleteKeys, exportKeys, importKeys } from '@/services/api';
+import { getKeys, getHashElements, getListElements, getSetElements, getZSetElements, getEntry, deleteKeys, exportKeys, importKeys, deleteMembers } from '@/services/api';
 import { hash } from '@/utils/sha1'
 import { message } from 'antd';
 import u from '@/utils/u';
@@ -59,6 +59,7 @@ interface IKeyTableModel extends IEntryTableModel {
         fetchSubEntries: Effect;
         refreshEntry: Effect;
         deleteKeys: Effect;
+        deleteMembers: Effect;
         copy: Effect;
         paste: Effect;
     };
@@ -122,6 +123,13 @@ const KeyTableModel: IKeyTableModel = {
             const msgCode = yield call(deleteKeys, state.DB, state.SelectedEntries);
             if (u.isSuccess(msgCode)) {
                 yield put({ type: 'removeEntries', payload: { entries: state.SelectedEntries } });
+            }
+        },
+        *deleteMembers({ payload }, { call, put, select }) {
+            const state = yield select((x: any) => x["keytable"]);
+            const msgCode = yield call(deleteMembers, state.DB, payload.Entries);
+            if (u.isSuccess(msgCode)) {
+                yield put({ type: 'fetchSubEntries', payload: { DB: state.DB, Type: payload.Type, Key: payload.Key } });
             }
         },
         *copy({ _ }, { call, put, select }) {
