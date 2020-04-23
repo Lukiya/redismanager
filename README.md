@@ -53,6 +53,7 @@ Run excutable file or run an docker image, then open a broswer, and access http:
 * react https://reactjs.org/
 * umijs https://umijs.org/
 * ant design https://ant.design/
+* typescript https://www.typescriptlang.org/
 #### Build
 There are 6 powershell scripts for building source code.
 * **build-js.ps1**: build js file and generate bindata
