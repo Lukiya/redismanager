@@ -10,7 +10,8 @@ interface IPageProps {
     model: IEntryTableModelState;
     configs: any;
     entries: [];
-    dispatch: Dispatch
+    redisKey: string;
+    dispatch: Dispatch;
 }
 
 class ZSetTable extends TableComponent<IPageProps> {
@@ -44,6 +45,21 @@ class ZSetTable extends TableComponent<IPageProps> {
                     type: 'keytable/deleteMembers',
                     payload: { Type: record.Type, Key: record.Key, Entries: [record] },
                 });
+            },
+        });
+    };
+
+    addMember = () => {
+        const { redisKey, model, dispatch } = this.props;
+        dispatch({
+            type: 'editor/show',
+            payload: {
+                db: model.DB,
+                entry: {
+                    Key: redisKey,
+                    Type: u.ZSET,
+                    IsNew: true,
+                },
             },
         });
     };
@@ -93,6 +109,7 @@ class ZSetTable extends TableComponent<IPageProps> {
                 dataSource={entries}
                 pagination={{ pageSize: pageSize, hideOnSinglePage: true }}
                 bordered={true}
+                title={() => <Button type="primary" size="small" onClick={this.addMember}>Add</Button>}
                 size="small"
             />
         );

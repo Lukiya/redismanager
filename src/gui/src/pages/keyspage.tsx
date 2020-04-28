@@ -83,16 +83,16 @@ class KeysPage extends TableComponent<IPageProps> {
         let subtable;
         switch (record.Type) {
             case u.HASH:
-                subtable = <HashTable entries={entries} />
+                subtable = <HashTable entries={entries} redisKey={record.Key} />
                 break;
             case u.LIST:
-                subtable = <ListTable entries={entries} />
+                subtable = <ListTable entries={entries} redisKey={record.Key} />
                 break;
             case u.SET:
-                subtable = <SetTable entries={entries} />
+                subtable = <SetTable entries={entries} redisKey={record.Key} />
                 break;
             case u.ZSET:
-                subtable = <ZSetTable entries={entries} />
+                subtable = <ZSetTable entries={entries} redisKey={record.Key} />
                 break;
             default:
                 subtable = <div>NOT SUPPORT</div>

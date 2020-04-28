@@ -1,21 +1,14 @@
-# !!!!! Make sure ./build-linux.ps1 already executed without problem first
+# !!!!! Make sure ./build-docker.ps1 already executed without problem first
 
 $imageName = "redismanager"
 $targetDir = "./dist/docker"
 
-if (Test-Path $targetDir) {
-    Remove-Item $targetDir -Recurse
-}
-Copy-Item ./dist/linux $targetDir -Recurse
-Copy-Item ./Dockerfile $targetDir
-
-Write-Host "#: building docker image"
-docker build -t $imageName $targetDir
+Write-Host "#: loading docker image"
+docker load -i $targetDir/$imageName.tar
 docker tag redismanager lukiya/$imageName
 Write-Host "#: pushing docker image"
 docker push lukiya/$imageName
 Write-Host "#: clear temperary files..."
 docker rmi lukiya/$imageName
 docker rmi $imageName
-Remove-Item $targetDir/* -Exclude *.tar
 Write-Host "#: done"

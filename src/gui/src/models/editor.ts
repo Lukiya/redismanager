@@ -64,6 +64,7 @@ function editorSwitch(entry: IRedisEntry): any {
         r.FieldEditorEnabled = false;
     } else if (entry.IsNew) {
         r.FieldEditorEnabled = entry.Type === u.HASH || entry.Type === u.ZSET;
+        r.TTLEditorEnabled = entry.Type === u.STRING || u.isNoW(entry.Key);
     } else {
         r.TTLEditorEnabled = u.isNoW(entry.Field);
         r.ValueEditorEnabled = !u.isNoW(entry.Field);
@@ -224,7 +225,7 @@ const EditorModel: IEditorModel = {
         setValue(state: any, { payload: { value } }) {
             const valueEditorMode = getValueEditorMode(value);
 
-            if (state.valueEditorMode !== valueEditorMode) {
+            if (state.ValueEditorMode !== valueEditorMode) {
                 return {
                     ...state,
                     ValueEditorMode: valueEditorMode,

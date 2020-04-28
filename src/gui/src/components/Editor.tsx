@@ -6,7 +6,7 @@ import { UnControlled as CodeMirror } from 'react-codemirror2';
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/mode/javascript/javascript';
 import 'codemirror/mode/xml/xml';
-import u from '@/utils/u';
+import './Editor.css'
 
 interface IPageProps {
     model: IEditorModelState;

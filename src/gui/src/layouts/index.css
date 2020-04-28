@@ -21,3 +21,7 @@ th,
 .ant-layout-header {
   padding: 0 10px;
 }
+
+.ant-table-title {
+  text-align: right;
+}
