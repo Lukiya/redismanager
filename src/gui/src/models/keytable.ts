@@ -67,6 +67,7 @@ interface IKeyTableModel extends IEntryTableModel {
         setState: Reducer<IEntryTableModelState>;
         setEntry: Reducer<IEntryTableModelState>;
         removeEntries: Reducer<IEntryTableModelState>;
+        exportFile: Reducer<IEntryTableModelState>;
     };
 }
 
@@ -212,6 +213,28 @@ const KeyTableModel: IKeyTableModel = {
                 Entries: newList,
             }
         },
+        exportFile(state: any, { _ }) {
+            if (u.isNoW(state.SelectedRowKeys) || state.SelectedRowKeys.length === 0) {
+                return state;
+            }
+
+            const keys = state.SelectedRowKeys.join(",");
+
+            const f = document.createElement("form");
+            f.setAttribute("action", u.getAPIAddress() + "/export/file?db=" + state.DB);
+            f.setAttribute("method", "post");
+            f.setAttribute("target", "download");
+            const i = document.createElement("input");
+            i.setAttribute("type", "hidden");
+            i.setAttribute("name", "keys");
+            i.setAttribute("value", keys);
+            f.append(i);
+            document.body.append(f);
+            f.submit();
+            f.remove();
+
+            return state;
+        }
     },
     subscriptions: {
         setup({ dispatch, history }) {

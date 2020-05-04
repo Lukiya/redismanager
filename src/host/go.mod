@@ -3,6 +3,7 @@ module github.com/Lukiya/redismanager/src/go
 go 1.13
 
 require (
+	github.com/go-bindata/go-bindata v3.1.2+incompatible // indirect
 	github.com/go-redis/redis/v7 v7.1.0
 	github.com/kataras/iris/v12 v12.1.8
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
