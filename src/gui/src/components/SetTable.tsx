@@ -81,7 +81,7 @@ class SetTable extends TableComponent<IPageProps> {
             key: 'x',
             width: 70,
             className: "ar",
-            render: (_, record) => <Button type="danger" size="small" title="Delete" onClick={() => this.deleteMember(record)}><DeleteOutlined /></Button>,
+            render: (_, record) => <Button type="primary" danger size="small" title="Delete" onClick={() => this.deleteMember(record)}><DeleteOutlined /></Button>,
         },
     ];
 
@@ -94,7 +94,7 @@ class SetTable extends TableComponent<IPageProps> {
 
         return (
             <Table<IRedisEntry>
-                rowKey="Key"
+                rowKey="Value"
                 className="sublist"
                 columns={this._columns}
                 dataSource={entries}

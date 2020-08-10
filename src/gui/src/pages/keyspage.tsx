@@ -81,6 +81,7 @@ class KeysPage extends TableComponent<IPageProps> {
         const { model } = this.props;
         const entries = model[hash(record.Key)]
         let subtable;
+        subtable = <div>NOT SUPPORT</div>
         switch (record.Type) {
             case u.HASH:
                 subtable = <HashTable entries={entries} redisKey={record.Key} />
@@ -240,7 +241,7 @@ class KeysPage extends TableComponent<IPageProps> {
                     <Button size="small" type="default" title="Refresh" onClick={this.refresh}><RedoOutlined /></Button>
                     <Importer db={model.DB} selectedDB={model.DB} />
                     <Button size="small" type="default" title="Export" disabled={!hasSelection} onClick={this.exportFile}><ExportOutlined /></Button>
-                    <Button size="small" type="danger" title="Delete" disabled={!hasSelection} onClick={this.deleteKeys}><DeleteOutlined /></Button>
+                    <Button size="small" type="primary" danger title="Delete" disabled={!hasSelection} onClick={this.deleteKeys}><DeleteOutlined /></Button>
                 </div>
 
                 <Hotkeys keyName="del" onKeyUp={this.deleteKeys.bind(document)} filter={(e: any) => {

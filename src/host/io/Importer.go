@@ -12,7 +12,7 @@ import (
 
 	"github.com/go-redis/redis/v7"
 	"github.com/syncfuture/go/task"
-	u "github.com/syncfuture/go/util"
+	"github.com/syncfuture/go/u"
 )
 
 type Importer struct {

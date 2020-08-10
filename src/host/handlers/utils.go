@@ -7,7 +7,7 @@ import (
 	"github.com/Lukiya/redismanager/src/go/core"
 	"github.com/go-redis/redis/v7"
 	"github.com/kataras/iris/v12"
-	u "github.com/syncfuture/go/util"
+	"github.com/syncfuture/go/u"
 )
 
 func getClient(ctx iris.Context) (r redis.Cmdable) {
@@ -24,7 +24,7 @@ func getClient(ctx iris.Context) (r redis.Cmdable) {
 }
 
 func handleError(ctx iris.Context, err error) bool {
-	if u.LogError(err) {
+	if err != nil {
 		// ctx.StatusCode(iris.StatusInternalServerError)
 		ctx.WriteString(err.Error())
 		return true
@@ -38,7 +38,7 @@ func writeErrorString(ctx iris.Context, errStr string) {
 }
 
 func writeMsgResultError(ctx iris.Context, mr *core.MsgResult, err error) bool {
-	if u.LogError(err) {
+	if err != nil {
 		// ctx.StatusCode(iris.StatusInternalServerError)
 		mr.MsgCode = err.Error()
 		ctx.WriteString(err.Error())

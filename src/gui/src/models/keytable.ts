@@ -111,7 +111,11 @@ const KeyTableModel: IKeyTableModel = {
         },
         *refreshEntry({ payload }, { call, put, select }) {
             const state = yield select((x: any) => x["keytable"]);
-            const resp = yield call(getEntry, state.DB, payload.Key);
+            const resp = yield call(getEntry, state.DB, payload.EditingKey);
+            if (payload.EditingKey != payload.BackupKey) {
+                // rename, remove old key
+                yield put({ type: 'removeEntries', payload: { entries: [{ Key: payload.BackupKey }] } });
+            }
             yield put({ type: 'setEntry', payload: { entry: resp } });
             yield put({ type: 'fetchSubEntries', payload: { DB: state.DB, Type: resp.Type, Key: resp.Key } });
         },

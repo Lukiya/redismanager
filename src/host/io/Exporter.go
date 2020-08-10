@@ -9,7 +9,7 @@ import (
 	"github.com/Lukiya/redismanager/src/go/core"
 
 	"github.com/go-redis/redis/v7"
-	u "github.com/syncfuture/go/util"
+	"github.com/syncfuture/go/u"
 )
 
 type Exporter struct {

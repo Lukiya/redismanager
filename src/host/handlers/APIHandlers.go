@@ -17,7 +17,7 @@ import (
 
 	"github.com/Lukiya/redismanager/src/go/core"
 	"github.com/kataras/iris/v12"
-	u "github.com/syncfuture/go/util"
+	"github.com/syncfuture/go/u"
 )
 
 const (
@@ -265,36 +265,42 @@ func SaveEntry(ctx iris.Context) {
 	switch cmd.Editing.Type {
 	case core.RedisType_String:
 		err := saveString(client, cmd)
+		u.LogError(err)
 		if handleError(ctx, err) {
 			return
 		}
 		break
 	case core.RedisType_Hash:
 		err := saveHash(client, cmd)
+		u.LogError(err)
 		if handleError(ctx, err) {
 			return
 		}
 		break
 	case core.RedisType_List:
 		err := saveList(client, cmd)
+		u.LogError(err)
 		if handleError(ctx, err) {
 			return
 		}
 		break
 	case core.RedisType_Set:
 		err := saveSet(client, cmd)
+		u.LogError(err)
 		if handleError(ctx, err) {
 			return
 		}
 		break
 	case core.RedisType_ZSet:
 		err := saveZSet(client, cmd)
+		u.LogError(err)
 		if handleError(ctx, err) {
 			return
 		}
 		break
 	default:
 		err := fmt.Errorf("type '%s' does not support yet", cmd.Editing.Type)
+		u.LogError(err)
 		if handleError(ctx, err) {
 			return
 		}
@@ -303,6 +309,7 @@ func SaveEntry(ctx iris.Context) {
 
 	////////// save TTL
 	err := saveTTL(client, cmd)
+	u.LogError(err)
 	if handleError(ctx, err) {
 		return
 	}
@@ -324,6 +331,7 @@ func DeleteKeys(ctx iris.Context) {
 		pipe.Del(entry.Key)
 	}
 	_, err := pipe.Exec()
+	u.LogError(err)
 	handleError(ctx, err)
 }
 
@@ -357,6 +365,7 @@ func DeleteMembers(ctx iris.Context) {
 		}
 	}
 	_, err := pipe.Exec()
+	u.LogError(err)
 	handleError(ctx, err)
 }
 
@@ -375,11 +384,13 @@ func ExportKeys(ctx iris.Context) {
 	client := getClient(ctx)
 	exporter := io.NewExporter(true, client)
 	bytes, err := exporter.ExportKeys(keys...)
+	u.LogError(err)
 	if writeMsgResultError(ctx, mr, err) {
 		return
 	}
 	mr.Data = bytes
 	jsonBytes, err := json.Marshal(mr)
+	u.LogError(err)
 	if writeMsgResultError(ctx, mr, err) {
 		return
 	}
@@ -401,12 +412,14 @@ func ImportKeys(ctx iris.Context) {
 	client := getClient(ctx)
 	importer := io.NewImporter(client)
 	imported, err := importer.ImportKeys(bytes)
+	u.LogError(err)
 	if writeMsgResultError(ctx, mr, err) {
 		return
 	}
 
 	mr.Data = imported
 	jsonBytes, err := json.Marshal(mr)
+	u.LogError(err)
 	if writeMsgResultError(ctx, mr, err) {
 		return
 	}
@@ -427,6 +440,7 @@ func ExportFile(ctx iris.Context) {
 	client := getClient(ctx)
 	exporter := io.NewExporter(false, client)
 	bytes, err := exporter.ExportZipFile(keys...)
+	u.LogError(err)
 	if !handleError(ctx, err) {
 		ctx.ContentType("application/octet-stream")
 		ctx.Header("Content-Disposition", fmt.Sprintf("attachment;filename=%s-%s.rmd", dbStr, time.Now().Format("20060102-150405")))
@@ -437,6 +451,7 @@ func ExportFile(ctx iris.Context) {
 // Import POST /api/v1/import/file
 func ImportFile(ctx iris.Context) {
 	file, info, err := ctx.FormFile("file")
+	u.LogError(err)
 	if handleError(ctx, err) {
 		return
 	}
@@ -446,5 +461,6 @@ func ImportFile(ctx iris.Context) {
 	importer := io.NewImporter(client)
 
 	_, err = importer.ImportZipFile(file, info.Size)
+	u.LogError(err)
 	handleError(ctx, err)
 }

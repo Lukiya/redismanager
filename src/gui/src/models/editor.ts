@@ -68,7 +68,7 @@ function editorSwitch(entry: IRedisEntry): any {
     } else {
         r.TTLEditorEnabled = u.isNoW(entry.Field);
         r.ValueEditorEnabled = !u.isNoW(entry.Field);
-        r.FieldEditorEnabled = entry.Type !== u.SET && !u.isNoW(entry.Field);
+        r.FieldEditorEnabled = entry.Type !== u.SET && entry.Type !== u.LIST && !u.isNoW(entry.Field);
     }
 
     return r;
@@ -151,7 +151,7 @@ const EditorModel: IEditorModel = {
 
             if (u.isSuccess(msgCode)) {
                 yield put({ type: 'hide' });
-                yield put({ type: 'keytable/refreshEntry', payload: { Key: state.EditingEntry.Key } });
+                yield put({ type: 'keytable/refreshEntry', payload: { EditingKey: state.EditingEntry.Key, BackupKey: state.BackupEntry.Key } });
             }
         },
     },

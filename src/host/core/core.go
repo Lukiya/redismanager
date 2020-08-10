@@ -11,7 +11,7 @@ import (
 
 	"github.com/go-redis/redis/v7"
 	"github.com/syncfuture/go/config"
-	u "github.com/syncfuture/go/util"
+	"github.com/syncfuture/go/u"
 )
 
 const (
@@ -40,7 +40,7 @@ var (
 func init() {
 	ConfigProvider = config.NewJsonConfigProvider()
 	Debug = ConfigProvider.GetBool("Dev.Debug")
-	RedisConfig = ConfigProvider.GetRedisConfig()
+	ConfigProvider.GetStruct("Redis", &RedisConfig)
 	if len(RedisConfig.Addrs) == 0 {
 		log.Fatal("addrs cannot be empty")
 	}
