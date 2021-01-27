@@ -28,10 +28,6 @@ There is a configuration file called "configs.json" for Redis Manager, here's ex
         ],
         "Password": ""        // Password for redis server
     },
-    "PageSize": {
-        "KeyList": 15,        // Page size for key list
-        "SubList": 10         // Page size for sub member list
-    },
     "ListenAddr": ":16379"    // Listen address and port
 }
 ```
