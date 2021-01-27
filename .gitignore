@@ -19,3 +19,4 @@ dist
 # other
 configs.json
 src/io_test.go
+*.exe
