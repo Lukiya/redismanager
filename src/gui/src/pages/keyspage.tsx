@@ -84,16 +84,16 @@ class KeysPage extends TableComponent<IPageProps> {
         subtable = <div>NOT SUPPORT</div>
         switch (record.Type) {
             case u.HASH:
-                subtable = <HashTable entries={entries} redisKey={record.Key} />
+                subtable = <HashTable db={model.DB} entries={entries} redisKey={record.Key} />
                 break;
             case u.LIST:
-                subtable = <ListTable entries={entries} redisKey={record.Key} />
+                subtable = <ListTable db={model.DB} entries={entries} redisKey={record.Key} />
                 break;
             case u.SET:
-                subtable = <SetTable entries={entries} redisKey={record.Key} />
+                subtable = <SetTable db={model.DB} entries={entries} redisKey={record.Key} />
                 break;
             case u.ZSET:
-                subtable = <ZSetTable entries={entries} redisKey={record.Key} />
+                subtable = <ZSetTable db={model.DB} entries={entries} redisKey={record.Key} />
                 break;
             default:
                 subtable = <div>NOT SUPPORT</div>
@@ -178,6 +178,16 @@ class KeysPage extends TableComponent<IPageProps> {
         });
     }
 
+    onShowSizeChange = (oldSize: number, newSize: number) => {
+        const { dispatch } = this.props;
+        dispatch({
+            type: 'keytable/setState',
+            payload: {
+                PageSize: newSize,
+            },
+        });
+    };
+
     _columns: ColumnProps<IRedisEntry>[] = [
         {
             title: 'Key',
@@ -214,11 +224,7 @@ class KeysPage extends TableComponent<IPageProps> {
     ];
 
     render() {
-        const { model, loading, configs } = this.props;
-        let pageSize = 15;
-        if (!u.isNoW(configs) && !u.isNoW(configs.PageSize) && !u.isNoW(configs.PageSize.Keys)) {
-            pageSize = configs.PageSize.Keys;
-        }
+        const { model, loading } = this.props;
 
         const menu = (
             <Menu>
@@ -260,7 +266,7 @@ class KeysPage extends TableComponent<IPageProps> {
                         selectedRowKeys: model.SelectedRowKeys,
                         onChange: this.onSelectionChanged,
                     }}
-                    pagination={{ pageSize: pageSize, hideOnSinglePage: true }}
+                    pagination={{ pageSize: model.PageSize, hideOnSinglePage: true, onShowSizeChange: this.onShowSizeChange }}
                     bordered={true}
                     size="small"
                 />

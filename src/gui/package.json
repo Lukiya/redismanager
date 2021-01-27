@@ -20,9 +20,9 @@
   },
   "dependencies": {
     "@umijs/preset-react": "^1.x",
-    "@umijs/test": "^3.2.24",
-    "antd": "4.8.0",
-    "axios": "0.21.0",
+    "@umijs/test": "^3.3.7",
+    "antd": "4.11.2",
+    "axios": "0.21.1",
     "codemirror": "5.58.2",
     "copy-to-clipboard": "3.3.1",
     "lint-staged": "^10.5.1",
@@ -32,7 +32,7 @@
     "react-codemirror2": "7.2.1",
     "react-highlight-words": "0.16.0",
     "react-hot-keys": "2.6.0",
-    "umi": "3.2.24",
+    "umi": "3.3.7",
     "vkbeautify": "0.99.3",
     "yorkie": "^2.0.0"
   }

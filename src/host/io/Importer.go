@@ -11,7 +11,7 @@ import (
 	"github.com/Lukiya/redismanager/src/go/core"
 
 	"github.com/go-redis/redis/v7"
-	"github.com/syncfuture/go/task"
+	task "github.com/syncfuture/go/stask"
 	"github.com/syncfuture/go/u"
 )
 

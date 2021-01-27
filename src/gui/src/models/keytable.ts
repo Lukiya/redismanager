@@ -75,6 +75,7 @@ const KeyTableModel: IKeyTableModel = {
     state: {
         DB: -1,
         Entries: [],
+        PageSize: 20,
         SelectedRowKeys: [],
         SelectedEntries: [],
     },

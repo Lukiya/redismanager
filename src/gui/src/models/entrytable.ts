@@ -11,7 +11,8 @@ export interface IRedisEntry {
 }
 
 export interface IEntryTableModelState {
-    DB: number;                     // current DB
+    // DB: number;                     // current DB
+    PageSize: number;
     Entries: IRedisEntry[];         // entries
     [SubEntries: string]: any;
     SelectedRowKeys: string[];      // selected row keys
@@ -33,6 +34,7 @@ const EntryTableModel: IEntryTableModel = {
     state: {
         DB: -1,
         Entries: [],
+        PageSize: 0,
         SelectedRowKeys: [],
         SelectedEntries: [],
     },

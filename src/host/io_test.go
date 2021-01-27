@@ -2,7 +2,9 @@ package main
 
 import (
 	"io/ioutil"
+	"strconv"
 	"testing"
+	"time"
 
 	"github.com/syncfuture/go/sredis"
 
@@ -36,4 +38,29 @@ func TestImport(t *testing.T) {
 	a := io.NewImporter(client)
 	_, err = a.ImportKeys(data)
 	assert.NoError(t, err)
+}
+
+func TestFillData(t *testing.T) {
+	config := &sredis.RedisConfig{
+		Addrs:    []string{"192.168.188.166:6379"},
+		Password: "Famous901",
+		DB:       0,
+	}
+	client := sredis.NewClient(config)
+
+	max := 139
+	// for i := 0; i < max; i++ {
+	// 	f := "field-" + strconv.Itoa(i)
+	// 	v := "value " + strconv.Itoa(i)
+	// 	err := client.HSet("testdata", f, v).Err()
+	// 	if u.LogError(err) {
+	// 		return
+	// 	}
+	// }
+
+	for i := 0; i < max; i++ {
+		k := "str-" + strconv.Itoa(i)
+		v := "value " + strconv.Itoa(i)
+		client.Set(k, v, time.Duration(-1))
+	}
 }

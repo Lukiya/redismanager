@@ -10,7 +10,7 @@ import (
 	"github.com/syncfuture/go/sredis"
 
 	"github.com/go-redis/redis/v7"
-	"github.com/syncfuture/go/config"
+	config "github.com/syncfuture/go/sconfig"
 	"github.com/syncfuture/go/u"
 )
 

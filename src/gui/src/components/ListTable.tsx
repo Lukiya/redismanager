@@ -1,5 +1,5 @@
 import React from 'react'
-import { IRedisEntry, ILayoutModelState, connect, Dispatch, IEntryTableModelState } from 'umi';
+import { IRedisEntry, ILayoutModelState, connect, Dispatch, IMemberTableModelState } from 'umi';
 import { Table, Button, Modal } from 'antd'
 import { ColumnProps } from 'antd/es/table';
 import { DeleteOutlined } from '@ant-design/icons';
@@ -7,7 +7,8 @@ import u from '@/utils/u';
 import TableComponent from './TableComponent';
 
 interface IPageProps {
-    model: IEntryTableModelState;
+    model: any;
+    db: number;
     configs: any;
     entries: [];
     redisKey: string;
@@ -18,11 +19,11 @@ class ListTable extends TableComponent<IPageProps> {
     showEditor = (record: IRedisEntry) => {
         return {
             onClick: () => {
-                const { model, dispatch } = this.props;
+                const { db, dispatch } = this.props;
                 dispatch({
                     type: 'editor/show',
                     payload: {
-                        db: model.DB,
+                        db: db,
                         entry: {
                             Key: record.Key,
                             Type: record.Type,
@@ -50,16 +51,26 @@ class ListTable extends TableComponent<IPageProps> {
     };
 
     addMember = () => {
-        const { redisKey, model, dispatch } = this.props;
+        const { redisKey, db, dispatch } = this.props;
         dispatch({
             type: 'editor/show',
             payload: {
-                db: model.DB,
+                db: db,
                 entry: {
                     Key: redisKey,
                     Type: u.LIST,
                     IsNew: true,
                 },
+            },
+        });
+    };
+
+    onShowSizeChange = (oldSize: number, newSize: number) => {
+        const { dispatch } = this.props;
+        dispatch({
+            type: 'membertable/setState',
+            payload: {
+                PageSize: newSize,
             },
         });
     };
@@ -94,11 +105,7 @@ class ListTable extends TableComponent<IPageProps> {
     ];
 
     render() {
-        const { configs, entries } = this.props;
-        let pageSize = 15;
-        if (!u.isNoW(configs) && !u.isNoW(configs.PageSize) && !u.isNoW(configs.PageSize.SubList)) {
-            pageSize = configs.PageSize.SubList;
-        }
+        const { entries, model } = this.props;
 
         return (
             <Table<IRedisEntry>
@@ -106,7 +113,7 @@ class ListTable extends TableComponent<IPageProps> {
                 className="sublist"
                 columns={this._columns}
                 dataSource={entries}
-                pagination={{ pageSize: pageSize, hideOnSinglePage: true }}
+                pagination={{ pageSize: model.PageSize, hideOnSinglePage: true, onShowSizeChange: this.onShowSizeChange }}
                 bordered={true}
                 title={() => <Button type="primary" size="small" onClick={this.addMember}>Add</Button>}
                 size="small"
@@ -115,7 +122,7 @@ class ListTable extends TableComponent<IPageProps> {
     }
 }
 
-export default connect(({ layout, keytable }: { layout: ILayoutModelState; keytable: IEntryTableModelState }) => ({
-    model: keytable,
+export default connect(({ layout, membertable }: { layout: ILayoutModelState; membertable: IMemberTableModelState }) => ({
+    model: membertable,
     configs: layout.Configs,
 }))(ListTable);
