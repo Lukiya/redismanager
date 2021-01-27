@@ -8,9 +8,5 @@
         ],
         "Password": ""
     },
-    "PageSize": {
-        "KeyList": 15,
-        "SubList": 10
-    },
     "ListenAddr": ":16379"
 }
