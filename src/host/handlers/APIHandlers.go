@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -11,6 +12,7 @@ import (
 
 	"github.com/Lukiya/redismanager/src/go/io"
 
+	"github.com/syncfuture/go/spool"
 	"github.com/syncfuture/go/sredis"
 
 	"github.com/go-redis/redis/v7"
@@ -24,15 +26,19 @@ const (
 	_defaultMatch = "*"
 )
 
+var (
+	_bufferPool spool.BufferPool = spool.NewSyncBufferPool(2048)
+)
+
 // GetKeys GET /api/v1/keys
 func GetKeys(ctx iris.Context) {
 	match := ctx.FormValueDefault("match", _defaultMatch)
-
 	entries := make([]*core.RedisEntry, 0)
-	if core.ClusterClient != nil {
+	proxy := core.Manager.GetSelectedClientProvider()
+	if proxy.ClusterClient != nil {
 		mtx := new(sync.Mutex)
-		core.ClusterClient.ForEachMaster(func(client *redis.Client) error {
-			mtx.Lock() // ForEachMaster is running concurrently, has to lock
+		proxy.ClusterClient.ForEachMaster(func(client *redis.Client) error {
+			mtx.Lock() // ForEachMaster is running asynchronously, has to lock
 			defer mtx.Unlock()
 
 			nodeKeys := sredis.GetAllKeys(client, match, 100)
@@ -45,9 +51,6 @@ func GetKeys(ctx iris.Context) {
 		})
 	} else {
 		client := getClient(ctx)
-		// if client == nil {
-		// 	return
-		// }
 		nodeKeys := sredis.GetAllKeys(client, match, 100)
 		for _, key := range nodeKeys {
 			keyEntry := core.NewRedisEntry(client, key)
@@ -66,7 +69,8 @@ func GetKeys(ctx iris.Context) {
 
 // GetDBs GET /api/v1/dbs
 func GetDBs(ctx iris.Context) {
-	dbCount := len(core.DBClients)
+	proxy := core.Manager.GetSelectedClientProvider()
+	dbCount := len(proxy.DBClients)
 	dbs := make([]int, dbCount)
 	for i := 0; i < dbCount; i++ {
 		dbs[i] = i
@@ -462,5 +466,60 @@ func ImportFile(ctx iris.Context) {
 
 	_, err = importer.ImportZipFile(file, info.Size)
 	u.LogError(err)
+	handleError(ctx, err)
+}
+
+// GetServers Get /api/v1/servers
+func GetServers(ctx iris.Context) {
+	data, err := json.Marshal(core.Manager.Servers)
+	if handleError(ctx, err) {
+		return
+	}
+
+	ctx.Write(data)
+}
+
+// AddServer Post /api/v1/servers
+func AddServer(ctx iris.Context) {
+	buffer := _bufferPool.GetBuffer()
+
+	_, err := buffer.ReadFrom(ctx.Request().Body)
+	defer func() {
+		ctx.Request().Body.Close()
+		_bufferPool.PutBuffer(buffer)
+	}()
+	if handleError(ctx, err) {
+		return
+	}
+
+	newServers := make([]*core.RedisConfigX, 0)
+	err = json.Unmarshal(buffer.Bytes(), &newServers)
+	if handleError(ctx, err) {
+		return
+	}
+
+	err = core.Manager.Add(newServers...)
+	handleError(ctx, err)
+}
+
+// SelectServer Put /api/v1/servers/{id}
+func SelectServer(ctx iris.Context) {
+	id := ctx.Params().Get("id")
+	if id == "" {
+		handleError(ctx, errors.New("id is required"))
+	}
+
+	err := core.Manager.Select(id)
+	handleError(ctx, err)
+}
+
+// RemoveServer Delete /api/v1/servers/{id}
+func RemoveServer(ctx iris.Context) {
+	id := ctx.Params().Get("id")
+	if id == "" {
+		handleError(ctx, errors.New("id is required"))
+	}
+
+	err := core.Manager.Remove(id)
 	handleError(ctx, err)
 }

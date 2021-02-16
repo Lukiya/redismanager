@@ -21,7 +21,7 @@ class HashTable extends TableComponent<IPageProps> {
             onClick: () => {
                 const { db, dispatch } = this.props;
                 dispatch({
-                    type: 'editor/show',
+                    type: 'entryEditor/show',
                     payload: {
                         db: db,
                         entry: {
@@ -53,7 +53,7 @@ class HashTable extends TableComponent<IPageProps> {
     addMember = () => {
         const { redisKey, db, dispatch } = this.props;
         dispatch({
-            type: 'editor/show',
+            type: 'entryEditor/show',
             payload: {
                 db: db,
                 entry: {

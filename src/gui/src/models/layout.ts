@@ -1,10 +1,12 @@
-import { Effect, Reducer, Subscription } from 'umi';
-import { getDBs, getConfigs } from '@/services/api';
+import { Effect, Reducer, Subscription, history } from 'umi';
+import { getDBs, selectServer, getServers } from '@/services/api';
 
 export interface ILayoutModelState {
     DBs: number[];
-    Configs: any;
+    Servers: any[];
+    // Configs: any;
     SelectedDB: number;
+    EditorVisible: boolean;
 }
 
 export interface ILayoutModel {
@@ -12,11 +14,15 @@ export interface ILayoutModel {
     state: ILayoutModelState;
     effects: {
         load: Effect;
-        fetchDBs: Effect;
-        fetchConfigs: Effect;
+        selectServer: Effect;
+        // fetchDBs: Effect;
+        // fetchConfigs: Effect;
+        // fetchServers: Effect;
     };
     reducers: {
         setState: Reducer<ILayoutModelState>;
+        show: Reducer<ILayoutModelState>;
+        hide: Reducer<ILayoutModelState>;
     };
     subscriptions: { setup: Subscription };
 }
@@ -26,29 +32,56 @@ const LayoutModel: ILayoutModel = {
 
     state: {
         DBs: [],
-        Configs: {},
+        Servers: [],
+        // Configs: {},
         SelectedDB: -1,
+        EditorVisible: false,
     },
 
     effects: {
         *load({ _ }, { call, put }) {
-            yield put({ type: 'fetchDBs' });
-            yield put({ type: 'fetchConfigs' });
+            const dbs = yield call(getDBs);
+            const servers = yield call(getServers);
+            yield put({ type: 'setState', payload: { DBs: dbs, Servers: servers, SelectedDB: -1 } });
+            // yield put({ type: 'fetchDBs' });
+            // yield put({ type: 'fetchConfigs' });
+            // yield put({ type: 'fetchServers' });
         },
-        *fetchDBs({ _ }, { call, put }) {
-            const resp = yield call(getDBs);
-            yield put({ type: 'setState', payload: { DBs: resp } });
+        *selectServer({ payload }, { call, put }) {
+            yield call(selectServer, payload.ID);
+            yield put({ type: 'load' });
+            history.push('/');
         },
-        *fetchConfigs({ _ }, { call, put }) {
-            const resp = yield call(getConfigs);
-            yield put({ type: 'setState', payload: { Configs: resp } });
-        },
+        // *fetchDBs({ _ }, { call, put }) {
+        //     const resp = yield call(getDBs);
+        //     yield put({ type: 'setState', payload: { DBs: resp } });
+        // },
+        // *fetchConfigs({ _ }, { call, put }) {
+        //     const resp = yield call(getConfigs);
+        //     yield put({ type: 'setState', payload: { Configs: resp } });
+        // },
+        // *fetchServers({ _ }, { call, put }) {
+        //     const resp = yield call(getServers);
+        //     yield put({ type: 'setState', payload: { Servers: resp } });
+        // },
     },
     reducers: {
         setState(state, action) {
             return {
                 ...state,
                 ...action.payload,
+            };
+        },
+        show(state: any, { payload }) {
+            return {
+                ...state,
+                EditorVisible: true,
+            };
+        },
+        hide(state: any) {
+            return {
+                ...state,
+                EditorVisible: false,
             };
         },
     },

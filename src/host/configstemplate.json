@@ -2,11 +2,5 @@
     "Log": {
         "Level": "warn"
     },
-    "Redis": {
-        "Addrs": [
-            "localhost:6379"
-        ],
-        "Password": ""
-    },
     "ListenAddr": ":16379"
 }

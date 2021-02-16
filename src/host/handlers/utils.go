@@ -11,16 +11,13 @@ import (
 )
 
 func getClient(ctx iris.Context) (r redis.Cmdable) {
-	if core.ClusterClient == nil {
-		dbStr := ctx.FormValueDefault("db", "0")
-		db, err := strconv.Atoi(dbStr)
-		if u.LogError(err) {
-			return nil
-		}
-		return core.DBClients[db]
-	} else {
-		return core.ClusterClient
+	dbStr := ctx.FormValueDefault("db", "0")
+	db, err := strconv.Atoi(dbStr)
+	if u.LogError(err) {
+		return nil
 	}
+	proxy := core.Manager.GetSelectedClientProvider()
+	return proxy.GetClient(db)
 }
 
 func handleError(ctx iris.Context, err error) bool {

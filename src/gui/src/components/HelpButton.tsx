@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Button, Popover } from 'antd';
-import { QuestionCircleOutlined } from '@ant-design/icons';
+import { QuestionCircleOutlined, GithubOutlined } from '@ant-design/icons';
 
 class HelpButton extends Component {
     render() {
@@ -12,9 +12,12 @@ class HelpButton extends Component {
         const tipsUL = <ul className="ulist">{tipsLI}</ul>
 
         return (
-            <Popover content={tipsUL} trigger="focus">
-                <Button size="small" type="dashed" className="tips"><QuestionCircleOutlined /> Help</Button>
-            </Popover>
+            <div>
+                <Popover content={tipsUL} trigger="focus">
+                    <Button size="small" type="dashed" className="tips"><QuestionCircleOutlined /> Help</Button>
+                </Popover>
+                <Button size="small" type="dashed" className="tips" href="https://github.com/Lukiya/redismanager" target="_blank"><GithubOutlined /> Github</Button>
+            </div>
         )
     }
 }

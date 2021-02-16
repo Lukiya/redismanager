@@ -1,15 +1,15 @@
 import React from 'react';
-import { IEditorModelState, connect, Loading, Dispatch } from 'umi';
+import { IEntryEditorModelState, connect, Loading, Dispatch } from 'umi';
 import { Drawer, Input, Row, Skeleton, Button, Col } from 'antd';
 import { SaveOutlined, CodeOutlined, BoxPlotOutlined } from '@ant-design/icons';
 import { UnControlled as CodeMirror } from 'react-codemirror2';
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/mode/javascript/javascript';
 import 'codemirror/mode/xml/xml';
-import './Editor.css'
+import './EntryEditor.css'
 
 interface IPageProps {
-    model: IEditorModelState;
+    model: IEntryEditorModelState;
     loading: boolean;
     dispatch: Dispatch;
 }
@@ -18,28 +18,28 @@ interface IPageProps {
 class Editor extends React.Component<IPageProps>{
     onTTLChange = ({ target: { value } }: { target: { value: any } }) => {
         this.props.dispatch({
-            type: 'editor/setTTL',
+            type: 'entryEditor/setTTL',
             payload: { ttl: value }
         });
     };
 
     onKeyChange = ({ target: { value } }: { target: { value: any } }) => {
         this.props.dispatch({
-            type: 'editor/setKey',
+            type: 'entryEditor/setKey',
             payload: { key: value }
         });
     };
 
     onFieldChange = ({ target: { value } }: { target: { value: any } }) => {
         this.props.dispatch({
-            type: 'editor/setField',
+            type: 'entryEditor/setField',
             payload: { field: value }
         });
     };
 
     onValueChanged = (editor: any, data: any, newValue: any) => {
         this.props.dispatch({
-            type: 'editor/setValue',
+            type: 'entryEditor/setValue',
             payload: { value: newValue }
         });
     };
@@ -47,26 +47,26 @@ class Editor extends React.Component<IPageProps>{
     beautify = () => {
         const { model } = this.props;
         this.props.dispatch({
-            type: 'editor/beautify',
+            type: 'entryEditor/beautify',
         });
     };
 
     minify = () => {
         const { model } = this.props;
         this.props.dispatch({
-            type: 'editor/minify',
+            type: 'entryEditor/minify',
         });
     };
 
     save = () => {
         this.props.dispatch({
-            type: 'editor/save',
+            type: 'entryEditor/save',
         });
     };
 
     hide = () => {
         this.props.dispatch({
-            type: 'editor/hide',
+            type: 'entryEditor/hide',
         });
     }
 
@@ -124,7 +124,7 @@ class Editor extends React.Component<IPageProps>{
     }
 }
 
-export default connect(({ editor, loading }: { editor: IEditorModelState; loading: Loading }) => ({
-    model: editor,
+export default connect(({ entryEditor, loading }: { entryEditor: IEntryEditorModelState; loading: Loading }) => ({
+    model: entryEditor,
     loading: loading.models.editor,
 }))(Editor);

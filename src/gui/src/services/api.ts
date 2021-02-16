@@ -113,3 +113,17 @@ export function importFile(db: number, data: any) {
         data: data,
     });
 }
+
+export function getServers() {
+    return request({
+        url: '/servers',
+        method: 'GET',
+    });
+}
+
+export function selectServer(id: string) {
+    return request({
+        url: '/servers/' + encodeURIComponent(id),
+        method: 'POST',
+    });
+}

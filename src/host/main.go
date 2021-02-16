@@ -13,14 +13,14 @@ import (
 
 func newApp() *iris.Application {
 	app := iris.New()
-	logLevel := core.ConfigProvider.GetStringDefault("Log.Level", "info")
+	logLevel := core.Configs.Log.Level
 	app.Logger().SetLevel(logLevel)
 	app.Use(recover.New())
 	app.Use(logger.New())
 
 	var v1 router.Party
 
-	if core.Debug {
+	if core.Configs.Debug {
 		// Debug mode
 		app.HandleDir("/", "./dist")
 		crs := func(ctx iris.Context) {
@@ -58,15 +58,19 @@ func newApp() *iris.Application {
 	v1.Post("/import/file", handlers.ImportFile)
 	v1.Delete("/keys", handlers.DeleteKeys)
 	v1.Delete("/members", handlers.DeleteMembers)
+	v1.Get("/servers", handlers.GetServers)
+	v1.Post("/servers", handlers.AddServer)
+	v1.Post("/servers/{id}", handlers.SelectServer)
+	v1.Delete("/servers/{id}", handlers.DeleteMembers)
 
 	return app
 }
 
 func main() {
 	fmt.Println("------------------------------------------------")
-	fmt.Println("-             Redis Manager v1.2.2             -")
+	fmt.Println("-             Redis Manager v1.3.0             -")
 	fmt.Println("------------------------------------------------")
 	app := newApp()
-	listenAddr := core.ConfigProvider.GetStringDefault("ListenAddr", ":16379")
+	listenAddr := core.Configs.ListenAddr
 	app.Run(iris.Addr(listenAddr))
 }

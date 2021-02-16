@@ -21,7 +21,7 @@ const format = (mode: any, input: any, min: any) => {
     return input;
 };
 
-export interface IEditorModelState {
+export interface IEntryEditorModelState {
     DB: number;             // current DB
     BackupEntry: any;       // Backup entry, for undo using
     EditingEntry: any;      // Editing entry, for editing using
@@ -34,21 +34,21 @@ export interface IEditorModelState {
     ValueEditorEnabled: boolean;
 }
 
-export interface IEditorModel {
-    state: IEditorModelState;
+export interface IEntryEditorModel {
+    state: IEntryEditorModelState;
     effects: {
         show: Effect;
         save: Effect;
     };
     reducers: {
-        setState: Reducer<IEditorModelState>;
-        hide: Reducer<IEditorModelState>;
-        beautify: Reducer<IEditorModelState>;
-        minify: Reducer<IEditorModelState>;
-        setKey: Reducer<IEditorModelState>;
-        setField: Reducer<IEditorModelState>;
-        setTTL: Reducer<IEditorModelState>;
-        setValue: Reducer<IEditorModelState>;
+        setState: Reducer<IEntryEditorModelState>;
+        hide: Reducer<IEntryEditorModelState>;
+        beautify: Reducer<IEntryEditorModelState>;
+        minify: Reducer<IEntryEditorModelState>;
+        setKey: Reducer<IEntryEditorModelState>;
+        setField: Reducer<IEntryEditorModelState>;
+        setTTL: Reducer<IEntryEditorModelState>;
+        setValue: Reducer<IEntryEditorModelState>;
     };
 }
 
@@ -97,7 +97,7 @@ function getValueEditorMode(value: string): any {
     return valueEditorMode;
 }
 
-const EditorModel: IEditorModel = {
+const EntryEditorModel: IEntryEditorModel = {
     state: {
         DB: -1,
         BackupEntry: {},
@@ -242,4 +242,4 @@ const EditorModel: IEditorModel = {
     },
 };
 
-export default EditorModel;
+export default EntryEditorModel;

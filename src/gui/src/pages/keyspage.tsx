@@ -11,13 +11,12 @@ import HashTable from '@/components/HashTable'
 import ListTable from '@/components/ListTable'
 import SetTable from '@/components/SetTable'
 import ZSetTable from '@/components/ZSetTable'
-import Editor from '@/components/Editor'
+import Editor from '@/components/EntryEditor'
 import Importer from '@/components/Importer';
 
 interface IPageProps {
     model: IEntryTableModelState;
     loading: boolean;
-    configs: any;
     dispatch: Dispatch;
 }
 
@@ -117,7 +116,7 @@ class KeysPage extends TableComponent<IPageProps> {
             onClick: () => {
                 const { model, dispatch } = this.props;
                 dispatch({
-                    type: 'editor/show',
+                    type: 'entryEditor/show',
                     payload: {
                         db: model.DB,
                         entry: {
@@ -135,7 +134,7 @@ class KeysPage extends TableComponent<IPageProps> {
     newClicked = (event: any) => {
         const { model, dispatch } = this.props;
         dispatch({
-            type: 'editor/show',
+            type: 'entryEditor/show',
             payload: {
                 db: model.DB,
                 entry: {
@@ -279,6 +278,5 @@ class KeysPage extends TableComponent<IPageProps> {
 
 export default connect(({ layout, keytable, loading }: { layout: ILayoutModelState; keytable: IEntryTableModelState; loading: Loading }) => ({
     model: keytable,
-    configs: layout.Configs,
     loading: loading.models.keytable,
 }))(KeysPage);
