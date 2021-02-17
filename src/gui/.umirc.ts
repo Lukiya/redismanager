@@ -1,7 +1,7 @@
 import { defineConfig } from 'umi';
 
 export default defineConfig({
-  title:"Redis Manager v1.2.2",
+  title:"Redis Manager v1.3.0",
   history: { type: 'hash' },
   routes: [
     {

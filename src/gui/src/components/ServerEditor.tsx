@@ -16,11 +16,14 @@ class ServerEditor extends React.Component<IPageProps>{
     }
     // formRef = React.createRef<FormInstance>();
     hide = () => {
-        // this.formRef.current?.resetFields();
         this.props.dispatch({
             type: 'serverEditor/hide',
         });
-    }
+    };
+
+    onFinish = (values: any) => {
+        console.log('Success:', values);
+    };
 
     render() {
         const { model } = this.props;
@@ -40,7 +43,7 @@ class ServerEditor extends React.Component<IPageProps>{
                 Password: model.Editing.Password,
                 Addrs: hostAddress,
             }}
-        // onFinish={onFinish}
+            onFinish={this.onFinish}
         // onFinishFailed={onFinishFailed}
         >
             <Form.Item label="Name" name="Name">
@@ -89,6 +92,7 @@ class ServerEditor extends React.Component<IPageProps>{
                 width="88vw"
                 onClose={this.hide}
                 visible={model.Visible}
+                destroyOnClose={true}
             >
 
                 {form}
