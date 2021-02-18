@@ -2,6 +2,21 @@
 ## Intro
 
 Redis Manager is an open source, cross-platform and completely free redis management GUI. Its server host side is writen by GO, and GUI side is writen by react + umi + ant design.
+## Configuration
+There are 2 settings file, called "configs.json" and "servers.json"
+##### configs.json
+It stored some basic configuration for RedisManager, here's an example and instructions for it:
+``` javascript
+{
+    "Log": {
+        "Level": "warn"       // log level [debug,info,warn,error]
+    },
+    "ListenAddr": ":16379"    // Listen address and port
+}
+```
+
+##### servers.json
+And there is a server(s) file called "servers.json" for Redis Manager, it stored all redis servers infomation you want to manage.
 
 ## Quick start
 #### Using excutable files
@@ -19,20 +34,6 @@ if you want to backup or restore servers.json, use below command:
 docker cp redismanager:/app/servers.json /data/servers.json
 docker cp /data/servers.json redismanager:/app/servers.json
 ```
-#### Configuration file
-There are 2 settings file, called "configs.json" and "servers.json"
-##### configs.json
-It stored some basic configuration for RedisManager, here's an example and instructions for it:
-``` javascript
-{
-    "Log": {
-        "Level": "warn"       // log level [debug,info,warn,error]
-    },
-    "ListenAddr": ":16379"    // Listen address and port
-}
-```
-##### servers.json
-And there is a server(s) file called "servers.json" for Redis Manager, it stored all redis servers infomation you want to manage.
 **Please beware, this file is unencrypted. Make sure it can only be accessed by yourself.**
 #### Notes
 * For Mac, make sure you allow it in settings ("Security & Privacy" -> "General" -> "Allow apps downloaded from").
