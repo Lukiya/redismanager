@@ -17,6 +17,8 @@ It stored some basic configuration for RedisManager, here's an example and instr
 
 ##### servers.json
 It stored all redis servers infomation you want to manage.
+
+
 **Please beware, this file is unencrypted. Make sure it can only be accessed by yourself.**
 
 ## Quick start
