@@ -65,4 +65,4 @@ There are 6 powershell scripts for building source code.
 * **build-docker.ps1**: build docker image file.
 * **build.ps1**: build all platform executable file including docker image.
 
-After built, all executable files will be saved under **dist** folder.
+After built, all binay files will be saved under **dist** folder.
