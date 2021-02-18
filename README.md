@@ -26,7 +26,6 @@ It stored some basic configuration for RedisManager, here's an example and instr
 And there is a server(s) file called "servers.json" for Redis Manager, it stored all redis servers infomation you want to manage.
 **Please beware, this file is unencrypted. Make sure it can only be accessed by yourself.**
 #### Notes
-* For cluster, make sure you adding all nodes into configuration array.
 * For Mac, make sure you allow it in settings ("Security & Privacy" -> "General" -> "Allow apps downloaded from").
 #### You are all set
 Run excutable file or run an docker image, then open a broswer, and access http://localhost:16379 (or http://RemoteIP:Port) to start using it.
