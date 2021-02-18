@@ -6,7 +6,11 @@ Redis Manager is an open source, cross-platform and completely free redis manage
 ## Quick start
 #### Using excutable files
 Visit https://github.com/Lukiya/redismanager/releases, download executable file
-#### Or, using docker
+#### using docker
+``` bash
+docker run --name redismanager -d --restart always --net host lukiya/redismanager
+```
+or
 ``` bash
 docker run --name redismanager -d --restart always -p 16379:16379 lukiya/redismanager
 ```
