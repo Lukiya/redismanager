@@ -145,7 +145,7 @@ const EntryEditorModel: IEntryEditorModel = {
             }
         },
         *save({ _ }, { call, put, select }) {
-            const state = yield select((x: any) => x["editor"]);
+            const state = yield select((x: any) => x["entryEditor"]);
 
             const msgCode = yield call(saveEntry, state.DB, state.EditingEntry, state.BackupEntry);
 

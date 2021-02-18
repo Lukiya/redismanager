@@ -11,7 +11,7 @@ const { Option } = Select;
 
 interface IPageProps {
     model: ILayoutModelState;
-    loading: boolean;
+    // loading: boolean;
     dispatch: Dispatch;
 }
 
@@ -33,6 +33,8 @@ class AppLayout extends React.Component<IPageProps> {
 
     render() {
         const { model } = this.props;
+        const logo = <div className="logo"><Link to="/">Redis Manager</Link></div>;
+
         if (model.Servers.length > 0) {
             const options = [];
             for (let i = 0; i < model.Servers.length; i++) {
@@ -44,8 +46,8 @@ class AppLayout extends React.Component<IPageProps> {
             return (
                 <Layout style={{ minHeight: '100vh' }}>
                     <Sider breakpoint="lg" collapsedWidth="0">
-                        <div className="logo"><Link to="/">Redis Manager</Link></div>
-                        <Select defaultValue={selectedID} style={{ width: "168px", margin: "0 16px" }} onChange={this.OnServerChanged}>
+                        {logo}
+                        <Select value={selectedID} style={{ width: "168px", margin: "0 16px" }} onChange={this.OnServerChanged}>
                             {options}
                         </Select>,
                         <DBList dbs={model.DBs} selectedKeys={['|' + model.SelectedDB + '|']} />
@@ -62,12 +64,27 @@ class AppLayout extends React.Component<IPageProps> {
                 </Layout>
             );
         } else {
-            return (<div></div>);
+            return (
+                <Layout style={{ minHeight: '100vh' }}>
+                    <Sider breakpoint="lg" collapsedWidth="0">
+                        {logo}
+                    </Sider>
+                    <Layout className="layout">
+                        <Header className="header">
+                            <HelpButton />
+                        </Header>
+                        <Content className="content">
+                            {this.props.children}
+                        </Content>
+                    </Layout>
+                </Layout>
+            );
         }
     }
 }
 
-export default connect(({ layout, loading }: { layout: ILayoutModelState; loading: Loading }) => ({
+// export default connect(({ layout, loading }: { layout: ILayoutModelState; loading: Loading }) => ({
+export default connect(({ layout }: { layout: ILayoutModelState; }) => ({
     model: layout,
-    loading: loading.models.layout,
+    // loading: loading.models.layout,
 }))(AppLayout);

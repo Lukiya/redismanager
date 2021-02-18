@@ -11,11 +11,11 @@ func TestExport(t *testing.T) {
 	// assert.NoError(t, err)
 	// assert.NotEmpty(t, b)
 
-	// ioutil.WriteFile("M:\\test.json", b, 666)
+	// os.WriteFile("M:\\test.json", b, 666)
 }
 
 func TestImport(t *testing.T) {
-	// data, err := ioutil.ReadFile("M:\\test.json")
+	// data, err := os.ReadFile("M:\\test.json")
 	// assert.NoError(t, err)
 
 	// config := &RedisConfigX{

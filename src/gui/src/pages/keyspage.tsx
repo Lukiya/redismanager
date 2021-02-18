@@ -1,8 +1,8 @@
 import React from 'react'
 import { IRedisEntry, IEntryTableModelState, ILayoutModelState, connect, Loading, Dispatch } from 'umi';
-import { Table, Dropdown, Button, Menu, Modal } from 'antd'
+import { Table, Dropdown, Button, Menu, Modal, Breadcrumb } from 'antd'
 import { ColumnProps } from 'antd/es/table';
-import { DownOutlined, RedoOutlined, ExportOutlined, DeleteOutlined, FileAddOutlined } from '@ant-design/icons';
+import { DownOutlined, RedoOutlined, ExportOutlined, DeleteOutlined, FileAddOutlined, HomeOutlined } from '@ant-design/icons';
 import Hotkeys from 'react-hot-keys';
 import { hash } from '@/utils/sha1'
 import u from '@/utils/u';
@@ -16,6 +16,7 @@ import Importer from '@/components/Importer';
 
 interface IPageProps {
     model: IEntryTableModelState;
+    layout: ILayoutModelState;
     loading: boolean;
     dispatch: Dispatch;
 }
@@ -25,7 +26,7 @@ class KeysPage extends TableComponent<IPageProps> {
         const self = this;
 
         // Copy
-        document.oncopy = e => {
+        document.oncopy = () => {
             self.props.dispatch({
                 type: 'keytable/copy',
 
@@ -223,7 +224,7 @@ class KeysPage extends TableComponent<IPageProps> {
     ];
 
     render() {
-        const { model, loading } = this.props;
+        const { model, layout, loading } = this.props;
 
         const menu = (
             <Menu>
@@ -236,9 +237,19 @@ class KeysPage extends TableComponent<IPageProps> {
         );
 
         const hasSelection = !u.isNoW(model.SelectedEntries) && model.SelectedEntries.length > 0;
+        const navItems = [];
+        if (layout.Servers?.length > 0) {
+            navItems.push(<Breadcrumb.Item key={Math.random()} href="/#/"><HomeOutlined /> Servers</Breadcrumb.Item>);
+            navItems.push(<Breadcrumb.Item key={Math.random()}>{layout.Servers[0].Name}</Breadcrumb.Item>);
+            navItems.push(<Breadcrumb.Item key={Math.random()}>db{layout.SelectedDB}</Breadcrumb.Item>);
+        }
 
         return (
             <div>
+                <Breadcrumb style={{ marginBottom: 10 }}>
+                    {navItems}
+                </Breadcrumb>
+
                 <div className="toolbar">
                     <Dropdown overlay={menu}>
                         <Button size="small" type="primary"><FileAddOutlined /> New <DownOutlined /></Button>
@@ -278,5 +289,6 @@ class KeysPage extends TableComponent<IPageProps> {
 
 export default connect(({ layout, keytable, loading }: { layout: ILayoutModelState; keytable: IEntryTableModelState; loading: Loading }) => ({
     model: keytable,
+    layout: layout,
     loading: loading.models.keytable,
 }))(KeysPage);

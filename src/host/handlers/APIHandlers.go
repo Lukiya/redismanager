@@ -4,13 +4,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"net/http"
+	"os"
 	"strings"
 	"sync"
 	"time"
-
-	"github.com/Lukiya/redismanager/src/go/io"
 
 	"github.com/syncfuture/go/spool"
 	"github.com/syncfuture/go/sredis"
@@ -18,6 +16,7 @@ import (
 	"github.com/go-redis/redis/v7"
 
 	"github.com/Lukiya/redismanager/src/go/core"
+	rmio "github.com/Lukiya/redismanager/src/go/io"
 	"github.com/kataras/iris/v12"
 	"github.com/syncfuture/go/u"
 )
@@ -69,26 +68,32 @@ func GetKeys(ctx iris.Context) {
 
 // GetDBs GET /api/v1/dbs
 func GetDBs(ctx iris.Context) {
-	proxy := core.Manager.GetSelectedClientProvider()
-	dbCount := len(proxy.DBClients)
-	dbs := make([]int, dbCount)
-	for i := 0; i < dbCount; i++ {
-		dbs[i] = i
-	}
+	clientProvider := core.Manager.GetSelectedClientProvider()
+	if clientProvider != nil {
+		dbCount := len(clientProvider.DBClients)
+		dbs := make([]int, dbCount)
+		for i := 0; i < dbCount; i++ {
+			dbs[i] = i
+		}
 
-	bytes, err := json.Marshal(dbs)
-	if u.LogError(err) {
+		bytes, err := json.Marshal(dbs)
+		if u.LogError(err) {
+			return
+		}
+		ctx.ContentType(core.ContentTypeJson)
+		ctx.Write(bytes)
 		return
 	}
 
+	a, _ := json.Marshal([]int{})
 	ctx.ContentType(core.ContentTypeJson)
-	ctx.Write(bytes)
+	ctx.Write(a)
 }
 
 // GetConfigs Get /api/v1/configs
 func GetConfigs(ctx iris.Context) {
 	ctx.ContentType(core.ContentTypeJson)
-	bytes, err := ioutil.ReadFile("configs.json")
+	bytes, err := os.ReadFile("configs.json")
 	if err != nil {
 		ctx.WriteString(err.Error())
 	} else {
@@ -386,7 +391,7 @@ func ExportKeys(ctx iris.Context) {
 	}
 
 	client := getClient(ctx)
-	exporter := io.NewExporter(true, client)
+	exporter := rmio.NewExporter(true, client)
 	bytes, err := exporter.ExportKeys(keys...)
 	u.LogError(err)
 	if writeMsgResultError(ctx, mr, err) {
@@ -414,7 +419,7 @@ func ImportKeys(ctx iris.Context) {
 	}
 
 	client := getClient(ctx)
-	importer := io.NewImporter(client)
+	importer := rmio.NewImporter(client)
 	imported, err := importer.ImportKeys(bytes)
 	u.LogError(err)
 	if writeMsgResultError(ctx, mr, err) {
@@ -442,7 +447,7 @@ func ExportFile(ctx iris.Context) {
 	}
 	dbStr := ctx.FormValueDefault("db", "0")
 	client := getClient(ctx)
-	exporter := io.NewExporter(false, client)
+	exporter := rmio.NewExporter(false, client)
 	bytes, err := exporter.ExportZipFile(keys...)
 	u.LogError(err)
 	if !handleError(ctx, err) {
@@ -462,10 +467,43 @@ func ImportFile(ctx iris.Context) {
 	defer file.Close()
 
 	client := getClient(ctx)
-	importer := io.NewImporter(client)
+	importer := rmio.NewImporter(client)
 
 	_, err = importer.ImportZipFile(file, info.Size)
 	u.LogError(err)
+	handleError(ctx, err)
+}
+
+// SelectServer POST /api/v1/server
+func SaveServer(ctx iris.Context) {
+
+	// a, _ := io.ReadAll(ctx.Request().Body)
+	// log.Debug(string(a))
+
+	var server *core.RedisConfigX
+	ctx.ReadJSON(&server)
+	if server == nil {
+		ctx.WriteString("server json is missing")
+		return
+	}
+	// buffer := _bufferPool.GetBuffer()
+	// defer func() {
+	// 	ctx.Request().Body.Close()
+	// 	_bufferPool.PutBuffer(buffer)
+	// }()
+
+	// _, err := buffer.ReadFrom(ctx.Request().Body)
+	// if handleError(ctx, err) {
+	// 	return
+	// }
+
+	// var server *core.RedisConfigX
+	// err = json.Unmarshal(buffer.Bytes(), &server)
+	// if handleError(ctx, err) {
+	// 	return
+	// }
+
+	err := core.Manager.Save(server)
 	handleError(ctx, err)
 }
 
@@ -479,30 +517,30 @@ func GetServers(ctx iris.Context) {
 	ctx.Write(data)
 }
 
-// AddServer Post /api/v1/servers
-func AddServer(ctx iris.Context) {
-	buffer := _bufferPool.GetBuffer()
+// // AddServer Post /api/v1/servers
+// func AddServer(ctx iris.Context) {
+// 	buffer := _bufferPool.GetBuffer()
+// 	defer func() {
+// 		ctx.Request().Body.Close()
+// 		_bufferPool.PutBuffer(buffer)
+// 	}()
 
-	_, err := buffer.ReadFrom(ctx.Request().Body)
-	defer func() {
-		ctx.Request().Body.Close()
-		_bufferPool.PutBuffer(buffer)
-	}()
-	if handleError(ctx, err) {
-		return
-	}
+// 	_, err := buffer.ReadFrom(ctx.Request().Body)
+// 	if handleError(ctx, err) {
+// 		return
+// 	}
 
-	newServers := make([]*core.RedisConfigX, 0)
-	err = json.Unmarshal(buffer.Bytes(), &newServers)
-	if handleError(ctx, err) {
-		return
-	}
+// 	newServers := make([]*core.RedisConfigX, 0)
+// 	err = json.Unmarshal(buffer.Bytes(), &newServers)
+// 	if handleError(ctx, err) {
+// 		return
+// 	}
 
-	err = core.Manager.Add(newServers...)
-	handleError(ctx, err)
-}
+// 	err = core.Manager.Add(newServers...)
+// 	handleError(ctx, err)
+// }
 
-// SelectServer Put /api/v1/servers/{id}
+// SelectServer Post /api/v1/servers/{id}
 func SelectServer(ctx iris.Context) {
 	id := ctx.Params().Get("id")
 	if id == "" {

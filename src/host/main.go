@@ -26,7 +26,8 @@ func newApp() *iris.Application {
 		crs := func(ctx iris.Context) {
 			ctx.Header("Access-Control-Allow-Origin", "*")
 			ctx.Header("Access-Control-Allow-Credentials", "true")
-			ctx.Header("Access-Control-Allow-Methods", "DELETE")
+			// ctx.Header("Access-Control-Allow-Methods", "POST,OPTIONS,GET,PUT,DELETE")
+			ctx.Header("Access-Control-Allow-Methods", "POST,GET,PUT,DELETE")
 			ctx.Header("Access-Control-Allow-Headers", "Access-Control-Allow-Origin, Content-Type, x-requested-with")
 			ctx.Next()
 		}
@@ -58,10 +59,12 @@ func newApp() *iris.Application {
 	v1.Post("/import/file", handlers.ImportFile)
 	v1.Delete("/keys", handlers.DeleteKeys)
 	v1.Delete("/members", handlers.DeleteMembers)
+
+	// v1.Post("/servers", handlers.AddServer)
+	v1.Post("/server", handlers.SaveServer)
 	v1.Get("/servers", handlers.GetServers)
-	v1.Post("/servers", handlers.AddServer)
 	v1.Post("/servers/{id}", handlers.SelectServer)
-	v1.Delete("/servers/{id}", handlers.DeleteMembers)
+	v1.Delete("/servers/{id}", handlers.RemoveServer)
 
 	return app
 }

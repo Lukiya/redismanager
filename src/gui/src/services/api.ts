@@ -114,6 +114,14 @@ export function importFile(db: number, data: any) {
     });
 }
 
+export function saveServer(data: any) {
+    return request({
+        url: '/server',
+        method: 'POST',
+        data: data,
+    });
+}
+
 export function getServers() {
     return request({
         url: '/servers',
@@ -125,5 +133,12 @@ export function selectServer(id: string) {
     return request({
         url: '/servers/' + encodeURIComponent(id),
         method: 'POST',
+    });
+}
+
+export function deleteServer(id: string) {
+    return request({
+        url: '/servers/' + encodeURIComponent(id),
+        method: 'DELETE',
     });
 }

@@ -2,7 +2,6 @@ package core
 
 import (
 	"encoding/json"
-	"io/ioutil"
 	"os"
 	"strings"
 
@@ -29,19 +28,22 @@ func NewServerManager() *ServerManager {
 }
 
 func (x *ServerManager) GetSelectedClientProvider() *RedisClientProvider {
-	return x.ClientProviders[0]
+	if len(x.ClientProviders) > 0 {
+		return x.ClientProviders[0]
+	}
+	return nil
 }
 
-func (x *ServerManager) Add(redisConfigs ...*RedisConfigX) error {
-	for _, rc := range redisConfigs {
-		x.add(rc)
-	}
-	var err error
-	x.ClientProviders, err = x.generateClientProvider()
-	err1 := x.save()
-	u.LogError(err1)
-	return err
-}
+// func (x *ServerManager) Add(redisConfigs ...*RedisConfigX) error {
+// 	for _, rc := range redisConfigs {
+// 		x.add(rc)
+// 	}
+// 	var err error
+// 	x.ClientProviders, err = x.generateClientProvider()
+// 	err1 := x.save()
+// 	u.LogError(err1)
+// 	return err
+// }
 
 func (x *ServerManager) Remove(id string) error {
 	x.removeByID(id)
@@ -68,18 +70,46 @@ func (x *ServerManager) Select(id string) error {
 	return err
 }
 
+func (x *ServerManager) Save(server *RedisConfigX) error {
+	if server.ID == "" {
+		x.add(server)
+	} else {
+		found := -1
+		for i, rc := range x.Servers {
+			if rc.ID == server.ID {
+				found = i
+				rc.Addrs = server.Addrs
+				rc.DB = server.DB
+				rc.Name = server.Name
+				rc.Password = server.Password
+				break
+			}
+		}
+		if found < 0 {
+			// if not found, still add
+			x.add(server)
+		}
+	}
+
+	var err error
+	x.ClientProviders, err = x.generateClientProvider()
+	err1 := x.save()
+	u.LogError(err1)
+	return err
+}
+
 func (x *ServerManager) save() error {
 	data, err := json.Marshal(x.Servers)
 	if err != nil {
 		return err
 	}
 
-	err = ioutil.WriteFile(_filename, data, 0666)
+	err = os.WriteFile(_filename, data, 0666)
 	return err
 }
 
 func (x *ServerManager) load() error {
-	data, err := ioutil.ReadFile(_filename)
+	data, err := os.ReadFile(_filename)
 	if err != nil {
 		if os.IsNotExist(err) {
 			x.Servers = make([]*RedisConfigX, 0)

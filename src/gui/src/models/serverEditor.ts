@@ -1,10 +1,11 @@
+import { saveServer } from '@/services/api';
+import u from '@/utils/u';
 import { Effect, Reducer } from 'umi';
 
 
 export interface IServerEditorModelState {
     Visible: boolean;
     Editing: any;
-    Backup: any;
 }
 
 export interface IServerEditorModel {
@@ -23,19 +24,17 @@ const ServerEditorModel: IServerEditorModel = {
     state: {
         Visible: false,
         Editing: {},
-        Backup: {},
     },
 
     effects: {
-        *save({ _ }, { call, put, select }) {
-            // const state = yield select((x: any) => x["editor"]);
-
-            // const msgCode = yield call(saveEntry, state.DB, state.EditingEntry, state.BackupEntry);
-
-            // if (u.isSuccess(msgCode)) {
-            //     yield put({ type: 'hide' });
-            //     yield put({ type: 'keytable/refreshEntry', payload: { EditingKey: state.EditingEntry.Key, BackupKey: state.BackupEntry.Key } });
-            // }
+        *save({ payload }, { call, put, select }) {
+            // const state = yield select((x: any) => x["serverEditor"]);
+            // console.log(payload);
+            const msgCode = yield call(saveServer, payload);
+            if (u.isSuccess(msgCode)) {
+                yield put({ type: 'hide' });
+                yield put({ type: 'layout/load' });
+            }
         },
     },
     reducers: {

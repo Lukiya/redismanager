@@ -1,5 +1,5 @@
 import { Effect, Reducer, Subscription, history } from 'umi';
-import { getDBs, selectServer, getServers } from '@/services/api';
+import { getDBs, selectServer, getServers, deleteServer } from '@/services/api';
 
 export interface ILayoutModelState {
     DBs: number[];
@@ -15,6 +15,7 @@ export interface ILayoutModel {
     effects: {
         load: Effect;
         selectServer: Effect;
+        deleteServer: Effect;
         // fetchDBs: Effect;
         // fetchConfigs: Effect;
         // fetchServers: Effect;
@@ -40,8 +41,8 @@ const LayoutModel: ILayoutModel = {
 
     effects: {
         *load({ _ }, { call, put }) {
-            const dbs = yield call(getDBs);
             const servers = yield call(getServers);
+            const dbs = yield call(getDBs);
             yield put({ type: 'setState', payload: { DBs: dbs, Servers: servers, SelectedDB: -1 } });
             // yield put({ type: 'fetchDBs' });
             // yield put({ type: 'fetchConfigs' });
@@ -51,6 +52,11 @@ const LayoutModel: ILayoutModel = {
             yield call(selectServer, payload.ID);
             yield put({ type: 'load' });
             history.push('/');
+        },
+        *deleteServer({ payload }, { call, put }) {
+            yield call(deleteServer, payload.ID);
+            yield put({ type: 'load' });
+            // history.push('/');
         },
         // *fetchDBs({ _ }, { call, put }) {
         //     const resp = yield call(getDBs);

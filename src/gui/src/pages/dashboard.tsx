@@ -1,5 +1,5 @@
 import TableComponent from '@/components/TableComponent';
-import { Breadcrumb, Button, Divider, Dropdown, Form, Input, Space, Table, Tooltip } from 'antd';
+import { Breadcrumb, Button, Divider, Dropdown, Form, Input, Modal, Space, Table, Tooltip } from 'antd';
 import { DownOutlined, HomeOutlined, EditOutlined, DeleteOutlined, FileAddOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import React from 'react';
 import { connect, Dispatch, IEntryTableModelState, ILayoutModelState, Loading } from 'umi';
@@ -21,6 +21,22 @@ class Dashboard extends React.Component<IPageProps> {
       type: 'serverEditor/show',
       payload: {
         Server: record,
+      },
+    });
+  }
+
+  deleteServer = (record: any) => {
+    const { dispatch } = this.props;
+    Modal.confirm({
+      title: 'Do you want to delete this server?',
+      content: 'This operation cannot be undone.',
+      onOk() {
+        dispatch({
+          type: 'layout/deleteServer',
+          payload: {
+            ID: record.ID,
+          },
+        });
       },
     });
   }
@@ -59,7 +75,7 @@ class Dashboard extends React.Component<IPageProps> {
     //   width: 100,
     //   align: "right",
     //   sorter: (a: any, b: any) => a.Length - b.Length,
-    // },
+    // },127.0.0.1:6381, 192.168.188.166:6380
     {
       title: 'Action',
       key: 'action',
@@ -68,18 +84,26 @@ class Dashboard extends React.Component<IPageProps> {
       render: (_, record) => (
         <Space size="small" direction="horizontal">
           <Button size="small" type="primary" title="Edit" onClick={() => this.showEditor(record)}><EditOutlined /></Button>
-          <Button size="small" type="primary" danger title="Delete"><DeleteOutlined /></Button>
+          <Button size="small" type="primary" danger title="Delete" onClick={() => this.deleteServer(record)}><DeleteOutlined /></Button>
         </Space>
       ),
     },
   ];
 
   render() {
-    const { model } = this.props;
+    const { model, loading } = this.props;
     return (
       <div>
+        <Breadcrumb style={{ marginBottom: 10 }}>
+          <Breadcrumb.Item><HomeOutlined /> Servers</Breadcrumb.Item>
+        </Breadcrumb>
         <div className="toolbar">
-          <Button size="small" type="primary"><FileAddOutlined /> New Server(s)</Button>
+          <Button size="small" type="primary" onClick={() => this.showEditor({
+            ID: "",
+            Name: "",
+            Addrs: [],
+            Password: "",
+          })}><FileAddOutlined /> New Server(s)</Button>
           {/* <Button size="small" type="default" title="Refresh" onClick={this.refresh}><RedoOutlined /></Button>
           <Button size="small" type="default" title="Export" disabled={!hasSelection} onClick={this.exportFile}><ExportOutlined /></Button>
           <Button size="small" type="primary" danger title="Delete" disabled={!hasSelection} onClick={this.deleteKeys}><DeleteOutlined /></Button> */}
@@ -88,6 +112,7 @@ class Dashboard extends React.Component<IPageProps> {
           rowKey="ID"
           dataSource={model.Servers}
           columns={this._columns}
+          loading={loading}
           bordered={true}
           size="small"
         />
@@ -100,5 +125,5 @@ class Dashboard extends React.Component<IPageProps> {
 
 export default connect(({ layout, loading }: { layout: ILayoutModelState; loading: Loading }) => ({
   model: layout,
-  loading: loading.models.keytable,
+  loading: loading.models.layout,
 }))(Dashboard);
