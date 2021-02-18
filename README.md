@@ -16,7 +16,7 @@ It stored some basic configuration for RedisManager, here's an example and instr
 ```
 
 ##### servers.json
-And there is a server(s) file called "servers.json" for Redis Manager, it stored all redis servers infomation you want to manage.
+It stored all redis servers infomation you want to manage.
 
 ## Quick start
 #### Using excutable files
