@@ -15,12 +15,8 @@ or
 docker run --name redismanager -d --restart always -p 16379:16379 lukiya/redismanager
 ```
 if you want to backup or restore servers.json, use below command:
-Backup
 ``` bash
 docker cp redismanager:/app/servers.json /data/servers.json
-```
-Restore
-``` bash
 docker cp /data/servers.json redismanager:/app/servers.json
 ```
 #### Configuration file
