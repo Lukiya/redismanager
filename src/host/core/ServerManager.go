@@ -82,6 +82,7 @@ func (x *ServerManager) Save(server *RedisConfigX) error {
 				rc.DB = server.DB
 				rc.Name = server.Name
 				rc.Password = server.Password
+				x.generateName(rc)
 				break
 			}
 		}
@@ -143,10 +144,14 @@ func (x *ServerManager) generateClientProvider() ([]*RedisClientProvider, error)
 
 func (x *ServerManager) add(rc *RedisConfigX) {
 	rc.ID = x.idGenerator.GenerateString()
+	x.generateName(rc)
+	x.Servers = append(x.Servers, rc)
+}
+
+func (x *ServerManager) generateName(rc *RedisConfigX) {
 	if rc.Name == "" {
 		rc.Name = strings.Join(rc.Addrs, ",")
 	}
-	x.Servers = append(x.Servers, rc)
 }
 
 func (x *ServerManager) removeByID(id string) {
