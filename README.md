@@ -2,37 +2,43 @@
 ## Intro
 
 Redis Manager is an open source, cross-platform and completely free redis management GUI. Its server host side is writen by GO, and GUI side is writen by react + umi + ant design.
-
-## Quick start
-#### Using excutable files
-Visit https://github.com/Lukiya/redismanager/releases, download executable file
-#### Or, using docker
-###### Default settings with empty password
-``` bash
-docker run --name redismanager -d --restart always -p 16379:16379 lukiya/redismanager
-```
-###### Custom settings
-``` bash
-docker run --name redismanager -d --restart always -p 16379:16379 -v /data/redismanager/configs.json:/app/configs.json lukiya/redismanager
-```
-#### Configuration file
-There is a configuration file called "configs.json" for Redis Manager, here's example and instructions for it:
+## Configuration
+There are 2 settings file, called "configs.json" and "servers.json"
+##### configs.json
+It stored some basic configuration for RedisManager, here's an example and instructions for it:
 ``` javascript
 {
     "Log": {
         "Level": "warn"       // log level [debug,info,warn,error]
     },
-    "Redis": {
-        "Addrs": [
-            "localhost:6379"  // Redis server address and port, enable cluster support by adding all nodes into this array
-        ],
-        "Password": ""        // Password for redis server
-    },
     "ListenAddr": ":16379"    // Listen address and port
 }
 ```
+
+##### servers.json
+It stored all redis servers infomation you want to manage.
+
+
+**Please beware, this file is unencrypted. Make sure it can only be accessed by yourself.**
+
+## Quick start
+#### Using excutable files
+Visit https://github.com/Lukiya/redismanager/releases, download executable file
+#### using docker
+``` bash
+docker run --name redismanager -d --restart always --net host lukiya/redismanager
+```
+or
+``` bash
+docker run --name redismanager -d --restart always -p 16379:16379 lukiya/redismanager
+```
+if you want to backup or restore servers.json, use below command:
+``` bash
+docker cp redismanager:/app/servers.json /data/servers.json
+docker cp /data/servers.json redismanager:/app/servers.json
+```
+**Please beware, this file is unencrypted. Make sure it can only be accessed by yourself.**
 #### Notes
-* For cluster, make sure you adding all nodes into configuration array.
 * For Mac, make sure you allow it in settings ("Security & Privacy" -> "General" -> "Allow apps downloaded from").
 #### You are all set
 Run excutable file or run an docker image, then open a broswer, and access http://localhost:16379 (or http://RemoteIP:Port) to start using it.
