@@ -1,12 +1,9 @@
-import TableComponent from '@/components/TableComponent';
-import { Breadcrumb, Button, Divider, Dropdown, Form, Input, Modal, Space, Table, Tooltip } from 'antd';
-import { DownOutlined, HomeOutlined, EditOutlined, DeleteOutlined, FileAddOutlined, QuestionCircleOutlined } from '@ant-design/icons';
+import { Breadcrumb, Button, Modal, Space, Table } from 'antd';
+import { HomeOutlined, EditOutlined, DeleteOutlined, FileAddOutlined } from '@ant-design/icons';
 import React from 'react';
-import { connect, Dispatch, IEntryTableModelState, ILayoutModelState, Loading } from 'umi';
-import styles from './dashboard.css';
+import { connect, Dispatch, ILayoutModelState, Loading } from 'umi';
 import { ColumnProps } from 'antd/lib/table';
 import ServerEditor from '@/components/ServerEditor';
-import TextArea from 'antd/lib/input/TextArea';
 
 interface IPageProps {
   model: ILayoutModelState;

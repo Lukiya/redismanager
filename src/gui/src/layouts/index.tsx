@@ -1,7 +1,6 @@
 import React from 'react'
 import { Layout, Select } from 'antd';
-import { ILayoutModelState, Link, connect, Loading, Dispatch } from 'umi';
-import NodeList from '@/components/NodeList';
+import { ILayoutModelState, Link, connect, Dispatch } from 'umi';
 import DBList from '@/components/DBList';
 import HelpButton from '@/components/HelpButton';
 import './index.css';
