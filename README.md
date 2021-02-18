@@ -23,7 +23,7 @@ It stored some basic configuration for RedisManager, here's an example and instr
 }
 ```
 ##### servers.json
-And there is a server(s) file called "servers.json" for Redis Manager, it stored all the redis servers infomation you want to manage.
+And there is a server(s) file called "servers.json" for Redis Manager, it stored all redis servers infomation you want to manage.
 **Please beware, this file is unencrypted. Make sure it can only be accessed by yourself.**
 #### Notes
 * For cluster, make sure you adding all nodes into configuration array.
