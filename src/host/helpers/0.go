@@ -1,23 +1,19 @@
-package handlers
+package helpers
 
 import (
 	"strconv"
 
 	"github.com/Lukiya/redismanager/src/go/core"
 	"github.com/go-redis/redis/v7"
+	"github.com/syncfuture/go/u"
 	"github.com/syncfuture/host"
 )
 
-func getClient(ctx host.IHttpContext) (r redis.Cmdable) {
-	// dbStr := ctx.FormValueDefault("db", "0")
-	dbStr := ctx.GetFormString("db")
-	if dbStr == "" {
-		dbStr = "0"
-	}
+func GetClient(ctx host.IHttpContext) (r redis.Cmdable) {
+	dbStr := ctx.GetFormStringDefault("db", "0")
 	db, err := strconv.Atoi(dbStr)
-	if host.HandleErr(err, ctx) {
-		return nil
-	}
+	u.LogError(err)
+
 	proxy := core.Manager.GetSelectedClientProvider()
 	return proxy.GetClient(db)
 }

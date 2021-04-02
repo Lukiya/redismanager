@@ -4,30 +4,38 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/Lukiya/redismanager/src/go/api"
 	"github.com/Lukiya/redismanager/src/go/core"
-	"github.com/Lukiya/redismanager/src/go/handlers"
 )
 
 func main() {
-	core.Host.GET("/keys", handlers.GetKeys)
-	core.Host.GET("/dbs", handlers.GetDBs)
-	core.Host.GET("/configs", handlers.GetConfigs)
-	core.Host.GET("/entry", handlers.GetEntry)
-	core.Host.GET("/hash", handlers.GetHashElements)
-	core.Host.GET("/list", handlers.GetListElements)
-	core.Host.GET("/set", handlers.GetSetElements)
-	core.Host.GET("/zset", handlers.GetZSetElements)
-	core.Host.POST("/entry", handlers.SaveEntry)
-	core.Host.POST("/export/keys", handlers.ExportKeys)
-	core.Host.POST("/import/keys", handlers.ImportKeys)
-	core.Host.POST("/export/file", handlers.ExportFile)
-	core.Host.POST("/import/file", handlers.ImportFile)
-	core.Host.DELETE("/keys", handlers.DeleteKeys)
-	core.Host.DELETE("/members", handlers.DeleteMembers)
-	core.Host.POST("/server", handlers.SaveServer)
-	core.Host.GET("/servers", handlers.GetServers)
-	core.Host.POST("/servers/{id}", handlers.SelectServer)
-	core.Host.DELETE("/servers/{id}", handlers.RemoveServer)
+	core.Host.GET("/api/keys", api.GetKeys)
+	core.Host.GET("/api/dbs", api.GetDBs)
+	core.Host.GET("/api/configs", api.GetConfigs)
+
+	core.Host.GET("/api/entry", api.GetEntry)
+	core.Host.POST("/api/entry", api.SaveEntry)
+
+	core.Host.GET("/api/hash", api.GetHashElements)
+	core.Host.GET("/api/list", api.GetListElements)
+	core.Host.GET("/api/set", api.GetSetElements)
+	core.Host.GET("/api/zset", api.GetZSetElements)
+
+	// delete
+	core.Host.DELETE("/api/keys", api.DeleteKeys)
+	core.Host.DELETE("/api/members", api.DeleteMembers)
+
+	// servers
+	core.Host.POST("/api/server", api.SaveServer)
+	core.Host.GET("/api/servers", api.GetServers)
+	core.Host.POST("/api/servers/{id}", api.SelectServer)
+	core.Host.DELETE("/api/servers/{id}", api.RemoveServer)
+
+	// io
+	core.Host.POST("/api/export/keys", api.ExportKeys)
+	core.Host.POST("/api/import/keys", api.ImportKeys)
+	core.Host.POST("/api/export/file", api.ExportFile)
+	core.Host.POST("/api/import/file", api.ImportFile)
 
 	fmt.Println("------------------------------------------------")
 	fmt.Println("-             Redis Manager v2.0.0             -")
