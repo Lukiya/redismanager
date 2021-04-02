@@ -9,12 +9,6 @@ import (
 )
 
 func main() {
-	// custers
-	core.Host.POST("/api/cluster", api.SaveCluster)
-	core.Host.GET("/api/clusters", api.GetClusters)
-	core.Host.POST("/api/clusters/{id}", api.SelectCluster)
-	core.Host.DELETE("/api/clusters/{id}", api.RemoveCluster)
-
 	// core.Host.GET("/api/keys", api.GetKeys)
 	// core.Host.GET("/api/dbs", api.GetDBs)
 	// core.Host.GET("/api/configs", api.GetConfigs)

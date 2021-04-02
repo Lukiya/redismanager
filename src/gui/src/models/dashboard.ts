@@ -1,12 +1,12 @@
-import { GetServers } from "@/services/api";
+import { GetClusters } from "@/services/cluster";
 
 export default {
     state: {
         servers: [],
     },
     effects: {
-        *getServers(_: any, { call, put }: any): any {
-            const resp = yield call(GetServers);
+        *getClusters(_: any, { call, put }: any): any {
+            const resp = yield call(GetClusters);
             yield put({
                 type: 'setState',
                 payload: {
@@ -22,7 +22,7 @@ export default {
         setup({ dispatch, history }: any) {
             return history.listen(({ pathname }: any) => {
                 if (pathname == "/") {
-                    dispatch({ type: "getServers" });
+                    dispatch({ type: "getClusters" });
                 }
             });
         }

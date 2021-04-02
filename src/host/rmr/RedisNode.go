@@ -1,18 +1,20 @@
 package rmr
 
 import (
+	"strings"
+
 	"github.com/syncfuture/go/sconv"
 	"github.com/syncfuture/go/serr"
 )
 
 type RedisNode struct {
-	addr     string
+	Addr     string
 	password string
 }
 
 func NewRedisNode(addr, pwd string) *RedisNode {
 	r := &RedisNode{
-		addr:     addr,
+		Addr:     strings.ToLower(strings.TrimSpace(addr)),
 		password: pwd,
 	}
 
@@ -20,7 +22,7 @@ func NewRedisNode(addr, pwd string) *RedisNode {
 }
 
 func (x *RedisNode) GetDBs() ([]*RedisDB, error) {
-	db0 := NewRedisDB(0, x.addr, x.password)
+	db0 := NewRedisDB(0, x.Addr, x.password)
 	var dbs []*RedisDB
 	dbs = append(dbs, db0)
 
@@ -31,7 +33,7 @@ func (x *RedisNode) GetDBs() ([]*RedisDB, error) {
 	dbcount := sconv.ToInt(databases[1])
 
 	for i := 1; i < dbcount; i++ { // skip db0 since it's already been added
-		db := NewRedisDB(i, x.addr, x.password)
+		db := NewRedisDB(i, x.Addr, x.password)
 		dbs = append(dbs, db)
 	}
 

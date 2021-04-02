@@ -35,7 +35,7 @@ func SaveCluster(ctx host.IHttpContext) {
 
 // GetClusters Get /api/clusters
 func GetClusters(ctx host.IHttpContext) {
-	data, err := json.Marshal(core.Manager.Clusters)
+	data, err := json.Marshal(core.Manager.Configs)
 	if host.HandleErr(err, ctx) {
 		return
 	}

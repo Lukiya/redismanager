@@ -9,7 +9,7 @@ import (
 	"github.com/syncfuture/host"
 )
 
-const _filename = "./servers.json"
+const _filename = "./clusters.json"
 
 type RedisManager struct {
 	// Clusters []*RedisCluster
