@@ -1,10 +1,8 @@
 package core
 
 import (
-	"strings"
-
+	"github.com/Lukiya/redismanager/src/go/rmr"
 	"github.com/syncfuture/go/sconfig"
-	log "github.com/syncfuture/go/slog"
 	"github.com/syncfuture/host"
 	"github.com/syncfuture/host/sfasthttp"
 )
@@ -24,28 +22,13 @@ const (
 )
 
 var (
-	_cp     sconfig.IConfigProvider
-	Configs *Configuration
-	Manager *ServerManager
+	Manager *rmr.RedisManager
 	Host    host.IWebHost
 )
 
 func init() {
-	_cp = sconfig.NewJsonConfigProvider()
-	log.Init(_cp)
-	Configs = loadFromConfigProvider(_cp)
-	Configs.Log = log.Config
+	cp := sconfig.NewJsonConfigProvider()
+	Host = sfasthttp.NewFHWebHost(cp)
 
-	Manager = NewServerManager()
-
-	Host = sfasthttp.NewFHWebHost(_cp)
-}
-func IsJson(str string) bool {
-	if str == "" {
-		return false
-	}
-
-	str = strings.TrimSpace(str)
-
-	return strings.HasPrefix(str, "{") && strings.HasSuffix(str, "}")
+	Manager = rmr.NewRedisManager()
 }

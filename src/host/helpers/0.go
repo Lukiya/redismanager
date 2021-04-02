@@ -1,22 +1,25 @@
 package helpers
 
-import (
-	"strconv"
+import "strings"
 
-	"github.com/Lukiya/redismanager/src/go/core"
-	"github.com/go-redis/redis/v7"
-	"github.com/syncfuture/go/u"
-	"github.com/syncfuture/host"
-)
+func IsJson(str string) bool {
+	if str == "" {
+		return false
+	}
 
-func GetClient(ctx host.IHttpContext) (r redis.Cmdable) {
-	dbStr := ctx.GetFormStringDefault("db", "0")
-	db, err := strconv.Atoi(dbStr)
-	u.LogError(err)
+	str = strings.TrimSpace(str)
 
-	proxy := core.Manager.GetSelectedClientProvider()
-	return proxy.GetClient(db)
+	return strings.HasPrefix(str, "{") && strings.HasSuffix(str, "}")
 }
+
+// func GetClient(ctx host.IHttpContext) (r redis.Cmdable) {
+// 	dbStr := ctx.GetFormStringDefault("db", "0")
+// 	db, err := strconv.Atoi(dbStr)
+// 	u.LogError(err)
+
+// 	// proxy := core.Manager.GetSelectedCluster()
+// 	return proxy.GetClient(db)
+// }
 
 // func handleError(ctx host.IHttpContext, err error) bool {
 // 	if err != nil {

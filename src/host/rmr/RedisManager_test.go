@@ -5,28 +5,20 @@ import (
 	"testing"
 
 	"github.com/go-redis/redis/v7"
-	"github.com/syncfuture/go/sredis"
-	"github.com/syncfuture/go/u"
+	"github.com/stretchr/testify/assert"
 )
 
 var (
-	_sc *sredis.RedisConfig
 	_rm *RedisManager
 )
 
 func init() {
-	_sc = &sredis.RedisConfig{
-		Addrs: []string{"192.168.188.166:6380"},
-	}
-
-	var err error
-	_rm, err = NewRedisManager(_sc)
-	u.LogFaltal(err)
+	_rm = NewRedisManager()
 }
 
 func TestFillData(t *testing.T) {
 	nativeClient := redis.NewClient(&redis.Options{
-		Addr: _sc.Addrs[0],
+		Addr: "192.168.188.166:6380",
 		DB:   0,
 	})
 
@@ -38,14 +30,21 @@ func TestFillData(t *testing.T) {
 	}
 }
 
-// func TestLoadKeys(t *testing.T) {
-// 	db := _rm.Nodes[0].DBs[0]
-// 	db.LoadAllKeys()
+func TestSaveAndRemoveCluster(t *testing.T) {
+	sc := new(ClusterConfig)
+	sc.Addrs = []string{"192.168.188.166:6380"}
+	err := _rm.Save(sc)
+	assert.NoError(t, err)
+	err = _rm.Remove(sc.ID)
+	assert.NoError(t, err)
+}
 
-// 	assert.Len(t, db.Keys, 513)
-// }
+func TestCluster(t *testing.T) {
+	cluster := _rm.GetSelectedCluster()
+	assert.NotNil(t, cluster)
 
-func TestGetKeys(t *testing.T) {
-	db := _rm.Nodes[0].DBs[0]
-	t.Log(db.GetKeys(0, "*64", 100))
+	dbs, err := cluster.Nodes[0].GetDBs()
+	assert.NoError(t, err)
+
+	t.Log(dbs[0].GetKeys(0, "*", 10))
 }

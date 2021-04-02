@@ -8,36 +8,32 @@ import (
 type RedisNode struct {
 	addr     string
 	password string
-	DBs      []*RedisDB
 }
 
-func NewRedisNode(addr, pwd string) (*RedisNode, error) {
+func NewRedisNode(addr, pwd string) *RedisNode {
 	r := &RedisNode{
 		addr:     addr,
 		password: pwd,
 	}
-	err := r.LoadDBs()
-	if err != nil {
-		return nil, err
-	}
 
-	return r, err
+	return r
 }
 
-func (x *RedisNode) LoadDBs() error {
+func (x *RedisNode) GetDBs() ([]*RedisDB, error) {
 	db0 := NewRedisDB(0, x.addr, x.password)
-	x.DBs = append(x.DBs, db0)
+	var dbs []*RedisDB
+	dbs = append(dbs, db0)
 
 	databases, err := db0.client.ConfigGet("databases").Result()
 	if err != nil {
-		return serr.WithStack(err)
+		return nil, serr.WithStack(err)
 	}
 	dbcount := sconv.ToInt(databases[1])
 
 	for i := 1; i < dbcount; i++ { // skip db0 since it's already been added
 		db := NewRedisDB(i, x.addr, x.password)
-		x.DBs = append(x.DBs, db)
+		dbs = append(dbs, db)
 	}
 
-	return nil
+	return dbs, nil
 }

@@ -9,6 +9,12 @@ import (
 )
 
 func main() {
+	// custers
+	core.Host.POST("/api/cluster", api.SaveCluster)
+	core.Host.GET("/api/clusters", api.GetClusters)
+	core.Host.POST("/api/clusters/{id}", api.SelectCluster)
+	core.Host.DELETE("/api/clusters/{id}", api.RemoveCluster)
+
 	// core.Host.GET("/api/keys", api.GetKeys)
 	// core.Host.GET("/api/dbs", api.GetDBs)
 	// core.Host.GET("/api/configs", api.GetConfigs)
@@ -25,17 +31,15 @@ func main() {
 	// core.Host.DELETE("/api/keys", api.DeleteKeys)
 	// core.Host.DELETE("/api/members", api.DeleteMembers)
 
-	// servers
-	core.Host.POST("/api/server", api.SaveServer)
-	core.Host.GET("/api/servers", api.GetServers)
-	core.Host.POST("/api/servers/{id}", api.SelectServer)
-	core.Host.DELETE("/api/servers/{id}", api.RemoveServer)
-
 	// // io
 	// core.Host.POST("/api/export/keys", api.ExportKeys)
 	// core.Host.POST("/api/import/keys", api.ImportKeys)
 	// core.Host.POST("/api/export/file", api.ExportFile)
 	// core.Host.POST("/api/import/file", api.ImportFile)
+
+	core.Host.AddActionGroups(
+		api.ClusterGroup,
+	)
 
 	fmt.Println("------------------------------------------------")
 	fmt.Println("-             Redis Manager v2.0.0             -")
