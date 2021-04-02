@@ -1,4 +1,4 @@
-import { GetServers } from "@/services/localApi";
+import { GetServers } from "@/services/api";
 
 export default {
     state: {

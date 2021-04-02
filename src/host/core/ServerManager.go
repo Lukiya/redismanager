@@ -34,6 +34,13 @@ func (x *ServerManager) GetSelectedClientProvider() *RedisClientProvider {
 	return nil
 }
 
+func (x *ServerManager) GetSelectedRedisManager() *RedisClientProvider {
+	if len(x.ClientProviders) > 0 {
+		return x.ClientProviders[0]
+	}
+	return nil
+}
+
 // func (x *ServerManager) Add(redisConfigs ...*RedisConfigX) error {
 // 	for _, rc := range redisConfigs {
 // 		x.add(rc)

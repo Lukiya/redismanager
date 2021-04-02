@@ -1,4 +1,4 @@
-package api
+package apibak
 
 import (
 	"github.com/Lukiya/redismanager/src/go/core"

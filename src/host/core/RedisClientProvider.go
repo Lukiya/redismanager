@@ -28,7 +28,7 @@ func NewRedisClientProvider(redisConfig *RedisConfigX) (r *RedisClientProvider, 
 		// create db0 client
 		r.DBClients[0] = redis.NewClient(options)
 
-		// use db0 clientto get db count
+		// use db0 client to get db count
 		databases, err := r.DBClients[0].ConfigGet("databases").Result()
 		if err != nil {
 			return r, err

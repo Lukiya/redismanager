@@ -3,10 +3,6 @@ import ProTable, { ProColumns } from '@ant-design/pro-table';
 import { PageContainer } from '@ant-design/pro-layout';
 import { PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import { connect } from 'umi'
-import Highlighter from 'react-highlight-words';
-import { GetServers } from '@/services/localApi';
-import { Input } from 'antd';
-
 
 const columns: ProColumns<any>[] = [
     {
