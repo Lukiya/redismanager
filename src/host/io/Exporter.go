@@ -61,7 +61,7 @@ func (x *Exporter) ExportKey(key string) (r *ExportFileEntry, err error) {
 	}
 
 	redisType, err := x.client.Type(key).Result()
-	if u.LogError(err) {
+	if err != nil {
 		return nil, err
 	}
 
@@ -69,28 +69,28 @@ func (x *Exporter) ExportKey(key string) (r *ExportFileEntry, err error) {
 	switch redisType {
 	case core.RedisType_String:
 		v, err := x.client.Get(key).Result()
-		if u.LogError(err) {
+		if err != nil {
 			return nil, err
 		}
 		r, err = NewExportFileEntry(key, redisType, v)
 		break
 	case core.RedisType_Hash:
 		v, err := x.client.HGetAll(key).Result()
-		if u.LogError(err) {
+		if err != nil {
 			return nil, err
 		}
 		r, err = NewExportFileEntry(key, redisType, v)
 		break
 	case core.RedisType_List:
 		v, err := x.client.LRange(key, 0, -1).Result()
-		if u.LogError(err) {
+		if err != nil {
 			return nil, err
 		}
 		r, err = NewExportFileEntry(key, redisType, v)
 		break
 	case core.RedisType_Set:
 		v, err := x.client.SMembers(key).Result()
-		if u.LogError(err) {
+		if err != nil {
 			return nil, err
 		}
 		r, err = NewExportFileEntry(key, redisType, v)
@@ -100,7 +100,7 @@ func (x *Exporter) ExportKey(key string) (r *ExportFileEntry, err error) {
 			Min: "-inf",
 			Max: "+inf",
 		}).Result()
-		if u.LogError(err) {
+		if err != nil {
 			return nil, err
 		}
 		r, err = NewExportFileEntry(key, redisType, v)
@@ -113,7 +113,7 @@ func (x *Exporter) ExportKey(key string) (r *ExportFileEntry, err error) {
 func (x *Exporter) ExportZipFile(keys ...string) (r []byte, err error) {
 	var data []byte
 	data, err = x.ExportKeys(keys...)
-	if u.LogError(err) {
+	if err != nil {
 		return
 	}
 
@@ -121,17 +121,17 @@ func (x *Exporter) ExportZipFile(keys ...string) (r []byte, err error) {
 	w := zip.NewWriter(buf)
 
 	f, err := w.Create("compressed")
-	if u.LogError(err) {
+	if err != nil {
 		return
 	}
 
 	_, err = f.Write(data)
-	if u.LogError(err) {
+	if err != nil {
 		return
 	}
 
 	err = w.Close()
-	if u.LogError(err) {
+	if err != nil {
 		return
 	}
 
@@ -153,7 +153,7 @@ func (x *Exporter) ExportZipFile(keys ...string) (r []byte, err error) {
 // 	}
 
 // 	redisType, err := x.client.Type(key).Result()
-// 	if u.LogError(err) {
+// 	if err != nil {
 // 		return nil, err
 // 	}
 
@@ -165,7 +165,7 @@ func (x *Exporter) ExportZipFile(keys ...string) (r []byte, err error) {
 // 			f[i] = members[i].(string)
 // 		}
 // 		v, err := x.client.HMGet(key, f...).Result()
-// 		if u.LogError(err) {
+// 		if err != nil {
 // 			return nil, err
 // 		}
 // 		r, err = NewExportFileEntry(key, redisType, v)
@@ -173,7 +173,7 @@ func (x *Exporter) ExportZipFile(keys ...string) (r []byte, err error) {
 // 	case core.RedisType_List:
 // 		start, end := members[0].(int64), members[1].(int64)
 // 		v, err := x.client.LRange(key, start, end).Result()
-// 		if u.LogError(err) {
+// 		if err != nil {
 // 			return nil, err
 // 		}
 // 		r, err = NewExportFileEntry(key, redisType, v)

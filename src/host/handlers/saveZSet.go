@@ -12,8 +12,8 @@ func saveZSet(client redis.Cmdable, cmd *core.SaveRedisEntryCommand) (err error)
 	var score float64
 	if cmd.Editing.Field != "" {
 		score, err = strconv.ParseFloat(cmd.Editing.Field, 64)
-		if u.LogError(err) {
-			return
+		if err != nil {
+			return err
 		}
 	}
 
@@ -29,8 +29,8 @@ func saveZSet(client redis.Cmdable, cmd *core.SaveRedisEntryCommand) (err error)
 		u.LogError(err)
 	} else {
 		err = client.ZRem(cmd.Backup.Key, cmd.Backup.Value).Err()
-		if u.LogError(err) {
-			return
+		if err != nil {
+			return err
 		}
 		err = client.ZAdd(cmd.Editing.Key, &redis.Z{
 			Score:  score,

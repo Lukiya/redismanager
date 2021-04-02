@@ -16,7 +16,7 @@ func saveSet(client redis.Cmdable, cmd *core.SaveRedisEntryCommand) (err error) 
 		u.LogError(err)
 	} else {
 		err = client.SRem(cmd.Backup.Key, cmd.Backup.Value).Err()
-		if u.LogError(err) {
+		if err != nil {
 			return
 		}
 		err = client.SAdd(cmd.Editing.Key, cmd.Editing.Value).Err()

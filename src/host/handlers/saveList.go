@@ -20,8 +20,8 @@ func saveList(client redis.Cmdable, cmd *core.SaveRedisEntryCommand) (err error)
 		// # update value
 		var index int64
 		index, err = strconv.ParseInt(cmd.Editing.Field, 10, 64)
-		if u.LogError(err) {
-			return
+		if err != nil {
+			return err
 		}
 
 		err = client.LSet(cmd.Editing.Key, index, cmd.Editing.Value).Err()

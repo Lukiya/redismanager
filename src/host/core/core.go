@@ -5,6 +5,8 @@ import (
 
 	"github.com/syncfuture/go/sconfig"
 	log "github.com/syncfuture/go/slog"
+	"github.com/syncfuture/host"
+	"github.com/syncfuture/host/sfasthttp"
 )
 
 const (
@@ -25,6 +27,7 @@ var (
 	_cp     sconfig.IConfigProvider
 	Configs *Configuration
 	Manager *ServerManager
+	Host    host.IWebHost
 )
 
 func init() {
@@ -34,6 +37,8 @@ func init() {
 	Configs.Log = log.Config
 
 	Manager = NewServerManager()
+
+	Host = sfasthttp.NewFHWebHost(_cp)
 }
 func IsJson(str string) bool {
 	if str == "" {

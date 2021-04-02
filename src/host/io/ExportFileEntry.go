@@ -2,8 +2,6 @@ package io
 
 import (
 	"encoding/json"
-
-	"github.com/syncfuture/go/u"
 )
 
 type ExportFileEntry struct {
@@ -14,7 +12,7 @@ type ExportFileEntry struct {
 
 func NewExportFileEntry(entryKey, entryType string, entryData interface{}) (*ExportFileEntry, error) {
 	d, err := json.Marshal(entryData)
-	if u.LogError(err) {
+	if err != nil {
 		return nil, err
 	}
 	r := &ExportFileEntry{

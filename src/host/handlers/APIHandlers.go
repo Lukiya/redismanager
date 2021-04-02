@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -10,14 +9,14 @@ import (
 	"sync"
 	"time"
 
-	"github.com/syncfuture/go/spool"
+	"github.com/syncfuture/go/serr"
 	"github.com/syncfuture/go/sredis"
+	"github.com/syncfuture/host"
 
 	"github.com/go-redis/redis/v7"
 
 	"github.com/Lukiya/redismanager/src/go/core"
 	rmio "github.com/Lukiya/redismanager/src/go/io"
-	"github.com/kataras/iris/v12"
 	"github.com/syncfuture/go/u"
 )
 
@@ -25,13 +24,13 @@ const (
 	_defaultMatch = "*"
 )
 
-var (
-	_bufferPool spool.BufferPool = spool.NewSyncBufferPool(2048)
-)
-
 // GetKeys GET /api/v1/keys
-func GetKeys(ctx iris.Context) {
-	match := ctx.FormValueDefault("match", _defaultMatch)
+func GetKeys(ctx host.IHttpContext) {
+	// match := ctx.FormValueDefault("match", _defaultMatch)
+	match := ctx.GetFormString("match")
+	if match == "" {
+		match = _defaultMatch
+	}
 	entries := make([]*core.RedisEntry, 0)
 	proxy := core.Manager.GetSelectedClientProvider()
 	if proxy.ClusterClient != nil {
@@ -58,16 +57,16 @@ func GetKeys(ctx iris.Context) {
 	}
 
 	bytes, err := json.Marshal(entries)
-	if u.LogError(err) {
+	if host.HandleErr(err, ctx) {
 		return
 	}
 
-	ctx.ContentType(core.ContentTypeJson)
+	ctx.SetContentType(core.ContentTypeJson)
 	ctx.Write(bytes)
 }
 
 // GetDBs GET /api/v1/dbs
-func GetDBs(ctx iris.Context) {
+func GetDBs(ctx host.IHttpContext) {
 	clientProvider := core.Manager.GetSelectedClientProvider()
 	if clientProvider != nil {
 		dbCount := len(clientProvider.DBClients)
@@ -77,22 +76,22 @@ func GetDBs(ctx iris.Context) {
 		}
 
 		bytes, err := json.Marshal(dbs)
-		if u.LogError(err) {
+		if host.HandleErr(err, ctx) {
 			return
 		}
-		ctx.ContentType(core.ContentTypeJson)
+		ctx.SetContentType(core.ContentTypeJson)
 		ctx.Write(bytes)
 		return
 	}
 
 	a, _ := json.Marshal([]int{})
-	ctx.ContentType(core.ContentTypeJson)
+	ctx.SetContentType(core.ContentTypeJson)
 	ctx.Write(a)
 }
 
 // GetConfigs Get /api/v1/configs
-func GetConfigs(ctx iris.Context) {
-	ctx.ContentType(core.ContentTypeJson)
+func GetConfigs(ctx host.IHttpContext) {
+	ctx.SetContentType(core.ContentTypeJson)
 	bytes, err := os.ReadFile("configs.json")
 	if err != nil {
 		ctx.WriteString(err.Error())
@@ -102,13 +101,13 @@ func GetConfigs(ctx iris.Context) {
 }
 
 // GetEntry Get /api/v1/entry?key={0}&field={1}
-func GetEntry(ctx iris.Context) {
-	key := ctx.FormValue("key")
+func GetEntry(ctx host.IHttpContext) {
+	key := ctx.GetFormString("key")
 	if key == "" {
 		ctx.WriteString("key is missing in query")
 		return
 	}
-	field := ctx.FormValue("field")
+	field := ctx.GetFormString("field")
 
 	client := getClient(ctx)
 	// if client == nil {
@@ -119,16 +118,16 @@ func GetEntry(ctx iris.Context) {
 	entry.GetValue(field)
 
 	bytes, err := json.Marshal(entry)
-	if u.LogError(err) {
+	if host.HandleErr(err, ctx) {
 		return
 	}
-	ctx.ContentType(core.ContentTypeJson)
+	ctx.SetContentType(core.ContentTypeJson)
 	ctx.Write(bytes)
 }
 
 // GetHashElements Get /api/v1/hash?key={0}
-func GetHashElements(ctx iris.Context) {
-	key := ctx.FormValue("key")
+func GetHashElements(ctx host.IHttpContext) {
+	key := ctx.GetFormString("key")
 	if key == "" {
 		ctx.WriteString("key is missing in query")
 		return
@@ -140,14 +139,14 @@ func GetHashElements(ctx iris.Context) {
 	// }
 
 	v, err := client.HGetAll(key).Result()
-	if u.LogError(err) {
+	if host.HandleErr(err, ctx) {
 		return
 	}
 
-	ctx.ContentType(core.ContentTypeJson)
+	ctx.SetContentType(core.ContentTypeJson)
 	if len(v) > 0 {
 		bytes, err := json.Marshal(v)
-		if u.LogError(err) {
+		if host.HandleErr(err, ctx) {
 			return
 		}
 
@@ -158,8 +157,8 @@ func GetHashElements(ctx iris.Context) {
 }
 
 // GetListElements Get /api/v1/list?key={0}
-func GetListElements(ctx iris.Context) {
-	key := ctx.FormValue("key")
+func GetListElements(ctx host.IHttpContext) {
+	key := ctx.GetFormString("key")
 	if key == "" {
 		ctx.WriteString("key is missing in query")
 		return
@@ -171,14 +170,14 @@ func GetListElements(ctx iris.Context) {
 	// }
 
 	v, err := client.LRange(key, 0, -1).Result()
-	if u.LogError(err) {
+	if host.HandleErr(err, ctx) {
 		return
 	}
 
-	ctx.ContentType(core.ContentTypeJson)
+	ctx.SetContentType(core.ContentTypeJson)
 	if len(v) > 0 {
 		bytes, err := json.Marshal(v)
-		if u.LogError(err) {
+		if host.HandleErr(err, ctx) {
 			return
 		}
 
@@ -189,8 +188,8 @@ func GetListElements(ctx iris.Context) {
 }
 
 // GetSetElements Get /api/v1/set?key={0}
-func GetSetElements(ctx iris.Context) {
-	key := ctx.FormValue("key")
+func GetSetElements(ctx host.IHttpContext) {
+	key := ctx.GetFormString("key")
 	if key == "" {
 		ctx.WriteString("key is missing in query")
 		return
@@ -202,14 +201,14 @@ func GetSetElements(ctx iris.Context) {
 	// }
 
 	v, err := client.SMembers(key).Result()
-	if u.LogError(err) {
+	if host.HandleErr(err, ctx) {
 		return
 	}
 
-	ctx.ContentType(core.ContentTypeJson)
+	ctx.SetContentType(core.ContentTypeJson)
 	if len(v) > 0 {
 		bytes, err := json.Marshal(v)
-		if u.LogError(err) {
+		if host.HandleErr(err, ctx) {
 			return
 		}
 
@@ -220,8 +219,8 @@ func GetSetElements(ctx iris.Context) {
 }
 
 // GetZSetElements Get /api/v1/zset?key={0}
-func GetZSetElements(ctx iris.Context) {
-	key := ctx.FormValue("key")
+func GetZSetElements(ctx host.IHttpContext) {
+	key := ctx.GetFormString("key")
 	if key == "" {
 		ctx.WriteString("key is missing in query")
 		return
@@ -238,14 +237,14 @@ func GetZSetElements(ctx iris.Context) {
 		// Offset: 0,
 		// Count:  2,
 	}).Result()
-	if u.LogError(err) {
+	if host.HandleErr(err, ctx) {
 		return
 	}
 
-	ctx.ContentType(core.ContentTypeJson)
+	ctx.SetContentType(core.ContentTypeJson)
 	if len(v) > 0 {
 		bytes, err := json.Marshal(v)
-		if u.LogError(err) {
+		if host.HandleErr(err, ctx) {
 			return
 		}
 
@@ -256,7 +255,7 @@ func GetZSetElements(ctx iris.Context) {
 }
 
 // SaveEntry Post /api/v1/entry
-func SaveEntry(ctx iris.Context) {
+func SaveEntry(ctx host.IHttpContext) {
 	cmd := new(core.SaveRedisEntryCommand)
 	ctx.ReadJSON(cmd)
 
@@ -274,43 +273,38 @@ func SaveEntry(ctx iris.Context) {
 	switch cmd.Editing.Type {
 	case core.RedisType_String:
 		err := saveString(client, cmd)
-		u.LogError(err)
-		if handleError(ctx, err) {
+
+		if host.HandleErr(err, ctx) {
 			return
 		}
 		break
 	case core.RedisType_Hash:
 		err := saveHash(client, cmd)
-		u.LogError(err)
-		if handleError(ctx, err) {
+		if host.HandleErr(err, ctx) {
 			return
 		}
 		break
 	case core.RedisType_List:
 		err := saveList(client, cmd)
-		u.LogError(err)
-		if handleError(ctx, err) {
+		if host.HandleErr(err, ctx) {
 			return
 		}
 		break
 	case core.RedisType_Set:
 		err := saveSet(client, cmd)
-		u.LogError(err)
-		if handleError(ctx, err) {
+		if host.HandleErr(err, ctx) {
 			return
 		}
 		break
 	case core.RedisType_ZSet:
 		err := saveZSet(client, cmd)
-		u.LogError(err)
-		if handleError(ctx, err) {
+		if host.HandleErr(err, ctx) {
 			return
 		}
 		break
 	default:
-		err := fmt.Errorf("type '%s' does not support yet", cmd.Editing.Type)
-		u.LogError(err)
-		if handleError(ctx, err) {
+		err := serr.Errorf("type '%s' does not support yet", cmd.Editing.Type)
+		if host.HandleErr(err, ctx) {
 			return
 		}
 		break
@@ -318,14 +312,14 @@ func SaveEntry(ctx iris.Context) {
 
 	////////// save TTL
 	err := saveTTL(client, cmd)
-	u.LogError(err)
-	if handleError(ctx, err) {
+
+	if host.HandleErr(err, ctx) {
 		return
 	}
 }
 
 // DeleteKeys DELETE /api/v1/keys
-func DeleteKeys(ctx iris.Context) {
+func DeleteKeys(ctx host.IHttpContext) {
 	entries := make([]*core.RedisEntry, 0)
 	ctx.ReadJSON(&entries)
 
@@ -341,11 +335,11 @@ func DeleteKeys(ctx iris.Context) {
 	}
 	_, err := pipe.Exec()
 	u.LogError(err)
-	handleError(ctx, err)
+	host.HandleErr(err, ctx)
 }
 
 // DeleteMembers DELETE /api/v1/entries
-func DeleteMembers(ctx iris.Context) {
+func DeleteMembers(ctx host.IHttpContext) {
 	entries := make([]*core.RedisEntry, 0)
 	ctx.ReadJSON(&entries)
 
@@ -375,107 +369,109 @@ func DeleteMembers(ctx iris.Context) {
 	}
 	_, err := pipe.Exec()
 	u.LogError(err)
-	handleError(ctx, err)
+	host.HandleErr(err, ctx)
 }
 
 // Export POST /api/v1/export/keys
-func ExportKeys(ctx iris.Context) {
-	ctx.ContentType(core.ContentTypeJson)
+func ExportKeys(ctx host.IHttpContext) {
+	ctx.SetContentType(core.ContentTypeJson)
 
 	var keys []string
 	mr := new(core.MsgResult)
 	ctx.ReadJSON(&keys)
 	if keys == nil || len(keys) == 0 {
-		writeMsgResult(ctx, mr, "keys are missing")
+		host.HandleErr(serr.New("keys are missing"), ctx)
 		return
 	}
 
 	client := getClient(ctx)
 	exporter := rmio.NewExporter(true, client)
 	bytes, err := exporter.ExportKeys(keys...)
-	u.LogError(err)
-	if writeMsgResultError(ctx, mr, err) {
+	if host.HandleErr(err, ctx) {
 		return
 	}
 	mr.Data = bytes
 	jsonBytes, err := json.Marshal(mr)
-	u.LogError(err)
-	if writeMsgResultError(ctx, mr, err) {
+	if host.HandleErr(err, ctx) {
 		return
 	}
 	ctx.Write(jsonBytes)
 }
 
 // Import POST /api/v1/import/keys
-func ImportKeys(ctx iris.Context) {
-	ctx.ContentType(core.ContentTypeJson)
+func ImportKeys(ctx host.IHttpContext) {
+	ctx.SetContentType(core.ContentTypeJson)
 
 	var bytes []byte
 	ctx.ReadJSON(&bytes)
 	mr := new(core.MsgResult)
 	if bytes == nil || len(bytes) < 3 {
-		writeMsgResult(ctx, mr, "import data missing")
+		host.HandleErr(serr.New("import data missing"), ctx)
 		return
 	}
 
 	client := getClient(ctx)
 	importer := rmio.NewImporter(client)
 	imported, err := importer.ImportKeys(bytes)
-	u.LogError(err)
-	if writeMsgResultError(ctx, mr, err) {
+	if host.HandleErr(err, ctx) {
 		return
 	}
 
 	mr.Data = imported
 	jsonBytes, err := json.Marshal(mr)
 	u.LogError(err)
-	if writeMsgResultError(ctx, mr, err) {
+	if host.HandleErr(err, ctx) {
 		return
 	}
 	ctx.Write(jsonBytes)
 }
 
 // Export POST /api/v1/export/file
-func ExportFile(ctx iris.Context) {
+func ExportFile(ctx host.IHttpContext) {
 	// var keys []string
 	// ctx.ReadJSON(&keys)
-	keysStr := ctx.FormValue("keys")
+	keysStr := ctx.GetFormString("keys")
 	keys := strings.Split(keysStr, ",")
 	if keys == nil || len(keys) == 0 {
-		ctx.StatusCode(http.StatusBadRequest)
+		ctx.SetStatusCode(http.StatusBadRequest)
 		return
 	}
-	dbStr := ctx.FormValueDefault("db", "0")
+	dbStr := ctx.GetFormString("db")
+	if dbStr == "" {
+		dbStr = "0"
+	}
 	client := getClient(ctx)
 	exporter := rmio.NewExporter(false, client)
 	bytes, err := exporter.ExportZipFile(keys...)
 	u.LogError(err)
-	if !handleError(ctx, err) {
-		ctx.ContentType("application/octet-stream")
-		ctx.Header("Content-Disposition", fmt.Sprintf("attachment;filename=%s-%s.rmd", dbStr, time.Now().Format("20060102-150405")))
+	if !host.HandleErr(err, ctx) {
+		ctx.SetContentType("application/octet-stream")
+		ctx.SetHeader("Content-Disposition", fmt.Sprintf("attachment;filename=%s-%s.rmd", dbStr, time.Now().Format("20060102-150405")))
 		ctx.Write(bytes)
 	}
 }
 
 // Import POST /api/v1/import/file
-func ImportFile(ctx iris.Context) {
-	file, info, err := ctx.FormFile("file")
-	u.LogError(err)
-	if handleError(ctx, err) {
+func ImportFile(ctx host.IHttpContext) {
+	fileHeader, err := ctx.GetFormFile("file")
+	if host.HandleErr(err, ctx) {
 		return
 	}
-	defer file.Close()
+	file, err := fileHeader.Open()
+	defer func() {
+		file.Close()
+	}()
 
 	client := getClient(ctx)
 	importer := rmio.NewImporter(client)
 
-	_, err = importer.ImportZipFile(file, info.Size)
+	_, err = importer.ImportZipFile(file, fileHeader.Size)
 	u.LogError(err)
-	handleError(ctx, err)
+	host.HandleErr(err, ctx)
 }
 
 // SelectServer POST /api/v1/server
-func SaveServer(ctx iris.Context) {
+func SaveServer(ctx host.IHttpContext) {
 
 	// a, _ := io.ReadAll(ctx.Request().Body)
 	// log.Debug(string(a))
@@ -493,24 +489,24 @@ func SaveServer(ctx iris.Context) {
 	// }()
 
 	// _, err := buffer.ReadFrom(ctx.Request().Body)
-	// if handleError(ctx, err) {
+	// if host.HandleErr(err, ctx) {
 	// 	return
 	// }
 
 	// var server *core.RedisConfigX
 	// err = json.Unmarshal(buffer.Bytes(), &server)
-	// if handleError(ctx, err) {
+	// if host.HandleErr(err, ctx) {
 	// 	return
 	// }
 
 	err := core.Manager.Save(server)
-	handleError(ctx, err)
+	host.HandleErr(err, ctx)
 }
 
 // GetServers Get /api/v1/servers
-func GetServers(ctx iris.Context) {
+func GetServers(ctx host.IHttpContext) {
 	data, err := json.Marshal(core.Manager.Servers)
-	if handleError(ctx, err) {
+	if host.HandleErr(err, ctx) {
 		return
 	}
 
@@ -518,7 +514,7 @@ func GetServers(ctx iris.Context) {
 }
 
 // // AddServer Post /api/v1/servers
-// func AddServer(ctx iris.Context) {
+// func AddServer(ctx host.IHttpContext) {
 // 	buffer := _bufferPool.GetBuffer()
 // 	defer func() {
 // 		ctx.Request().Body.Close()
@@ -526,38 +522,40 @@ func GetServers(ctx iris.Context) {
 // 	}()
 
 // 	_, err := buffer.ReadFrom(ctx.Request().Body)
-// 	if handleError(ctx, err) {
+// 	if host.HandleErr(err, ctx) {
 // 		return
 // 	}
 
 // 	newServers := make([]*core.RedisConfigX, 0)
 // 	err = json.Unmarshal(buffer.Bytes(), &newServers)
-// 	if handleError(ctx, err) {
+// 	if host.HandleErr(err, ctx) {
 // 		return
 // 	}
 
 // 	err = core.Manager.Add(newServers...)
-// 	handleError(ctx, err)
+// 	host.HandleErr(err, ctx)
 // }
 
 // SelectServer Post /api/v1/servers/{id}
-func SelectServer(ctx iris.Context) {
-	id := ctx.Params().Get("id")
+func SelectServer(ctx host.IHttpContext) {
+	id := ctx.GetParamString("id")
 	if id == "" {
-		handleError(ctx, errors.New("id is required"))
+		host.HandleErr(serr.New("id is required"), ctx)
+		return
 	}
 
 	err := core.Manager.Select(id)
-	handleError(ctx, err)
+	host.HandleErr(err, ctx)
 }
 
 // RemoveServer Delete /api/v1/servers/{id}
-func RemoveServer(ctx iris.Context) {
-	id := ctx.Params().Get("id")
+func RemoveServer(ctx host.IHttpContext) {
+	id := ctx.GetParamString("id")
 	if id == "" {
-		handleError(ctx, errors.New("id is required"))
+		host.HandleErr(serr.New("id is required"), ctx)
+		return
 	}
 
 	err := core.Manager.Remove(id)
-	handleError(ctx, err)
+	host.HandleErr(err, ctx)
 }

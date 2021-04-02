@@ -13,8 +13,8 @@ func saveHash(client redis.Cmdable, cmd *core.SaveRedisEntryCommand) (err error)
 	} else if cmd.Editing.Key != cmd.Backup.Key {
 		// # rename key
 		err = client.Rename(cmd.Backup.Key, cmd.Editing.Key).Err()
-		if u.LogError(err) {
-			return
+		if err != nil {
+			return err
 		}
 
 		if cmd.Editing.Field != cmd.Backup.Field {
@@ -37,8 +37,8 @@ func saveHash(client redis.Cmdable, cmd *core.SaveRedisEntryCommand) (err error)
 func renameHashField(client redis.Cmdable, key, oldField, newFiled string, value interface{}) (err error) {
 	// set value to new field
 	err = client.HSet(key, newFiled, value).Err()
-	if u.LogError(err) {
-		return
+	if err != nil {
+		return err
 	}
 
 	// delete old field

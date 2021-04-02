@@ -42,7 +42,7 @@ func TestFillData(t *testing.T) {
 	// // 	f := "field-" + strconv.Itoa(i)
 	// // 	v := "value " + strconv.Itoa(i)
 	// // 	err := client.HSet("testdata", f, v).Err()
-	// // 	if u.LogError(err) {
+	// // 	if host.HandleErr(err, ctx) {
 	// // 		return
 	// // 	}
 	// // }
