@@ -27,7 +27,9 @@ func NewRedisManager() *RedisManager {
 
 func (x *RedisManager) GetSelectedCluster() *RedisCluster {
 	for _, v := range x.Clusters {
-		return v
+		if v.config.Selected {
+			return v
+		}
 	}
 
 	return nil
@@ -52,15 +54,16 @@ func (x *RedisManager) Remove(id string) error {
 }
 
 func (x *RedisManager) Select(id string) error {
-	for i, sc := range x.Configs {
-		if sc.ID == id {
-			x.removeByIndex(i)
-			x.Configs = append([]*ClusterConfig{sc}, x.Configs...)
-			break
-		}
+	for _, sc := range x.Configs {
+		// if sc.ID == id {
+		// 	x.removeByIndex(i)
+		// 	x.Configs = append([]*ClusterConfig{sc}, x.Configs...)
+		// 	break
+		// }
+		sc.Selected = sc.ID == id
 	}
 
-	x.Clusters = x.generateClusters()
+	// x.Clusters = x.generateClusters()
 	err := x.save()
 	return err
 }
@@ -142,6 +145,7 @@ func (x *RedisManager) add(rc *ClusterConfig) {
 	rc.ID = host.GenerateID()
 	x.generateName(rc)
 	x.Configs = append(x.Configs, rc)
+	x.Select(rc.ID) // set new item as selected
 }
 
 func (x *RedisManager) generateName(rc *ClusterConfig) {

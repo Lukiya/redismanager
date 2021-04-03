@@ -1,6 +1,12 @@
 package helpers
 
-import "strings"
+import (
+	"strings"
+
+	"github.com/Lukiya/redismanager/src/go/rmr"
+	"github.com/syncfuture/go/serr"
+	"github.com/syncfuture/host"
+)
 
 func IsJson(str string) bool {
 	if str == "" {
@@ -10,6 +16,14 @@ func IsJson(str string) bool {
 	str = strings.TrimSpace(str)
 
 	return strings.HasPrefix(str, "{") && strings.HasSuffix(str, "}")
+}
+
+func CheckCluster(cluster *rmr.RedisCluster, ctx host.IHttpContext) bool {
+	if cluster == nil {
+		host.HandleErr(serr.New("cluster cannot be nil"), ctx)
+		return true
+	}
+	return false
 }
 
 // func GetClient(ctx host.IHttpContext) (r redis.Cmdable) {

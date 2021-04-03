@@ -32,11 +32,9 @@ const Dashboard = (props: any) => {
             align: "right",
             width: 240,
             render: (_: any, record: any, index: number) => {
-                const btnSelect = index > 0 ? <Button type="default" size="small" onClick={() => dispatch({ type: "clusterListVM/selectCluster", payload: record })}> <DeleteOutlined /> Select</Button> : null;
-
                 return (
                     <Space>
-                        {btnSelect}
+                        <Button type="default" size="small" onClick={() => dispatch({ type: "clusterListVM/selectCluster", payload: record })}> <DeleteOutlined /> Select</Button>
 
                         <Button type="default" size="small" onClick={() => dispatch({ type: "clusterListVM/showEditor", payload: record })}> <DeleteOutlined /> Edit</Button>
 
@@ -61,8 +59,8 @@ const Dashboard = (props: any) => {
         columns={columns}
         loading={loading}
         dataSource={clusterListState.clusters}
-        rowClassName={(_, index) => {
-            if (index == 0) {
+        rowClassName={(record, index) => {
+            if (record.Selected) {
                 return "hilightRow"
             }
             return ""

@@ -1,71 +1,38 @@
-import { GetClusters, SaveCluster, SelectCluster } from "@/services/cluster";
-const _defaultCluster = {
-    ID: "",
-    Name: "",
-    Addrs: [""],
-    Password: "",
-};
+import { GetCluster } from "@/services/cluster";
 
 export default {
     state: {
-        clusters: [],
-        editingCluster: _defaultCluster,
-        editorVisible: false,
+        cluster: {},
+        openKeys: [],
     },
     effects: {
-        *getClusters(_: any, { call, put }: any): any {
-            const resp = yield call(GetClusters);
+        *GetCluster({ clusterID }: any, { call, put }: any): any {
+            const resp = yield call(GetCluster, clusterID);
+            let selectedNodeID = null;
+            for (let i = 0; i < resp.Nodes.length; i++) {
+                selectedNodeID = resp.Nodes[0].ID;
+                break;
+            }
+
             yield put({
                 type: 'setState',
                 payload: {
-                    clusters: resp,
+                    cluster: resp,
+                    openKeys: [selectedNodeID],
                 },
             });
-        },
-        *saveCluster({ payload }: any, { call, put }: any): any {
-            const addrs = payload.Addrs.split('\n')
-            const data = {
-                ID: payload.ID ?? "",
-                Name: payload.Name,
-                Password: payload.Password,
-                Addrs: addrs,
-            };
-
-            yield call(SaveCluster, data);
-            yield put({ type: "getClusters" })
-        },
-        *selectCluster({ payload }: any, { call, put }: any): any {
-            console.log(payload);
-
-            yield call(SelectCluster, payload.ID);
-            yield put({ type: "getClusters" })
         },
     },
     reducers: {
         setState(state: any, { payload }: any) { return { ...state, ...payload }; },
-        showEditor(state: any, { payload }: any) {
-            const editingCluster = payload ?? _defaultCluster;
-
+        setOpenKeys(state: any, { openKeys }: any) {
+            if (openKeys.length > 0) {
+                openKeys = [openKeys[openKeys.length - 1]];
+            }
             return {
                 ...state,
-                editorVisible: true,
-                editingCluster,
+                openKeys,
             };
         },
-        hideEditor(state: any) {
-            return {
-                ...state,
-                editorVisible: false,
-            };
-        },
-    },
-    subscriptions: {
-        setup({ dispatch, history }: any) {
-            return history.listen(({ pathname }: any) => {
-                if (pathname == "/") {
-                    dispatch({ type: "getClusters" });
-                }
-            });
-        }
     },
 };

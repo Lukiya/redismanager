@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 
 	"github.com/Lukiya/redismanager/src/go/core"
+	"github.com/Lukiya/redismanager/src/go/helpers"
 	"github.com/Lukiya/redismanager/src/go/rmr"
 	"github.com/syncfuture/go/serr"
+	log "github.com/syncfuture/go/slog"
 	"github.com/syncfuture/host"
 )
 
@@ -14,6 +16,7 @@ var ClusterGroup = host.NewActionGroup(
 	[]*host.Action{
 		host.NewAction("POST/api/cluster", "cluster__", SaveCluster),
 		host.NewAction("GET/api/clusters", "cluster__", GetClusters),
+		host.NewAction("GET/api/clusters/{id}", "cluster__", GetCluster),
 		host.NewAction("POST/api/clusters/{id}", "cluster__", SelectCluster),
 		host.NewAction("DELETE/api/clusters/{id}", "cluster__", RemoveCluster),
 	},
@@ -41,6 +44,37 @@ func GetClusters(ctx host.IHttpContext) {
 	}
 
 	ctx.Write(data)
+}
+
+// GetClusters Get /api/cluster/{id}
+func GetCluster(ctx host.IHttpContext) {
+	clusterID := ctx.GetParamString("id")
+	var cluster *rmr.RedisCluster
+	if clusterID == "selected" {
+		cluster = core.Manager.GetSelectedCluster()
+	} else {
+		cluster = core.Manager.Clusters[clusterID]
+	}
+	if helpers.CheckCluster(cluster, ctx) {
+		return
+	}
+
+	log.Info(cluster.Nodes)
+
+	// load all dbs before return
+	for _, v := range cluster.Nodes {
+		err := v.LoadDBs()
+		if host.HandleErr(err, ctx) {
+			return
+		}
+	}
+
+	data, err := json.Marshal(cluster)
+	if host.HandleErr(err, ctx) {
+		return
+	}
+
+	ctx.WriteJsonBytes(data)
 }
 
 // SelectCluster Post /api/clusters/{id}

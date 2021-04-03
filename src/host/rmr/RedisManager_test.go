@@ -43,7 +43,7 @@ func TestCluster(t *testing.T) {
 	cluster := _rm.GetSelectedCluster()
 	assert.NotNil(t, cluster)
 
-	node := cluster.Nodes["192.1686.188.166:6380"]
+	node := cluster.Nodes[0]
 	dbs, err := node.GetDBs()
 	assert.NoError(t, err)
 

@@ -34,6 +34,9 @@ export default {
         *selectCluster({ payload }: any, { call, put }: any): any {
             yield call(SelectCluster, payload.ID);
             yield put({ type: "getClusters" })
+
+            // refresh left menus
+            yield put({ type: "menuVM/GetCluster", clusterID: payload.ID });
         },
         *removeCluster({ payload }: any, { call, put }: any): any {
             yield call(RemoveCluster, payload.ID);

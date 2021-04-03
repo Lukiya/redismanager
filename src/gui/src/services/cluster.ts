@@ -29,16 +29,18 @@ export async function GetClusters() {
         });
 
     return r;
+}
 
-    // if (r != null && r != undefined) {
-    //     return {
-    //         data: r.Results,
-    //         success: true,
-    //         total: r.TotalCount,
-    //     };
-    // }
+export async function GetCluster(clusterID: string) {
+    const r = await request.get('/clusters/' + clusterID)
+        .then(function (resp) {
+            return resp;
+        })
+        .catch(function (err) {
+            console.error(err);
+        });
 
-    // return u.DefaultTableData;
+    return r;
 }
 
 export async function SelectCluster(id: string) {

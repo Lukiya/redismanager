@@ -5,7 +5,8 @@ import (
 )
 
 type ClusterConfig struct {
-	ID   string
-	Name string
+	ID       string
+	Name     string
+	Selected bool
 	sredis.RedisConfig
 }
