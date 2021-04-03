@@ -5,9 +5,14 @@ export default defineConfig({
   nodeModulesTransform: {
     type: 'none',
   },
-  // routes: [
-  //   { path: '/', component: '@/pages/index' },
-  // ],
+  routes: [
+    {
+      exact: false, path: '/', component: '@/pages/_layout',
+      routes: [
+        { path: '/', component: '@/pages/dashboard' },
+      ]
+    }
+  ],
   fastRefresh: {},
   antd: {
     // dark: true,

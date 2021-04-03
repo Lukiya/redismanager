@@ -1,7 +1,7 @@
-import ProLayout, { MenuDataItem } from '@ant-design/pro-layout';
+import { DatabaseOutlined, CloudServerOutlined } from '@ant-design/icons';
 import logo from "@/assets/logo.svg"
 import { connect, Link } from 'umi';
-import { Layout, Menu, Breadcrumb } from 'antd';
+import { Layout, Menu, Spin } from 'antd';
 import { useEffect } from 'react';
 
 const { Header, Content, Footer, Sider } = Layout;
@@ -9,38 +9,41 @@ const { SubMenu } = Menu;
 
 function buildMenu(dispatch: any, menuState: any) {
     const nodes = menuState.cluster.Nodes;
-
     const nodeMenus = [];
 
-    for (const nodeKey in nodes) {
-        const node = nodes[nodeKey];
+    for (let i = 0; i < nodes.length; i++) {
+        const node = nodes[i];
         const dbMenus = [];
 
         for (const dbKey in node.DBs) {
             const db = "db" + dbKey;
 
-            const dbMenu = <Menu.Item key={db} ><Link to={"/" + db}>{db}</Link></Menu.Item>;
+            const dbMenu = <Menu.Item key={db} icon={<DatabaseOutlined />}><Link to={"/" + menuState.cluster.ID + "/" + node.ID + "/" + db}> {db}</Link></Menu.Item>;
 
             dbMenus.push(dbMenu);
         }
 
-        const nodeMenu = <SubMenu key={node.ID} title={node.Addr}>{dbMenus}</SubMenu>;
+        const nodeMenu = <SubMenu key={node.ID} title={node.Addr}> {dbMenus}</SubMenu>;
         nodeMenus.push(nodeMenu);
     }
 
-
-    if (nodeMenus.length > 0) {
-        return <Menu theme="dark" openKeys={menuState.openKeys} mode="inline" onOpenChange={(openKeys: any) => dispatch({ type: "menuVM/setOpenKeys", openKeys })}> {nodeMenus}</Menu >;
-    } else {
-        return null;
-    }
+    return (
+        <Menu title="Test" theme="dark" openKeys={menuState.openKeys} mode="inline" onOpenChange={(openKeys: any) => dispatch({ type: "menuVM/setOpenKeys", openKeys })}>
+            {nodeMenus}
+        </Menu >
+    );
 }
 
 const LayoutPage = (props: any) => {
     const { menuState, dispatch } = props;
-    useEffect(() => dispatch({ type: "menuVM/GetCluster", clusterID: "selected" }), []);
+    useEffect(() => dispatch({ type: "menuVM/getCluster", clusterID: "selected" }), []);
 
-    const menu = buildMenu(dispatch, menuState);
+    const menu = menuState.cluster.Nodes ? (
+        <div>
+            <h1 style={{ color: "white" }}><CloudServerOutlined /> {menuState.cluster.Name}</h1>
+            {buildMenu(dispatch, menuState)}
+        </div>
+    ) : <Spin />;
 
     return (
         <Layout style={{ minHeight: '100vh' }}>

@@ -1,6 +1,8 @@
 package rmr
 
 type RedisCluster struct {
+	ID       string
+	Name     string
 	Nodes    []*RedisNode
 	config   *ClusterConfig
 	Selected bool
@@ -8,6 +10,8 @@ type RedisCluster struct {
 
 func NewRedisCluster(config *ClusterConfig) *RedisCluster {
 	r := &RedisCluster{
+		ID:       config.ID,
+		Name:     config.Name,
 		config:   config,
 		Selected: config.Selected,
 	}

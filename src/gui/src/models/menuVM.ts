@@ -6,7 +6,7 @@ export default {
         openKeys: [],
     },
     effects: {
-        *GetCluster({ clusterID }: any, { call, put }: any): any {
+        *getCluster({ clusterID }: any, { call, put }: any): any {
             const resp = yield call(GetCluster, clusterID);
             let selectedNodeID = null;
             for (let i = 0; i < resp.Nodes.length; i++) {
@@ -21,6 +21,15 @@ export default {
                     openKeys: [selectedNodeID],
                 },
             });
+        },
+        *refresh({ clusterID }: any, { call, put, select }: any): any {
+            const state = yield select((x: any) => x["menuVM"]);
+            if (state.cluster.ID == clusterID) {    // only refresh selected cluster
+                yield put({
+                    type: 'getCluster',
+                    clusterID,
+                });
+            }
         },
     },
     reducers: {
