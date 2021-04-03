@@ -25,7 +25,7 @@ func SaveCluster(ctx host.IHttpContext) {
 	var cluster *rmr.ClusterConfig
 	ctx.ReadJSON(&cluster)
 	if cluster == nil {
-		ctx.WriteString("cluster json is missing")
+		host.HandleErr(serr.New("cluster json is missing in request body"), ctx)
 		return
 	}
 

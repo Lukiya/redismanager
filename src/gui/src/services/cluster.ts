@@ -5,9 +5,9 @@ const request = extend({
     prefix: u.LocalAPI(),
 });
 
-export async function SaveCluster(values: any) {
+export async function SaveCluster(data: any) {
     const r = await request.post('/cluster', {
-        data: values,
+        data: data,
     })
         .then(function (resp) {
             return resp;
