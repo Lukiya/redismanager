@@ -42,7 +42,7 @@ export async function GetClusters() {
 }
 
 export async function SelectCluster(id: string) {
-    const r = await request.post('/cluster/' + id)
+    const r = await request.post('/clusters/' + id)
         .then(function (resp) {
             return resp;
         })
@@ -54,7 +54,7 @@ export async function SelectCluster(id: string) {
 }
 
 export async function RemoveCluster(id: string) {
-    const r = await request.delete('/cluster/' + id)
+    const r = await request.delete('/clusters/' + id)
         .then(function (resp) {
             return resp;
         })

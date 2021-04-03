@@ -1,4 +1,4 @@
-import { GetClusters, RemoveCluster, SaveCluster, SelectCluster } from "@/services/cluster";
+import { GetClusters, SaveCluster, SelectCluster } from "@/services/cluster";
 const _defaultCluster = {
     ID: "",
     Name: "",
@@ -15,7 +15,12 @@ export default {
     effects: {
         *getClusters(_: any, { call, put }: any): any {
             const resp = yield call(GetClusters);
-            yield put({ type: 'setState', payload: { clusters: resp, } });
+            yield put({
+                type: 'setState',
+                payload: {
+                    clusters: resp,
+                },
+            });
         },
         *saveCluster({ payload }: any, { call, put }: any): any {
             const addrs = payload.Addrs.split('\n')
@@ -27,16 +32,12 @@ export default {
             };
 
             yield call(SaveCluster, data);
-            yield put({ type: 'hideEditor' });
             yield put({ type: "getClusters" })
-            yield put({ type: 'setState', payload: { editingCluster: _defaultCluster, } });
         },
         *selectCluster({ payload }: any, { call, put }: any): any {
+            console.log(payload);
+
             yield call(SelectCluster, payload.ID);
-            yield put({ type: "getClusters" })
-        },
-        *removeCluster({ payload }: any, { call, put }: any): any {
-            yield call(RemoveCluster, payload.ID);
             yield put({ type: "getClusters" })
         },
     },

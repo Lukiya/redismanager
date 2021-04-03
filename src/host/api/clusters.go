@@ -14,7 +14,7 @@ var ClusterGroup = host.NewActionGroup(
 	[]*host.Action{
 		host.NewAction("POST/api/cluster", "cluster__", SaveCluster),
 		host.NewAction("GET/api/clusters", "cluster__", GetClusters),
-		host.NewAction("PUT/api/clusters/{id}", "cluster__", SelectCluster),
+		host.NewAction("POST/api/clusters/{id}", "cluster__", SelectCluster),
 		host.NewAction("DELETE/api/clusters/{id}", "cluster__", RemoveCluster),
 	},
 	nil,

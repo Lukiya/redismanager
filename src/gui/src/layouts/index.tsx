@@ -1,4 +1,5 @@
 import ProLayout, { MenuDataItem } from '@ant-design/pro-layout';
+import logo from "@/assets/logo.svg"
 
 const menuData: MenuDataItem[] = [
     {
@@ -17,6 +18,8 @@ const Layout = (props: any) => {
 
     return (
         <ProLayout
+            title="Redis Manager"
+            logo={logo}
             style={{
                 height: '100vh',
             }}

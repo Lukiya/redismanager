@@ -2,43 +2,84 @@ import { Button } from 'antd';
 import ProTable, { ProColumns } from '@ant-design/pro-table';
 import { PageContainer } from '@ant-design/pro-layout';
 import ProForm, { ProFormText, ProFormTextArea } from '@ant-design/pro-form';
-import { PlusOutlined } from '@ant-design/icons';
+import { DeleteOutlined } from '@ant-design/icons';
 import { connect } from 'umi'
-import { Drawer, FormInstance } from 'antd'
+import { Drawer, FormInstance, Table, Card, Popconfirm, Space } from 'antd'
 import { useEffect, useRef } from 'react';
-
-const columns: ProColumns<any>[] = [
-    {
-        title: 'Name',
-        dataIndex: 'Name',
-        className: "pointer",
-        sorter: (a: any, b: any) => a.ID.localeCompare(b.ID),
-    },
-    {
-        title: 'Nodes',
-        dataIndex: 'Addrs',
-        className: "pointer",
-        render: (_, x) => {
-            return x.Addrs?.join(", ")
-        },
-    },
-];
+import { ColumnProps } from 'antd/es/table';
 
 const Dashboard = (props: any) => {
     const { clusterListState, loading, dispatch } = props;
     const { editingCluster } = clusterListState;
     const formRef = useRef<FormInstance>();
 
+    //////////// table
+    const columns: ColumnProps<any>[] = [
+        {
+            title: 'Name',
+            dataIndex: 'Name',
+            sorter: (a: any, b: any) => a.ID.localeCompare(b.ID),
+        },
+        {
+            title: 'Nodes',
+            dataIndex: 'Addrs',
+            render: (_: any, x: any) => {
+                return x.Addrs?.join(", ")
+            },
+        },
+        {
+            title: 'Actions',
+            align: "right",
+            width: 240,
+            render: (_: any, record: any, index: number) => {
+                const btnSelect = index > 0 ? <Button type="default" size="small" onClick={() => dispatch({ type: "clusterListVM/selectCluster", payload: record })}> <DeleteOutlined /> Select</Button> : null;
+
+                return (
+                    <Space>
+                        {btnSelect}
+
+                        <Button type="default" size="small" onClick={() => dispatch({ type: "clusterListVM/showEditor", payload: record })}> <DeleteOutlined /> Edit</Button>
+
+                        <Popconfirm
+                            title="Confirm?"
+                            onConfirm={() => dispatch({ type: "clusterListVM/removeCluster", payload: record })}
+                            // onCancel={cancel}
+                            okText="Yes"
+                            cancelText="No"
+                        >
+                            <Button type="primary" size="small" danger><DeleteOutlined /> Delete</Button>
+                        </Popconfirm>
+                    </Space>
+                );
+            },
+        },
+    ];
+    const table = <Table
+        rowKey="ID"
+        bordered={true}
+        size="small"
+        columns={columns}
+        loading={loading}
+        dataSource={clusterListState.clusters}
+        rowClassName={(_, index) => {
+            if (index == 0) {
+                return "hilightRow"
+            }
+            return ""
+        }}
+    />
+
+    //////////// form
     const form = <ProForm
         formRef={formRef}
         onFinish={async (values) => {
+            values.ID = editingCluster.ID;
             await dispatch({
                 type: "clusterListVM/saveCluster",
                 payload: values,
             })
         }}
         initialValues={{
-            ID: editingCluster.ID,
             Name: editingCluster.Name,
             Addrs: editingCluster.Addrs.join("\n"),
             Password: editingCluster.Password,
@@ -68,7 +109,9 @@ const Dashboard = (props: any) => {
             <ProFormText.Password width="md" name="Password" label="Password" />
         </ProForm.Group>
     </ProForm>;
+    useEffect(() => formRef.current?.resetFields(), [form.props.initialValues]);
 
+    //////////// editor
     const editor = <Drawer
         title="Cluster Editor"
         width="375"
@@ -78,9 +121,7 @@ const Dashboard = (props: any) => {
         {form}
     </Drawer>;
 
-    // reset form if initialValus has any diferences
-    useEffect(() => formRef.current?.resetFields(), [form.props.initialValues]);
-
+    //////////// render
     return (
         <PageContainer
             header={{
@@ -95,29 +136,12 @@ const Dashboard = (props: any) => {
                 },
             }}
         >
-            <ProTable<any>
-                bordered={true}
-                loading={loading}
-                search={false}
-                rowKey="ID"
-                request={() => {
-                    return Promise.resolve({
-                        data: clusterListState.clusters,
-                        success: true,
-                    });
-                }}
-                columns={columns}
-                pagination={{
-                    pageSize: 20,
-                }}
-                headerTitle="Clusters"
-                toolBarRender={() => [
-                    <Button key="button" icon={<PlusOutlined />} type="primary" onClick={() => dispatch({ type: "clusterListVM/showEditor" })}>New</Button>,
-                ]}
-                onRow={(record) => {
-                    return { onClick: event => { dispatch({ type: "clusterListVM/showEditor", payload: record }); }, };
-                }}
-            />
+            <Card>
+                <div style={{ marginBottom: "10px", textAlign: "right" }}>
+                    <Button type="primary" onClick={() => dispatch({ type: "clusterListVM/showEditor" })}>New</Button>
+                </div>
+                {table}
+            </Card>
             {editor}
         </PageContainer>
     );
