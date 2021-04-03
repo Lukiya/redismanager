@@ -7,7 +7,6 @@ import (
 	"github.com/Lukiya/redismanager/src/go/helpers"
 	"github.com/Lukiya/redismanager/src/go/rmr"
 	"github.com/syncfuture/go/serr"
-	log "github.com/syncfuture/go/slog"
 	"github.com/syncfuture/host"
 )
 
@@ -58,8 +57,6 @@ func GetCluster(ctx host.IHttpContext) {
 	if helpers.CheckCluster(cluster, ctx) {
 		return
 	}
-
-	log.Info(cluster.Nodes)
 
 	// load all dbs before return
 	for _, v := range cluster.Nodes {
