@@ -1,8 +1,7 @@
 import { Button } from 'antd';
-import ProTable, { ProColumns } from '@ant-design/pro-table';
 import { PageContainer } from '@ant-design/pro-layout';
-import ProForm, { ProFormText, ProFormTextArea } from '@ant-design/pro-form';
-import { DeleteOutlined } from '@ant-design/icons';
+import ProForm, { ProFormText, ProFormTextArea, ProFormSwitch } from '@ant-design/pro-form';
+import { DeleteOutlined, SelectOutlined, EditOutlined } from '@ant-design/icons';
 import { connect } from 'umi'
 import { Drawer, FormInstance, Table, Card, Popconfirm, Space } from 'antd'
 import { useEffect, useRef } from 'react';
@@ -32,13 +31,13 @@ const Dashboard = (props: any) => {
             align: "right",
             width: 240,
             render: (_: any, record: any, index: number) => {
-                const btnSelect = record.Selected ? null : <Button type="default" size="small" onClick={() => dispatch({ type: "clusterListVM/selectCluster", payload: record })}> <DeleteOutlined /> Select</Button>;
+                const btnSelect = record.Selected ? null : <Button type="primary" size="small" icon={<SelectOutlined />} onClick={() => dispatch({ type: "clusterListVM/selectCluster", payload: record })}>Select</Button>;
 
                 return (
                     <Space>
                         {btnSelect}
 
-                        <Button type="default" size="small" onClick={() => dispatch({ type: "clusterListVM/showEditor", payload: record })}> <DeleteOutlined /> Edit</Button>
+                        <Button type="default" size="small" icon={<EditOutlined />} onClick={() => dispatch({ type: "clusterListVM/showEditor", payload: record })}>Edit</Button>
 
                         <Popconfirm
                             title="Confirm?"
@@ -47,7 +46,7 @@ const Dashboard = (props: any) => {
                             okText="Yes"
                             cancelText="No"
                         >
-                            <Button type="primary" size="small" danger><DeleteOutlined /> Delete</Button>
+                            <Button type="default" size="small" danger icon={<DeleteOutlined />}>Delete</Button>
                         </Popconfirm>
                     </Space>
                 );
@@ -75,13 +74,17 @@ const Dashboard = (props: any) => {
             })
         }}
         initialValues={{
+            ID: editingCluster.ID,
             Name: editingCluster.Name,
             Addrs: editingCluster.Addrs.join("\n"),
             Password: editingCluster.Password,
+            Selected: editingCluster.Selected,
         }}
     >
         <ProForm.Group>
             <ProFormText width="md" name="Name" label="Name" />
+            <ProFormText name="ID" hidden={true} />
+            <ProFormSwitch name="Selected" hidden={true} />
         </ProForm.Group>
         <ProForm.Group>
             <ProFormTextArea width="md" name="Addrs" label="Node Address(es)&nbsp;" tooltip="Each node take one line" rules={[
