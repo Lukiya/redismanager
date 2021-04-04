@@ -21,7 +21,8 @@ func NewRedisManager() *RedisManager {
 	r := new(RedisManager)
 	err := r.load()
 	u.LogFaltal(err)
-	r.Clusters = r.generateClusters()
+	r.Clusters, err = r.generateClusters()
+	u.LogFaltal(err)
 	return r
 }
 
@@ -56,10 +57,12 @@ func (x *RedisManager) GetCluster(clusterID string) *RedisCluster {
 // 	return err
 // }
 
-func (x *RedisManager) Remove(id string) error {
-	x.removeByID(id)
-	x.Clusters = x.generateClusters()
-	err := x.save()
+func (x *RedisManager) Remove(id string) (err error) {
+	x.Clusters, err = x.generateClusters()
+	if err != nil {
+		return err
+	}
+	err = x.save()
 	return err
 }
 
@@ -78,7 +81,7 @@ func (x *RedisManager) Select(id string) error {
 	return err
 }
 
-func (x *RedisManager) Save(config *ClusterConfig) error {
+func (x *RedisManager) Save(config *ClusterConfig) (err error) {
 	if config.ID == "" {
 		x.add(config)
 	} else {
@@ -100,8 +103,12 @@ func (x *RedisManager) Save(config *ClusterConfig) error {
 		}
 	}
 
-	x.Clusters = x.generateClusters()
-	err := x.save()
+	x.Clusters, err = x.generateClusters()
+	if err != nil {
+		return err
+	}
+
+	err = x.save()
 	return err
 }
 
@@ -129,26 +136,18 @@ func (x *RedisManager) load() error {
 	return serr.WithStack(err)
 }
 
-func (x *RedisManager) generateClusters() map[string]*RedisCluster {
-	r := make(map[string]*RedisCluster, len(x.Configs))
+func (x *RedisManager) generateClusters() (r map[string]*RedisCluster, err error) {
+	r = make(map[string]*RedisCluster, len(x.Configs))
 
 	// errs := make([]error, 0)
 	for _, sc := range x.Configs {
-		cluster := NewRedisCluster(sc)
-		r[cluster.config.ID] = cluster
-		// a, err := NewRedisCluster(sc)
-		// if err != nil {
-		// 	errs = append(errs, err)
-		// 	x.removeByIndex(i)
-		// 	continue
-		// }
-		// r = append(r, cluster)
+		r[sc.ID], err = NewRedisCluster(sc)
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	// err := u.JointErrors(errs...)
-
-	// return r, err
-	return r
+	return r, err
 }
 
 func (x *RedisManager) add(rc *ClusterConfig) {

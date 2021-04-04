@@ -14,8 +14,8 @@ type RedisCluster struct {
 	Selected bool
 }
 
-func NewRedisCluster(config *ClusterConfig) *RedisCluster {
-	r := &RedisCluster{
+func NewRedisCluster(config *ClusterConfig) (r *RedisCluster, err error) {
+	r = &RedisCluster{
 		ID:       config.ID,
 		Name:     config.Name,
 		config:   config,
@@ -30,7 +30,7 @@ func NewRedisCluster(config *ClusterConfig) *RedisCluster {
 			Password: config.Password,
 		})
 
-		clusterClient.ForEachMaster(ctx, func(innerCtx context.Context, client *redis.Client) error {
+		err = clusterClient.ForEachMaster(ctx, func(innerCtx context.Context, client *redis.Client) error {
 			node := NewClusterRedisNode(client.Options().Addr, client)
 			r.Nodes = append(r.Nodes, node)
 			return nil
@@ -41,7 +41,7 @@ func NewRedisCluster(config *ClusterConfig) *RedisCluster {
 		r.Nodes = append(r.Nodes, node)
 	}
 
-	return r
+	return r, err
 }
 
 func (x *RedisCluster) GetNode(nodeID string) *RedisNode {

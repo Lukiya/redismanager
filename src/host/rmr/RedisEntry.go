@@ -23,12 +23,12 @@ type RedisEntry struct {
 	client redis.UniversalClient
 }
 
-func (x *RedisEntry) GetType() {
-	x.Type = x.client.Type(context.Background(), x.Key).Val()
+func (x *RedisEntry) getType(ctx context.Context) {
+	x.Type = x.client.Type(ctx, x.Key).Val()
 }
 
-func (x *RedisEntry) GetTTL() {
-	ttl := x.client.TTL(context.Background(), x.Key).Val().Seconds()
+func (x *RedisEntry) getTTL(ctx context.Context) {
+	ttl := x.client.TTL(ctx, x.Key).Val().Seconds()
 	if ttl < 0 {
 		x.TTL = -1
 	} else {
@@ -36,8 +36,7 @@ func (x *RedisEntry) GetTTL() {
 	}
 }
 
-func (x *RedisEntry) GetLength() {
-	ctx := context.Background()
+func (x *RedisEntry) GetLength(ctx context.Context) {
 	var err error
 	switch x.Type {
 	case RedisType_String:
@@ -59,8 +58,7 @@ func (x *RedisEntry) GetLength() {
 	u.LogError(err)
 }
 
-func (x *RedisEntry) GetValue(field string) {
-	ctx := context.Background()
+func (x *RedisEntry) getValue(ctx context.Context, field string) {
 	var err error
 	switch x.Type {
 	case RedisType_String:
@@ -109,9 +107,10 @@ func NewRedisEntry(client redis.UniversalClient, key string) (r *RedisEntry) {
 	r = new(RedisEntry)
 	r.client = client
 	r.Key = key
-	r.GetType()
-	r.GetLength()
-	r.GetTTL()
+	ctx := context.Background()
+	r.getType(ctx)
+	r.GetLength(ctx)
+	r.getTTL(ctx)
 
 	return r
 }
