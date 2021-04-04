@@ -31,21 +31,22 @@ export default {
             yield put({ type: 'hideEditor' });
             yield put({ type: "getClusters" })
             yield put({ type: 'setState', payload: { editingCluster: _defaultCluster, } });
-
-            yield put({ type: 'menuVM/refresh', clusterID: clusterID ?? "selected" });
+            yield put({ type: 'menuVM/build' });
 
         },
         *selectCluster({ payload }: any, { call, put }: any): any {
             yield call(SelectCluster, payload.ID);
             yield put({ type: "getClusters" })
 
-            // refresh left menus
-            yield put({ type: "menuVM/getCluster", clusterID: payload.ID });
+            // build left menus
+            yield put({ type: 'menuVM/build' });
         },
-        *removeCluster({ payload }: any, { call, put }: any): any {
-            yield call(RemoveCluster, payload.ID);
+        *removeCluster({ cluster }: any, { call, put }: any): any {
+            yield call(RemoveCluster, cluster.ID);
             yield put({ type: "getClusters" })
-            yield put({ type: 'menuVM/refresh', clusterID: payload.ID });
+            if (cluster.Selected) {
+                yield put({ type: 'menuVM/build' });
+            }
         },
     },
     reducers: {

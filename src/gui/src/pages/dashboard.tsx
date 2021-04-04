@@ -42,7 +42,7 @@ const Dashboard = (props: any) => {
 
                         <Popconfirm
                             title="Confirm?"
-                            onConfirm={() => dispatch({ type: "clusterListVM/removeCluster", payload: record })}
+                            onConfirm={() => dispatch({ type: "clusterListVM/removeCluster", cluster: record })}
                             // onCancel={cancel}
                             okText="Yes"
                             cancelText="No"

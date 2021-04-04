@@ -36,7 +36,7 @@ function buildMenu(dispatch: any, menuState: any) {
 
 const LayoutPage = (props: any) => {
     const { menuState, dispatch } = props;
-    useEffect(() => dispatch({ type: "menuVM/getCluster", clusterID: "selected" }), []);
+    useEffect(() => dispatch({ type: "menuVM/build" }), []);
 
     const menu = menuState.cluster.Nodes && menuState.cluster.Nodes.length > 0 ? (
         <div>
