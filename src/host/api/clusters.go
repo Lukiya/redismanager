@@ -6,6 +6,7 @@ import (
 	"github.com/Lukiya/redismanager/src/go/core"
 	"github.com/Lukiya/redismanager/src/go/rmr"
 	"github.com/syncfuture/go/serr"
+	log "github.com/syncfuture/go/slog"
 	"github.com/syncfuture/go/u"
 	"github.com/syncfuture/host"
 )
@@ -59,6 +60,7 @@ func GetCluster(ctx host.IHttpContext) {
 	// }
 
 	if cluster == nil {
+		log.Warnf("cluster '%s' is nil", clusterID)
 		return
 	}
 
