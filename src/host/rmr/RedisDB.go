@@ -1,30 +1,42 @@
 package rmr
 
 import (
-	"github.com/go-redis/redis/v7"
+	"context"
+
+	"github.com/go-redis/redis/v8"
+	"github.com/syncfuture/host"
 )
 
 type RedisDB struct {
 	client redis.UniversalClient
-	db     int
+	ID     string
+	DB     int
 	// Keys          []string
 	// scanKeyCursor int64
 }
 
-func NewRedisDB(db int, addr, pwd string) *RedisDB {
+// func NewRedisDB(db int, addr, pwd string) *RedisDB {
+func NewRedisDB(db int, client redis.UniversalClient) *RedisDB {
 	r := &RedisDB{
-		db: db,
-		client: redis.NewClient(&redis.Options{
-			Addr:     addr,
-			Password: pwd,
-			DB:       db,
-		}),
+		ID:     host.GenerateID(),
+		DB:     db,
+		client: client,
+		// client: redis.NewClient(&redis.Options{
+		// 	Addr:     addr,
+		// 	Password: pwd,
+		// 	DB:       db,
+		// }),
 		// scanKeyCursor: -1,
 	}
 	return r
 }
+
+func (x *RedisDB) Client() redis.UniversalClient {
+	return x.client
+}
+
 func (x *RedisDB) GetKeys(cursor uint64, match string, count int64) ([]string, uint64, error) {
-	return x.client.Scan(cursor, match, count).Result()
+	return x.client.Scan(context.Background(), cursor, match, count).Result()
 }
 
 // func (x *RedisDB) LoadKeys() error {

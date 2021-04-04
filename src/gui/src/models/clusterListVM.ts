@@ -31,7 +31,7 @@ export default {
             yield put({ type: "getClusters" })
             yield put({ type: 'setState', payload: { editingCluster: _defaultCluster, } });
 
-            if (payload.ID == "" || payload.Selected) {
+            if (payload.ID == "" || payload.Selected) { // if it's new or selected cluster, re-build menu after save
                 yield put({ type: 'menuVM/build' });
             }
         },

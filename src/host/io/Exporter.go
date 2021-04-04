@@ -3,12 +3,13 @@ package io
 import (
 	"archive/zip"
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 
 	"github.com/Lukiya/redismanager/src/go/core"
 
-	"github.com/go-redis/redis/v7"
+	"github.com/go-redis/redis/v8"
 	"github.com/syncfuture/go/u"
 )
 
@@ -60,7 +61,9 @@ func (x *Exporter) ExportKey(key string) (r *ExportFileEntry, err error) {
 		panic("key is missing")
 	}
 
-	redisType, err := x.client.Type(key).Result()
+	ctx := context.Background()
+
+	redisType, err := x.client.Type(ctx, key).Result()
 	if err != nil {
 		return nil, err
 	}
@@ -68,35 +71,35 @@ func (x *Exporter) ExportKey(key string) (r *ExportFileEntry, err error) {
 	// Export whole key
 	switch redisType {
 	case core.RedisType_String:
-		v, err := x.client.Get(key).Result()
+		v, err := x.client.Get(ctx, key).Result()
 		if err != nil {
 			return nil, err
 		}
 		r, err = NewExportFileEntry(key, redisType, v)
 		break
 	case core.RedisType_Hash:
-		v, err := x.client.HGetAll(key).Result()
+		v, err := x.client.HGetAll(ctx, key).Result()
 		if err != nil {
 			return nil, err
 		}
 		r, err = NewExportFileEntry(key, redisType, v)
 		break
 	case core.RedisType_List:
-		v, err := x.client.LRange(key, 0, -1).Result()
+		v, err := x.client.LRange(ctx, key, 0, -1).Result()
 		if err != nil {
 			return nil, err
 		}
 		r, err = NewExportFileEntry(key, redisType, v)
 		break
 	case core.RedisType_Set:
-		v, err := x.client.SMembers(key).Result()
+		v, err := x.client.SMembers(ctx, key).Result()
 		if err != nil {
 			return nil, err
 		}
 		r, err = NewExportFileEntry(key, redisType, v)
 		break
 	case core.RedisType_ZSet:
-		v, err := x.client.ZRangeByScoreWithScores(key, &redis.ZRangeBy{
+		v, err := x.client.ZRangeByScoreWithScores(ctx, key, &redis.ZRangeBy{
 			Min: "-inf",
 			Max: "+inf",
 		}).Result()

@@ -3,13 +3,14 @@ package io
 import (
 	"archive/zip"
 	"bytes"
+	"context"
 	"encoding/json"
 	"io"
 	"time"
 
 	"github.com/Lukiya/redismanager/src/go/core"
 
-	"github.com/go-redis/redis/v7"
+	"github.com/go-redis/redis/v8"
 	"github.com/syncfuture/go/serr"
 	task "github.com/syncfuture/go/stask"
 	"github.com/syncfuture/go/u"
@@ -65,6 +66,7 @@ func (x *Importer) ImportKeys(in []byte) (imported int, err error) {
 		return
 	}
 
+	ctx := context.Background()
 	imported = len(entries)
 
 	scheduler := task.NewFlowScheduler(4)
@@ -72,7 +74,7 @@ func (x *Importer) ImportKeys(in []byte) (imported int, err error) {
 		entry := v.(*ExportFileEntry)
 
 		// Remove old key
-		err = x.client.Del(entry.Key).Err()
+		err = x.client.Del(ctx, entry.Key).Err()
 		if err != nil {
 			return
 		}
@@ -85,7 +87,7 @@ func (x *Importer) ImportKeys(in []byte) (imported int, err error) {
 			if err != nil {
 				return
 			}
-			err = x.client.Set(entry.Key, v, time.Duration(-1)).Err()
+			err = x.client.Set(ctx, entry.Key, v, time.Duration(-1)).Err()
 			u.LogError(err)
 			break
 		case core.RedisType_Hash:
@@ -94,7 +96,7 @@ func (x *Importer) ImportKeys(in []byte) (imported int, err error) {
 			if err != nil {
 				return
 			}
-			err = x.client.HMSet(entry.Key, v).Err()
+			err = x.client.HMSet(ctx, entry.Key, v).Err()
 			u.LogError(err)
 			break
 		case core.RedisType_List:
@@ -103,7 +105,7 @@ func (x *Importer) ImportKeys(in []byte) (imported int, err error) {
 			if err != nil {
 				return
 			}
-			err = x.client.RPush(entry.Key, v...).Err()
+			err = x.client.RPush(ctx, entry.Key, v...).Err()
 			u.LogError(err)
 			break
 		case core.RedisType_Set:
@@ -112,7 +114,7 @@ func (x *Importer) ImportKeys(in []byte) (imported int, err error) {
 			if err != nil {
 				return
 			}
-			err = x.client.SAdd(entry.Key, v...).Err()
+			err = x.client.SAdd(ctx, entry.Key, v...).Err()
 			u.LogError(err)
 			break
 		case core.RedisType_ZSet:
@@ -121,7 +123,7 @@ func (x *Importer) ImportKeys(in []byte) (imported int, err error) {
 			if err != nil {
 				return
 			}
-			err = x.client.ZAdd(entry.Key, v...).Err()
+			err = x.client.ZAdd(ctx, entry.Key, v...).Err()
 			u.LogError(err)
 			break
 		}

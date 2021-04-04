@@ -15,8 +15,8 @@ function buildMenu(dispatch: any, menuState: any) {
         const node = nodes[i];
         const dbMenus = [];
 
-        for (const dbKey in node.DBs) {
-            const db = "db" + dbKey;
+        for (let i = 0; i < node.DBs.length; i++) {
+            const db = "db" + i;
 
             const dbMenu = <Menu.Item key={db} icon={<DatabaseOutlined />}><Link to={"/" + menuState.cluster.ID + "/" + node.ID + "/" + db}> {db}</Link></Menu.Item>;
 

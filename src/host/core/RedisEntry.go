@@ -1,9 +1,10 @@
 package core
 
 import (
+	"context"
 	"strconv"
 
-	"github.com/go-redis/redis/v7"
+	"github.com/go-redis/redis/v8"
 	"github.com/syncfuture/go/u"
 )
 
@@ -23,11 +24,11 @@ type RedisEntry struct {
 }
 
 func (x *RedisEntry) GetType() {
-	x.Type = x.client.Type(x.Key).Val()
+	x.Type = x.client.Type(context.Background(), x.Key).Val()
 }
 
 func (x *RedisEntry) GetTTL() {
-	ttl := x.client.TTL(x.Key).Val().Seconds()
+	ttl := x.client.TTL(context.Background(), x.Key).Val().Seconds()
 	if ttl < 0 {
 		x.TTL = -1
 	} else {
@@ -36,36 +37,38 @@ func (x *RedisEntry) GetTTL() {
 }
 
 func (x *RedisEntry) GetLength() {
+	ctx := context.Background()
 	var err error
 	switch x.Type {
 	case RedisType_String:
-		x.Length, err = x.client.StrLen(x.Key).Uint64()
+		x.Length, err = x.client.StrLen(ctx, x.Key).Uint64()
 		break
 	case RedisType_Hash:
-		x.Length, err = x.client.HLen(x.Key).Uint64()
+		x.Length, err = x.client.HLen(ctx, x.Key).Uint64()
 		break
 	case RedisType_List:
-		x.Length, err = x.client.LLen(x.Key).Uint64()
+		x.Length, err = x.client.LLen(ctx, x.Key).Uint64()
 		break
 	case RedisType_Set:
-		x.Length, err = x.client.SCard(x.Key).Uint64()
+		x.Length, err = x.client.SCard(ctx, x.Key).Uint64()
 		break
 	case RedisType_ZSet:
-		x.Length, err = x.client.ZCard(x.Key).Uint64()
+		x.Length, err = x.client.ZCard(ctx, x.Key).Uint64()
 		break
 	}
 	u.LogError(err)
 }
 
 func (x *RedisEntry) GetValue(field string) {
+	ctx := context.Background()
 	var err error
 	switch x.Type {
 	case RedisType_String:
-		x.Value, err = x.client.Get(x.Key).Result()
+		x.Value, err = x.client.Get(ctx, x.Key).Result()
 		break
 	case RedisType_Hash:
 		if field != "" {
-			x.Value, err = x.client.HGet(x.Key, field).Result()
+			x.Value, err = x.client.HGet(ctx, x.Key, field).Result()
 			if err == nil {
 				x.Field = field
 			}
@@ -77,7 +80,7 @@ func (x *RedisEntry) GetValue(field string) {
 			index, err = strconv.ParseInt(field, 10, 64)
 			if err == nil {
 				x.Field = field
-				x.Value, err = x.client.LIndex(x.Key, index).Result()
+				x.Value, err = x.client.LIndex(ctx, x.Key, index).Result()
 			}
 		}
 		break
@@ -90,7 +93,7 @@ func (x *RedisEntry) GetValue(field string) {
 	case RedisType_ZSet:
 		if field != "" {
 			var score float64
-			score, err = x.client.ZScore(x.Key, field).Result()
+			score, err = x.client.ZScore(ctx, x.Key, field).Result()
 			if err == nil {
 				x.Field = strconv.FormatFloat(score, 'f', -1, 64)
 				x.Value = field
