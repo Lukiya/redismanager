@@ -1,7 +1,7 @@
 import { DatabaseOutlined, CloudServerOutlined } from '@ant-design/icons';
 import logo from "@/assets/logo.svg"
 import { connect, Link } from 'umi';
-import { Layout, Menu } from 'antd';
+import { Layout, Menu, Spin } from 'antd';
 import { useEffect } from 'react';
 
 const { Header, Content, Footer, Sider } = Layout;
@@ -16,9 +16,10 @@ function buildMenu(dispatch: any, menuState: any) {
         const dbMenus = [];
 
         for (let i = 0; i < node.DBs.length; i++) {
-            const db = "db" + i;
+            const db = node.DBs[i];
+            const dbStr = "db" + db.DB;
 
-            const dbMenu = <Menu.Item key={db} icon={<DatabaseOutlined />}><Link to={"/" + menuState.cluster.ID + "/" + node.ID + "/" + db}> {db}</Link></Menu.Item>;
+            const dbMenu = <Menu.Item key={db.ID} icon={<DatabaseOutlined />}><Link to={"/" + menuState.cluster.ID + "/" + node.ID + "/" + dbStr}> {dbStr}</Link></Menu.Item>;
 
             dbMenus.push(dbMenu);
         }
@@ -35,15 +36,20 @@ function buildMenu(dispatch: any, menuState: any) {
 }
 
 const LayoutPage = (props: any) => {
-    const { menuState, dispatch } = props;
+    const { menuState, dispatch, loading } = props;
     useEffect(() => dispatch({ type: "menuVM/build" }), []);
 
-    const menu = menuState.cluster.Nodes && menuState.cluster.Nodes.length > 0 ? (
-        <div>
-            <h1 style={{ color: "white" }}><CloudServerOutlined /> {menuState.cluster.Name}</h1>
-            {buildMenu(dispatch, menuState)}
-        </div>
-    ) : null;
+    let menu: any;
+    if (loading) {
+        menu = <div style={{ textAlign: "center", marginTop: "20px" }}><Spin /></div>
+    } else {
+        menu = menuState.cluster.Nodes && menuState.cluster.Nodes.length > 0 ? (
+            <div>
+                <h1 style={{ color: "white" }}><CloudServerOutlined /> {menuState.cluster.Name}</h1>
+                {buildMenu(dispatch, menuState)}
+            </div>
+        ) : null;
+    }
 
     return (
         <Layout style={{ minHeight: '100vh' }}>
@@ -59,8 +65,8 @@ const LayoutPage = (props: any) => {
     );
 };
 
-// export default connect(({ menuVM, loading }: any) => ({
-export default connect(({ menuVM }: any) => ({
+export default connect(({ menuVM, loading }: any) => ({
+    // export default connect(({ menuVM }: any) => ({
     menuState: menuVM,
-    // loading: loading.models.menuVM,
+    loading: loading.models.menuVM,
 }))(LayoutPage);
