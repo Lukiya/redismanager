@@ -31,7 +31,7 @@ export default {
             yield put({ type: "getClusters" })
             yield put({ type: 'setState', payload: { editingCluster: _defaultCluster, } });
 
-            if (payload.Selected) {
+            if (payload.ID == "" || payload.Selected) {
                 yield put({ type: 'menuVM/build' });
             }
         },
