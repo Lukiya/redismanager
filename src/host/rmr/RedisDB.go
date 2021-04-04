@@ -2,8 +2,11 @@ package rmr
 
 import (
 	"context"
+	"runtime"
 
 	"github.com/go-redis/redis/v8"
+	"github.com/syncfuture/go/serr"
+	"github.com/syncfuture/go/stask"
 	"github.com/syncfuture/host"
 )
 
@@ -35,53 +38,25 @@ func (x *RedisDB) Client() redis.UniversalClient {
 	return x.client
 }
 
-func (x *RedisDB) GetKeys(cursor uint64, match string, count int64) ([]string, uint64, error) {
-	return x.client.Scan(context.Background(), cursor, match, count).Result()
+func (x *RedisDB) GetKeys(query *KeysQuery) (*KeysQueryResult, error) {
+	r := new(KeysQueryResult)
+	keys, cur, err := x.client.Scan(context.Background(), query.Cursor, query.Match, query.PageSize).Result()
+	if err != nil {
+		return nil, serr.WithStack(err)
+	}
+	r.Entries = x.convert(keys)
+	r.Cursor = cur
+	return r, err
 }
 
-// func (x *RedisDB) LoadKeys() error {
-// 	if x.scanKeyCursor == 0 {
-// 		return nil
-// 	}
+func (x *RedisDB) convert(keys []string) []*RedisEntry {
+	r := make([]*RedisEntry, len(keys))
 
-// 	var err error
-// 	var ks []string
-// 	var cursor uint64
+	f := stask.NewFlowScheduler(runtime.NumCPU())
 
-// 	if x.scanKeyCursor >= 0 {
-// 		cursor = uint64(x.scanKeyCursor)
-// 	} else {
-// 		cursor = 0
-// 	}
-// 	ks, cursor, err = x.GetKeys(cursor, "", 100)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	x.scanKeyCursor = int64(cursor)
+	f.SliceRun(&keys, func(i int, v interface{}) {
+		r[i] = NewRedisEntry(x.client, v.(string))
+	})
 
-// 	x.Keys = append(x.Keys, ks...)
-// 	return nil
-// }
-
-// func (x *RedisDB) LoadAllKeys() error {
-// 	var err error
-// 	for {
-// 		err = x.LoadKeys()
-// 		if err != nil {
-// 			return err
-// 		}
-// 		if x.scanKeyCursor == 0 {
-// 			break
-// 		}
-// 	}
-
-// 	return nil
-// }
-
-// func (x *RedisDB) TotalKeys() (int64, error) {
-// 	return x.client.DBSize().Result()
-// }
-
-// func (x *RedisDB) Reset() {
-// 	x.scanKeyCursor = -1
-// }
+	return r
+}

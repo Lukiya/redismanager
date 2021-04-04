@@ -68,6 +68,20 @@ func (x *RedisNode) GetDBs() ([]*RedisDB, error) {
 	}
 }
 
+func (x *RedisNode) GetDB(db int) (*RedisDB, error) {
+	dbCount := len(x.DBs)
+	if dbCount == 0 {
+		err := x.LoadDBs()
+		if err != nil {
+			return nil, err
+		}
+	} else if db <= dbCount-1 {
+		return x.DBs[db], nil
+	}
+
+	return nil, nil
+}
+
 func (x *RedisNode) createStandaloneClient(db int) redis.UniversalClient {
 	return redis.NewClient(&redis.Options{
 		Addr:     x.Addr,

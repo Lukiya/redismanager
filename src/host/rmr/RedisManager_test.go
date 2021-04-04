@@ -3,6 +3,7 @@ package rmr
 import (
 	"context"
 	"fmt"
+	"sync/atomic"
 	"testing"
 
 	"github.com/go-redis/redis/v8"
@@ -75,16 +76,32 @@ func TestCluster(t *testing.T) {
 	cluster := _rm.GetSelectedCluster()
 	assert.NotNil(t, cluster)
 
-	node := cluster.Nodes[0]
-	dbs, err := node.GetDBs()
-	assert.NoError(t, err)
+	keyCount := int64(0)
+	// ctx := context.Background()
 
-	for _, db := range dbs {
-		keys, cur, err := db.GetKeys(0, "*", 100)
+	for _, node := range cluster.Nodes {
+		dbs, err := node.GetDBs()
 		if !assert.NoError(t, err) {
 			break
 		}
 
-		log.Info(db.ID, keys, cur, err)
+		for _, db := range dbs {
+			// a := db.client.Keys(ctx, "*").Val()
+			// log.Info("---", len(a))
+
+			rs, err := db.GetKeys(&KeysQuery{
+				Cursor:   0,
+				Match:    "*",
+				PageSize: 5,
+			})
+
+			if !assert.NoError(t, err) {
+				break
+			}
+			log.Info("---", len(rs.Entries))
+			atomic.AddInt64(&keyCount, int64(len(rs.Entries)))
+		}
 	}
+
+	log.Info(keyCount)
 }

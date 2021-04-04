@@ -35,6 +35,16 @@ func (x *RedisManager) GetSelectedCluster() *RedisCluster {
 	return nil
 }
 
+func (x *RedisManager) GetCluster(clusterID string) *RedisCluster {
+	for _, v := range x.Clusters {
+		if v.ID == clusterID {
+			return v
+		}
+	}
+
+	return nil
+}
+
 // func (x *ServerManager) Add(redisConfigs ...*RedisConfigX) error {
 // 	for _, rc := range redisConfigs {
 // 		x.add(rc)

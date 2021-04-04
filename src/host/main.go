@@ -33,7 +33,7 @@ func main() {
 
 	core.Host.AddActionGroups(
 		api.ClusterGroup,
-		// api.NodeGroup,
+		api.KeyGroup,
 	)
 
 	fmt.Println("------------------------------------------------")

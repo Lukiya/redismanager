@@ -43,3 +43,13 @@ func NewRedisCluster(config *ClusterConfig) *RedisCluster {
 
 	return r
 }
+
+func (x *RedisCluster) GetNode(nodeID string) *RedisNode {
+	for _, v := range x.Nodes {
+		if v.ID == nodeID {
+			return v
+		}
+	}
+
+	return nil
+}
