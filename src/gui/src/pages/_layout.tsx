@@ -1,7 +1,7 @@
 import { DatabaseOutlined, CloudServerOutlined } from '@ant-design/icons';
 import logo from "@/assets/logo.svg"
 import { connect, Link } from 'umi';
-import { Layout, Menu, Spin } from 'antd';
+import { Layout, Menu } from 'antd';
 import { useEffect } from 'react';
 
 const { Header, Content, Footer, Sider } = Layout;
@@ -38,12 +38,12 @@ const LayoutPage = (props: any) => {
     const { menuState, dispatch } = props;
     useEffect(() => dispatch({ type: "menuVM/getCluster", clusterID: "selected" }), []);
 
-    const menu = menuState.cluster.Nodes ? (
+    const menu = menuState.cluster.Nodes && menuState.cluster.Nodes.length > 0 ? (
         <div>
             <h1 style={{ color: "white" }}><CloudServerOutlined /> {menuState.cluster.Name}</h1>
             {buildMenu(dispatch, menuState)}
         </div>
-    ) : <Spin />;
+    ) : null;
 
     return (
         <Layout style={{ minHeight: '100vh' }}>

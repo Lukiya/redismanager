@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 
 	"github.com/Lukiya/redismanager/src/go/core"
-	"github.com/Lukiya/redismanager/src/go/helpers"
 	"github.com/Lukiya/redismanager/src/go/rmr"
 	"github.com/syncfuture/go/serr"
+	"github.com/syncfuture/go/u"
 	"github.com/syncfuture/host"
 )
 
@@ -54,14 +54,19 @@ func GetCluster(ctx host.IHttpContext) {
 	} else {
 		cluster = core.Manager.Clusters[clusterID]
 	}
-	if helpers.CheckCluster(cluster, ctx) {
+	// if helpers.CheckCluster(cluster, ctx) {
+	// 	return
+	// }
+
+	if cluster == nil {
 		return
 	}
 
 	// load all dbs before return
 	for _, v := range cluster.Nodes {
 		err := v.LoadDBs()
-		if host.HandleErr(err, ctx) {
+		if err != nil {
+			u.LogError(serr.Cause(err))
 			return
 		}
 	}

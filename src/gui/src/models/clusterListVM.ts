@@ -19,7 +19,7 @@ export default {
         },
         *saveCluster({ payload }: any, { call, put }: any): any {
             const addrs = payload.Addrs.split('\n')
-            const clusterID = payload.ID ?? "";
+            const clusterID = payload.ID;
             const data = {
                 ID: clusterID,
                 Name: payload.Name,
@@ -31,7 +31,8 @@ export default {
             yield put({ type: 'hideEditor' });
             yield put({ type: "getClusters" })
             yield put({ type: 'setState', payload: { editingCluster: _defaultCluster, } });
-            yield put({ type: 'menuVM/refresh', clusterID: clusterID });
+
+            yield put({ type: 'menuVM/refresh', clusterID: clusterID ?? "selected" });
 
         },
         *selectCluster({ payload }: any, { call, put }: any): any {
@@ -44,6 +45,7 @@ export default {
         *removeCluster({ payload }: any, { call, put }: any): any {
             yield call(RemoveCluster, payload.ID);
             yield put({ type: "getClusters" })
+            yield put({ type: 'menuVM/refresh', clusterID: payload.ID });
         },
     },
     reducers: {

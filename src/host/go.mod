@@ -6,6 +6,6 @@ require (
 	github.com/go-redis/redis/v7 v7.4.0
 	github.com/stretchr/testify v1.7.0
 	github.com/syncfuture/go v1.5.10
-	github.com/syncfuture/host v1.3.60
+	github.com/syncfuture/host v1.3.61
 	google.golang.org/grpc v1.36.1
 )

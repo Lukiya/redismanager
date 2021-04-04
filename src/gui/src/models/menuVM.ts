@@ -1,13 +1,28 @@
 import { GetCluster } from "@/services/cluster";
 
+const _defaultCluster = {
+    ID: "selected",
+    Nodes: [],
+};
+
 export default {
     state: {
-        cluster: {},
+        cluster: { _defaultCluster },
         openKeys: [],
     },
     effects: {
         *getCluster({ clusterID }: any, { call, put }: any): any {
             const resp = yield call(GetCluster, clusterID);
+            if (!resp.Nodes) {
+                yield put({
+                    type: 'setState',
+                    payload: {
+                        cluster: _defaultCluster,
+                        openKeys: [],
+                    },
+                });
+                return;
+            }
             let selectedNodeID = null;
             for (let i = 0; i < resp.Nodes.length; i++) {
                 selectedNodeID = resp.Nodes[0].ID;
@@ -24,7 +39,7 @@ export default {
         },
         *refresh({ clusterID }: any, { call, put, select }: any): any {
             const state = yield select((x: any) => x["menuVM"]);
-            if (state.cluster.ID == clusterID) {    // only refresh selected cluster
+            if (clusterID == "selected" || state.cluster.ID == clusterID) {    // only refresh selected cluster
                 yield put({
                     type: 'getCluster',
                     clusterID,
