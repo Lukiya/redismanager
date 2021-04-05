@@ -31,7 +31,7 @@ func init() {
 }
 
 func TestFillData(t *testing.T) {
-	max := 513
+	max := 3513
 	for i := 0; i < max; i++ {
 		key := fmt.Sprintf("STR_%05d", i)
 		_nativeClient.Set(context.Background(), key, key, -1)

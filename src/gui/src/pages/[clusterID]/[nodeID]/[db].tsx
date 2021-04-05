@@ -1,10 +1,17 @@
 import { PageContainer } from '@ant-design/pro-layout';
-import { Table } from 'antd';
+import { Table, Button, Space } from 'antd';
 import { connect } from 'umi'
-import { useEffect } from 'react'
+import { MoreOutlined } from '@ant-design/icons'
+
+const columns = [
+    {
+        title: "Key",
+        dataIndex: "Key",
+    }
+];
 
 const KeyListPage = (props: any) => {
-    const { menuState, keyListState, match, dispatch } = props;
+    const { menuState, keyListState, keyListLoading, match, dispatch } = props;
     const { cluster } = menuState;
 
     let node: any;
@@ -19,8 +26,6 @@ const KeyListPage = (props: any) => {
     let breadcrumbRoutes: any[] = [];
     let dataSouce: any[] = [];
     if (inited) {
-        useEffect(() => dispatch({ type: "keyListVM/getEntries", query: match.params }), [])
-        console.log(keyListState);
         dataSouce = keyListState.entries;
 
         breadcrumbRoutes = [
@@ -37,6 +42,15 @@ const KeyListPage = (props: any) => {
         >
             <Table
                 dataSource={dataSouce}
+                rowKey="Key"
+                columns={columns}
+                pagination={false}
+                loading={keyListLoading}
+                size="small"
+                footer={() => <div style={{ textAlign: "center" }}><Space>
+                    <Button type="link" icon={<MoreOutlined />} onClick={() => dispatch({ type: "keyListVM/loadMore" })}>more...</Button>
+                    {/* <Button type="link" onClick={() => dispatch({ type: "keyListVM/loadMore" })}>all...</Button> */}
+                </Space></div>}
             >
 
             </Table>
@@ -47,4 +61,5 @@ const KeyListPage = (props: any) => {
 export default connect(({ menuVM, keyListVM, loading }: any) => ({
     menuState: menuVM,
     keyListState: keyListVM,
+    keyListLoading: loading.models.keyListVM,
 }))(KeyListPage);

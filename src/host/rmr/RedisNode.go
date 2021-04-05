@@ -74,11 +74,13 @@ func (x *RedisNode) GetDB(db int) (*RedisDB, error) {
 		if err != nil {
 			return nil, err
 		}
-	} else if db <= dbCount-1 {
+	}
+
+	if db >= 0 && db <= dbCount-1 {
 		return x.DBs[db], nil
 	}
 
-	return nil, nil
+	return nil, serr.New("db index out of range: " + sconv.ToString(db))
 }
 
 func (x *RedisNode) createStandaloneClient(db int) redis.UniversalClient {
