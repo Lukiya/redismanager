@@ -40,7 +40,7 @@ func (x *RedisDB) Client() redis.UniversalClient {
 
 func (x *RedisDB) GetKeys(query *KeysQuery) (*KeysQueryResult, error) {
 	r := new(KeysQueryResult)
-	keys, cur, err := x.client.Scan(context.Background(), query.Cursor, query.Match, query.PageSize).Result()
+	keys, cur, err := x.client.Scan(context.Background(), query.Cursor, query.Match, query.Count).Result()
 	if err != nil {
 		return nil, serr.WithStack(err)
 	}

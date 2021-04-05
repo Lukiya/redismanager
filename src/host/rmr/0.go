@@ -20,9 +20,9 @@ type ClusterConfig struct {
 }
 
 type KeysQuery struct {
-	Cursor   uint64
-	PageSize int64
-	Match    string
+	Cursor uint64
+	Count  int64
+	Match  string
 }
 
 type KeysQueryResult struct {

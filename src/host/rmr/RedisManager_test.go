@@ -90,9 +90,9 @@ func TestCluster(t *testing.T) {
 			// log.Info("---", len(a))
 
 			rs, err := db.GetKeys(&KeysQuery{
-				Cursor:   0,
-				Match:    "*",
-				PageSize: 5,
+				Cursor: 0,
+				Match:  "*",
+				Count:  5,
 			})
 
 			if !assert.NoError(t, err) {

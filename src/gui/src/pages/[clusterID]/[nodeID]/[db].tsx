@@ -1,14 +1,8 @@
 import { PageContainer } from '@ant-design/pro-layout';
-import { Table, Button, Space } from 'antd';
+import { Table, Button, Space, Input, Form } from 'antd';
 import { connect } from 'umi'
-import { MoreOutlined } from '@ant-design/icons'
+import { MoreOutlined, SearchOutlined } from '@ant-design/icons'
 
-const columns = [
-    {
-        title: "Key",
-        dataIndex: "Key",
-    }
-];
 
 const KeyListPage = (props: any) => {
     const { menuState, keyListState, keyListLoading, match, dispatch } = props;
@@ -24,15 +18,54 @@ const KeyListPage = (props: any) => {
     let inited = node != undefined;
 
     let breadcrumbRoutes: any[] = [];
-    let dataSouce: any[] = [];
+    let table: any = null;
     if (inited) {
-        dataSouce = keyListState.entries;
-
         breadcrumbRoutes = [
             { path: '', breadcrumbName: cluster.Name, },
             { path: '', breadcrumbName: node.Addr, },
             { path: '', breadcrumbName: 'db' + match.params.db, },
         ];
+
+        ////////// Table
+        const [searchForm] = Form.useForm();
+        const columns = [
+            {
+                title: "Key",
+                dataIndex: "Key",
+                filterDropdown: () => (
+                    <Form form={searchForm}
+                        style={{ padding: 8 }}
+                        onFinish={(values) => {
+                            console.log(values);
+                            dispatch({ type: "keyListVM/getEntries", query: {} });
+                        }}>
+                        <Form.Item name="match">
+                            <Input />
+                        </Form.Item>
+                        {/* <Input style={{ width: 188, marginBottom: 8, display: 'block' }} /> */}
+                        <Space>
+                            <Button type="primary" htmlType="submit" icon={<SearchOutlined />} size="small" style={{ width: 90 }}>Search</Button>
+                            <Button style={{ width: 90 }} size="small" onClick={() => searchForm.resetFields()}>Reset</Button>
+                        </Space>
+                    </Form >
+                ),
+                filterIcon: (filtered: any) => <SearchOutlined style={{ color: filtered ? '#1890ff' : undefined }} />,
+            }
+        ];
+        const footer = keyListState.hasMore ? () => <div style={{ textAlign: "center" }}>
+            <Button type="link" icon={<MoreOutlined />} onClick={() => dispatch({ type: "keyListVM/loadMore" })}>more...</Button>
+        </div> : undefined;
+
+        table = <Table
+            dataSource={keyListState.entries}
+            rowKey="Key"
+            columns={columns}
+            pagination={false}
+            loading={keyListLoading}
+            size="small"
+            footer={footer}
+        >
+        </Table>;
     }
 
     return (
@@ -40,20 +73,7 @@ const KeyListPage = (props: any) => {
             loading={!inited}
             header={{ breadcrumb: { routes: breadcrumbRoutes, }, }}
         >
-            <Table
-                dataSource={dataSouce}
-                rowKey="Key"
-                columns={columns}
-                pagination={false}
-                loading={keyListLoading}
-                size="small"
-                footer={() => <div style={{ textAlign: "center" }}><Space>
-                    <Button type="link" icon={<MoreOutlined />} onClick={() => dispatch({ type: "keyListVM/loadMore" })}>more...</Button>
-                    {/* <Button type="link" onClick={() => dispatch({ type: "keyListVM/loadMore" })}>all...</Button> */}
-                </Space></div>}
-            >
-
-            </Table>
+            {table}
         </PageContainer>
     );
 };

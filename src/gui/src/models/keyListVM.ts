@@ -1,33 +1,47 @@
 import { GetEntries } from "@/services/key";
 
+const _defaultCount = 10;
+
 export default {
     state: {
-        pageSize: 10,
         entries: [],
-        query: {},
+        query: {
+            clusterID: "",
+            nodeID: "",
+            db: 0,
+            cursor: 0,
+            count: _defaultCount,
+            match: "",
+        },
         hasMore: false,
     },
     effects: {
-        *getEntries({ query }: any, { call, put, select }: any): any {
-            const state = yield select((x: any) => x["keyListVM"]);
+        *getEntries({ query }: any, { call, put }: any): any {
             query = {
                 ...query,
                 cursor: 0,
-                pageSize: state.pageSize,
-                match: "*",
+                count: _defaultCount,
             };
             const resp = yield call(GetEntries, query);
 
             if (resp?.Entries) {
                 query.cursor = resp.Cursor;
-                yield put({ type: 'appendEntries', payload: { resp, query } });
-                // yield put({ type: 'setState', payload: { entries: resp.Entries, query, hasMore: resp.Cursor != 0 } });
+                yield put({
+                    type: 'setState', payload: {
+                        entries: resp.Entries,
+                        query,
+                        hasMore: resp.Cursor != 0,
+                    }
+                });
             } else {
                 console.warn("no json in response body");
             }
         },
         *loadMore(_: any, { call, put, select }: any): any {
             const state = yield select((x: any) => x["keyListVM"]);
+            if (!state.hasMore) {
+                return;
+            }
 
             const { query } = state;
             const resp = yield call(GetEntries, query);

@@ -6,7 +6,8 @@ const request = extend({
 });
 
 export async function GetEntries(query: any) {
-    const url = '/clusters/' + query.clusterID + '/' + query.nodeID + '/' + query.db + '/keys?Cursor=' + query.cursor + "&PageSize=" + query.pageSize + "&Match=" + encodeURIComponent(query.match);
+    query.match = query.match ?? "";
+    const url = '/clusters/' + query.clusterID + '/' + query.nodeID + '/' + query.db + '/keys?Cursor=' + query.cursor + "&Count=" + query.count + "&Match=" + encodeURIComponent(query.match);
     const r = await request.get(url)
         .then(function (resp) {
             return resp;
