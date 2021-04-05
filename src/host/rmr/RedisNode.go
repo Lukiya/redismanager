@@ -68,15 +68,14 @@ func (x *RedisNode) GetDBs() ([]*RedisDB, error) {
 }
 
 func (x *RedisNode) GetDB(db int) (*RedisDB, error) {
-	dbCount := len(x.DBs)
-	if dbCount == 0 {
+	if len(x.DBs) == 0 {
 		err := x.LoadDBs()
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	if db >= 0 && db <= dbCount-1 {
+	if db >= 0 && db <= len(x.DBs)-1 {
 		return x.DBs[db], nil
 	}
 
