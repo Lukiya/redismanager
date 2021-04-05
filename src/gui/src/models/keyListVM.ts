@@ -1,6 +1,6 @@
 import { GetEntries } from "@/services/key";
 
-const _defaultCount = 10;
+const _defaultCount = 100;
 
 export default {
     state: {
@@ -87,13 +87,19 @@ export default {
                 const regx = /^\/(\w+)\/(\d{3})\/db(\d{1,2})$/;
                 const array = regx.exec(pathname);
                 if (array?.length == 4) {
+                    const query = {
+                        clusterID: array[1],
+                        nodeID: array[2],
+                        db: array[3],
+                    };
+                    const menuKey = query.clusterID + "_" + query.nodeID + "_" + query.db;
                     dispatch({
-                        type: "getEntries", query: {
-                            clusterID: array[1],
-                            nodeID: array[2],
-                            db: array[3],
+                        type: "menuVM/setState", payload: {
+                            openKeys: [query.nodeID],
+                            selectedKeys: [menuKey],
                         }
                     });
+                    dispatch({ type: "getEntries", query });
                 }
             });
         }

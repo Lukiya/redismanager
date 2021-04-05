@@ -6,6 +6,7 @@ const _defaultState = {
         Nodes: [],
     },
     openKeys: [],
+    selectedKeys: [],
 };
 
 export default {
@@ -19,41 +20,44 @@ export default {
                 return;
             }
 
-            let selectedNodeID = null;
-            for (let i = 0; i < nodes.length; i++) {
-                selectedNodeID = nodes[0].ID;
-                break;
-            }
+            // let selectedNodeID = null;
+            // for (let i = 0; i < nodes.length; i++) {
+            //     selectedNodeID = nodes[0].ID;
+            //     break;
+            // }
 
             yield put({
                 type: 'setState',
                 payload: {
                     cluster: resp,
-                    openKeys: [selectedNodeID],
+                    // openKeys: [selectedNodeID],
                 },
             });
         },
-        *build(_: any, { put, select }: any): any {
+        *init(_: any, { put }: any): any {
+            yield put({
+                type: 'getCluster',
+                clusterID: "selected",
+            });
+        },
+        *rebuild(_: any, { put }: any): any {
             yield put({
                 type: 'getCluster',
                 clusterID: "selected",
             });
 
-            // const state = yield select((x: any) => x["menuVM"]);
-
-
-
-            // if (clusterID == "selected" || state.cluster.ID == clusterID) {
-            //     yield put({
-            //         type: 'getCluster',
-            //         clusterID,
-            //     });
-            // }
+            yield put({
+                type: 'setState',
+                payload: {
+                    openKeys: ["000"],
+                    selectedKeys: [],
+                },
+            });
         },
     },
     reducers: {
         setState(state: any, { payload }: any) { return { ...state, ...payload }; },
-        resetState(state: any, { payload }: any) {
+        resetState(state: any) {
             return {
                 ...state,
                 ..._defaultState,
@@ -66,6 +70,12 @@ export default {
             return {
                 ...state,
                 openKeys,
+            };
+        },
+        setSelectedKeys(state: any, { selectedKeys }: any) {
+            return {
+                ...state,
+                selectedKeys: selectedKeys,
             };
         },
     },

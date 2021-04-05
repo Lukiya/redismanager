@@ -18,18 +18,23 @@ function buildMenu(dispatch: any, menuState: any) {
         for (let i = 0; i < node.DBs.length; i++) {
             const db = node.DBs[i];
             const dbStr = "db" + db.DB;
+            const dbKey = menuState.cluster.ID + "_" + node.ID + "_" + db.DB;
 
-            const dbMenu = <Menu.Item key={db.ID} icon={<DatabaseOutlined />}><Link to={"/" + menuState.cluster.ID + "/" + node.ID + "/" + dbStr}> {dbStr}</Link></Menu.Item>;
+            const dbMenu = <Menu.Item key={dbKey} icon={<DatabaseOutlined />}><Link to={"/" + menuState.cluster.ID + "/" + node.ID + "/" + dbStr}>{dbStr}</Link></Menu.Item>;
 
             dbMenus.push(dbMenu);
         }
 
-        const nodeMenu = <SubMenu key={node.ID} title={node.Addr}> {dbMenus}</SubMenu>;
+        const nodeMenu = <SubMenu key={node.ID} title={node.Addr}>{dbMenus}</SubMenu>;
         nodeMenus.push(nodeMenu);
     }
 
+
     return (
-        <Menu title="Test" theme="dark" openKeys={menuState.openKeys} mode="inline" onOpenChange={(openKeys: any) => dispatch({ type: "menuVM/setOpenKeys", openKeys })}>
+        <Menu title="Test" theme="dark" mode="inline"
+            openKeys={menuState.openKeys} onOpenChange={(openKeys) => dispatch({ type: "menuVM/setOpenKeys", openKeys })}
+            selectedKeys={menuState.selectedKeys}
+        >
             {nodeMenus}
         </Menu >
     );
@@ -37,7 +42,7 @@ function buildMenu(dispatch: any, menuState: any) {
 
 const LayoutPage = (props: any) => {
     const { menuState, dispatch, loading } = props;
-    useEffect(() => dispatch({ type: "menuVM/build" }), []);
+    useEffect(() => dispatch({ type: "menuVM/init" }), []);
 
     let menu: any;
     if (loading) {

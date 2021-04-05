@@ -1,5 +1,5 @@
 import { PageContainer } from '@ant-design/pro-layout';
-import { Table, Button, Space, Input, Form } from 'antd';
+import { Table, Button, Space, Input, Form, Card } from 'antd';
 import { connect } from 'umi'
 import { MoreOutlined, SearchOutlined } from '@ant-design/icons'
 
@@ -19,36 +19,43 @@ const KeyListPage = (props: any) => {
 
     let breadcrumbRoutes: any[] = [];
     let table: any = null;
+    let searchBar: any = null;
     if (inited) {
+        const [searchForm] = Form.useForm();
+
         breadcrumbRoutes = [
             { path: '', breadcrumbName: cluster.Name, },
             { path: '', breadcrumbName: node.Addr, },
             { path: '', breadcrumbName: 'db' + match.params.db, },
         ];
 
-        ////////// Table
-        const [searchForm] = Form.useForm();
+        ////////// search bar
+        searchBar = <Card>
+
+        </Card>;
+
+        ////////// table
         const columns = [
             {
                 title: "Key",
                 dataIndex: "Key",
-                filterDropdown: () => (
-                    <Form form={searchForm}
-                        style={{ padding: 8 }}
-                        onFinish={(values) => {
-                            console.log(values);
-                            dispatch({ type: "keyListVM/getEntries", query: {} });
-                        }}>
-                        <Form.Item name="match">
-                            <Input />
-                        </Form.Item>
-                        {/* <Input style={{ width: 188, marginBottom: 8, display: 'block' }} /> */}
-                        <Space>
-                            <Button type="primary" htmlType="submit" icon={<SearchOutlined />} size="small" style={{ width: 90 }}>Search</Button>
-                            <Button style={{ width: 90 }} size="small" onClick={() => searchForm.resetFields()}>Reset</Button>
-                        </Space>
-                    </Form >
-                ),
+                // filterDropdown: () => (
+                //     <Form form={searchForm}
+                //         style={{ padding: 8 }}
+                //         onFinish={(values) => {
+                //             console.log(values);
+                //             dispatch({ type: "keyListVM/getEntries", query: {} });
+                //         }}>
+                //         <Form.Item name="match">
+                //             <Input />
+                //         </Form.Item>
+                //         {/* <Input style={{ width: 188, marginBottom: 8, display: 'block' }} /> */}
+                //         <Space>
+                //             <Button type="primary" htmlType="submit" icon={<SearchOutlined />} size="small" style={{ width: 90 }}>Search</Button>
+                //             <Button style={{ width: 90 }} size="small" onClick={() => searchForm.resetFields()}>Reset</Button>
+                //         </Space>
+                //     </Form >
+                // ),
                 filterIcon: (filtered: any) => <SearchOutlined style={{ color: filtered ? '#1890ff' : undefined }} />,
             }
         ];
@@ -60,7 +67,7 @@ const KeyListPage = (props: any) => {
             dataSource={keyListState.entries}
             rowKey="Key"
             columns={columns}
-            pagination={false}
+            pagination={{ pageSize: 20 }}
             loading={keyListLoading}
             size="small"
             footer={footer}
@@ -73,6 +80,7 @@ const KeyListPage = (props: any) => {
             loading={!inited}
             header={{ breadcrumb: { routes: breadcrumbRoutes, }, }}
         >
+            {searchBar}
             {table}
         </PageContainer>
     );

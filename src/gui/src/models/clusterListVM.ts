@@ -32,20 +32,20 @@ export default {
             yield put({ type: 'setState', payload: { editingCluster: _defaultCluster, } });
 
             if (payload.ID == "" || payload.Selected) { // if it's new or selected cluster, re-build menu after save
-                yield put({ type: 'menuVM/build' });
+                yield put({ type: 'menuVM/rebuild' });
             }
         },
         *selectCluster({ payload }: any, { call, put }: any): any {
             yield call(SelectCluster, payload.ID);
             yield put({ type: "getClusters" })
 
-            yield put({ type: 'menuVM/build' });
+            yield put({ type: 'menuVM/rebuild' });
         },
         *removeCluster({ cluster }: any, { call, put }: any): any {
             yield call(RemoveCluster, cluster.ID);
             yield put({ type: "getClusters" })
             if (cluster.Selected) {
-                yield put({ type: 'menuVM/build' });
+                yield put({ type: 'menuVM/rebuild' });
             }
         },
     },

@@ -10,7 +10,7 @@ export default defineConfig({
       exact: false, path: '/', component: '@/pages/_layout',
       routes: [
         { path: '/', component: '@/pages/dashboard' },
-        { path: '/:clusterID/:nodeID/db:db', component: '@/pages/[clusterID]/[nodeID]/[db]' },
+        { path: '/:clusterID/:nodeID/:db', component: '@/pages/[clusterID]/[nodeID]/[db]' },
       ]
     }
   ],
