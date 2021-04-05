@@ -1,8 +1,11 @@
 package api
 
 import (
+	"encoding/json"
+
 	"github.com/Lukiya/redismanager/src/go/core"
 	"github.com/Lukiya/redismanager/src/go/rmr"
+
 	log "github.com/syncfuture/go/slog"
 	"github.com/syncfuture/host"
 )
@@ -20,9 +23,11 @@ func GetKeys(ctx host.IHttpContext) {
 	nodeID := ctx.GetParamString("nodeID")
 	db := ctx.GetParamInt("db")
 
-	var query *rmr.KeysQuery
-
-	ctx.ReadQuery(&query)
+	query := new(rmr.KeysQuery)
+	err := ctx.ReadQuery(query)
+	if host.HandleErr(err, ctx) {
+		return
+	}
 
 	cluster := core.Manager.GetCluster(clusterID)
 	if cluster == nil {
@@ -41,5 +46,15 @@ func GetKeys(ctx host.IHttpContext) {
 		return
 	}
 
-	dB.GetKeys(query)
+	rs, err := dB.GetKeys(query)
+	if host.HandleErr(err, ctx) {
+		return
+	}
+
+	data, err := json.Marshal(rs)
+	if host.HandleErr(err, ctx) {
+		return
+	}
+
+	ctx.WriteJsonBytes(data)
 }

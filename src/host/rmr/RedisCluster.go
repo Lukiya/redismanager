@@ -2,6 +2,9 @@ package rmr
 
 import (
 	"context"
+	"fmt"
+	"sort"
+	"strings"
 
 	"github.com/go-redis/redis/v8"
 )
@@ -35,6 +38,15 @@ func NewRedisCluster(config *ClusterConfig) (r *RedisCluster, err error) {
 			r.Nodes = append(r.Nodes, node)
 			return nil
 		})
+
+		// asc sorting
+		sort.Slice(r.Nodes, func(i, j int) bool {
+			return strings.Compare(r.Nodes[i].Addr, r.Nodes[j].Addr) < 0
+		})
+
+		for i, node := range r.Nodes {
+			node.ID = fmt.Sprintf("%03d", i)
+		}
 	} else {
 		// standalone mode
 		node := NewStandaloneReidsNode(config.Addrs[0], config.Password)

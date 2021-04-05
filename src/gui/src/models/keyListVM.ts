@@ -1,13 +1,27 @@
-import { GetClusters, RemoveCluster, SaveCluster, SelectCluster } from "@/services/cluster";
+import { GetEntries } from "@/services/key";
 
 export default {
     state: {
-        keys: [],
+        cursor: 0,
+        entries: [],
     },
     effects: {
-        *getClusters(_: any, { call, put }: any): any {
-            const resp = yield call(GetClusters);
-            yield put({ type: 'setState', payload: { clusters: resp, } });
+        *getEntries({ query }: any, { call, put, select }: any): any {
+            const state = yield select((x: any) => x["keyListVM"]);
+
+            query = {
+                ...query,
+                cursor: state.cursor,
+                pageSize: 20,
+                match: "*",
+            };
+            const resp = yield call(GetEntries, query);
+
+            if (resp?.Entries) {
+                yield put({ type: 'setState', payload: { cursor: resp.Cursor, entries: resp.Entries, } });
+            } else {
+                console.warn("no json in response body");
+            }
         },
     },
     reducers: {

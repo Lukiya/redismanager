@@ -6,7 +6,6 @@ import (
 	"github.com/go-redis/redis/v8"
 	"github.com/syncfuture/go/sconv"
 	"github.com/syncfuture/go/serr"
-	"github.com/syncfuture/host"
 )
 
 type RedisNode struct {
@@ -19,7 +18,7 @@ type RedisNode struct {
 
 func NewStandaloneReidsNode(addr, pwd string) *RedisNode {
 	r := &RedisNode{
-		ID:       host.GenerateID(),
+		ID:       "000",
 		Addr:     addr,
 		password: pwd,
 	}
@@ -29,7 +28,7 @@ func NewStandaloneReidsNode(addr, pwd string) *RedisNode {
 
 func NewClusterRedisNode(addr string, clusterClient redis.UniversalClient) *RedisNode {
 	r := &RedisNode{
-		ID:            host.GenerateID(),
+		// ID:            host.GenerateID(),
 		Addr:          addr,
 		clusterClient: clusterClient,
 	}
