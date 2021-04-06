@@ -39,6 +39,13 @@ export default {
                 type: 'getServer',
                 serverID: "selected",
             });
+
+            yield put({
+                type: 'setState',
+                payload: {
+                    openKeys: ["000"],
+                },
+            });
         },
         *rebuild(_: any, { put }: any): any {
             yield put({

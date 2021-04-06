@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"sort"
 	"strings"
+	"sync"
 
 	"github.com/go-redis/redis/v8"
 )
@@ -33,9 +34,12 @@ func NewRedisServer(config *ServerConfig) (r *RedisServer, err error) {
 			Password: config.Password,
 		})
 
+		locker := new(sync.Mutex)
 		err = ServerClient.ForEachMaster(ctx, func(innerCtx context.Context, client *redis.Client) error {
 			node := NewServerRedisNode(client.Options().Addr, client)
+			locker.Lock()
 			r.Nodes = append(r.Nodes, node)
+			locker.Unlock()
 			return nil
 		})
 
