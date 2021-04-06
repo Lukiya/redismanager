@@ -44,12 +44,22 @@ func (x *RedisDB) GetKeys(query *KeyQuery) (*KeyQueryResult, error) {
 	if err != nil {
 		return nil, serr.WithStack(err)
 	}
-	r.Keys = x.convert(keys)
+	if len(keys) < int(query.Count) && cur > 0 {
+		// if return keys is less than count limit, but has cursor
+		var leftKeys []string
+		// then keep read left keys
+		leftKeys, cur, err = x.client.Scan(context.Background(), cur, query.Match, query.Count).Result()
+		// and append it to results
+		keys = append(keys, leftKeys...)
+	}
+
+	r.Keys = x.stringKeysToRedisKeys(keys)
 	r.Cursor = cur
 	return r, err
 }
 
-func (x *RedisDB) convert(keys []string) []*RedisKey {
+// stringKeysToRedisKeys conver string key to redis key
+func (x *RedisDB) stringKeysToRedisKeys(keys []string) []*RedisKey {
 	r := make([]*RedisKey, len(keys))
 
 	f := stask.NewFlowScheduler(runtime.NumCPU())

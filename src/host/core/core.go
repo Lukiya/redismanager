@@ -8,6 +8,7 @@ import (
 )
 
 const (
+	Version               = "v2.0.0"
 	ContentTypeJson       = "application/json"
 	ContentTypeJavascript = "application/javascript"
 	ContentTypeTextHtml   = "text/html"

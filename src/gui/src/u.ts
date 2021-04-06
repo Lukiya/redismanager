@@ -3,13 +3,10 @@
 // import { message } from 'antd';
 
 const u = {
-    LocalAPI: () => {
-        const r = process.env.NODE_ENV === "production" ? "/api" : "http://localhost:16379/api";
+    LocalRootURL: () => {
+        const r = process.env.NODE_ENV === "production" ? "/" : "http://localhost:16379/";
         return r;
     },
-    // HandleErr: (err: any) => {
-    //     message.error(err);
-    // },
     DefaultTableData: { data: [], success: false, total: 0 },
 }
 export default u

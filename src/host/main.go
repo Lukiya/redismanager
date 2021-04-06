@@ -6,6 +6,8 @@ import (
 
 	"github.com/Lukiya/redismanager/src/go/api"
 	"github.com/Lukiya/redismanager/src/go/core"
+	"github.com/syncfuture/go/shttp"
+	"github.com/syncfuture/host"
 )
 
 func main() {
@@ -31,13 +33,18 @@ func main() {
 	// core.Host.POST("/api/export/file", api.ExportFile)
 	// core.Host.POST("/api/import/file", api.ImportFile)
 
+	core.Host.GET("/", func(ctx host.IHttpContext) {
+		ctx.SetContentType(shttp.CTYPE_JSON)
+		ctx.WriteString(`{"version":"` + core.Version + `"}`)
+	})
+
 	core.Host.AddActionGroups(
 		api.ServerGroup,
 		api.KeyGroup,
 	)
 
 	fmt.Println("------------------------------------------------")
-	fmt.Println("-             Redis Manager v2.0.0             -")
+	fmt.Println("-             Redis Manager " + core.Version + "             -")
 	fmt.Println("------------------------------------------------")
 
 	log.Fatal(core.Host.Run())

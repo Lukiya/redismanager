@@ -2,41 +2,42 @@ package rmr
 
 import (
 	"context"
-	"strconv"
+	"sync"
 
 	"github.com/go-redis/redis/v8"
 	"github.com/syncfuture/go/u"
 )
 
-// type SaveRedisEntryCommand struct {
-// 	Editing *RedisKey `json:"editing"`
-// 	Backup  *RedisKey `json:"backup"`
-// }
 type RedisKey struct {
 	Key    string
 	Type   string
-	Field  string
-	Value  string
 	TTL    int64
 	Length uint64
-	IsNew  bool `json:"isNew"`
 	client redis.UniversalClient
 }
 
 func (x *RedisKey) getType(ctx context.Context) {
-	x.Type = x.client.Type(ctx, x.Key).Val()
+	var err error
+	x.Type, err = x.client.Type(ctx, x.Key).Result()
+	u.LogError(err)
 }
 
 func (x *RedisKey) getTTL(ctx context.Context) {
-	ttl := x.client.TTL(ctx, x.Key).Val().Seconds()
-	if ttl < 0 {
+	ttl, err := x.client.TTL(ctx, x.Key).Result()
+	if u.LogError(err) {
+		x.TTL = -1
+		return
+	}
+
+	ttlSeconds := ttl.Seconds()
+	if ttlSeconds < 0 {
 		x.TTL = -1
 	} else {
-		x.TTL = int64(ttl)
+		x.TTL = int64(ttlSeconds)
 	}
 }
 
-func (x *RedisKey) GetLength(ctx context.Context) {
+func (x *RedisKey) getLength(ctx context.Context) {
 	var err error
 	switch x.Type {
 	case RedisType_String:
@@ -58,59 +59,24 @@ func (x *RedisKey) GetLength(ctx context.Context) {
 	u.LogError(err)
 }
 
-func (x *RedisKey) getValue(ctx context.Context, field string) {
-	var err error
-	switch x.Type {
-	case RedisType_String:
-		x.Value, err = x.client.Get(ctx, x.Key).Result()
-		break
-	case RedisType_Hash:
-		if field != "" {
-			x.Value, err = x.client.HGet(ctx, x.Key, field).Result()
-			if err == nil {
-				x.Field = field
-			}
-		}
-		break
-	case RedisType_List:
-		if field != "" {
-			var index int64
-			index, err = strconv.ParseInt(field, 10, 64)
-			if err == nil {
-				x.Field = field
-				x.Value, err = x.client.LIndex(ctx, x.Key, index).Result()
-			}
-		}
-		break
-	case RedisType_Set:
-		if field != "" {
-			x.Field = field
-			x.Value = field
-		}
-		break
-	case RedisType_ZSet:
-		if field != "" {
-			var score float64
-			score, err = x.client.ZScore(ctx, x.Key, field).Result()
-			if err == nil {
-				x.Field = strconv.FormatFloat(score, 'f', -1, 64)
-				x.Value = field
-			}
-		}
-		break
-	}
-
-	u.LogError(err)
-}
-
 func NewRedisEntry(client redis.UniversalClient, key string) (r *RedisKey) {
 	r = new(RedisKey)
 	r.client = client
 	r.Key = key
 	ctx := context.Background()
 	r.getType(ctx)
-	r.GetLength(ctx)
-	r.getTTL(ctx)
+
+	wg := sync.WaitGroup{}
+	wg.Add(2)
+	go func() {
+		defer func() { wg.Done() }()
+		r.getLength(ctx)
+	}()
+	go func() {
+		defer func() { wg.Done() }()
+		r.getTTL(ctx)
+	}()
+	wg.Wait()
 
 	return r
 }

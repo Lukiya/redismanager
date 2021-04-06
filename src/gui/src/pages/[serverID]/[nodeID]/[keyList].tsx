@@ -1,12 +1,12 @@
 import { PageContainer } from '@ant-design/pro-layout';
 import { Table, Button, Space, Input, Form, Card } from 'antd';
-import { connect } from 'umi'
+import { connect, Link } from 'umi'
 import { MoreOutlined, SearchOutlined } from '@ant-design/icons'
 
 const { Search } = Input;
 
 const KeyListPage = (props: any) => {
-    const { menuState, keyListState, keyListLoading, match, dispatch } = props;
+    const { menuState, keyListState, keyListLoading, match, dispatch, history } = props;
     const { server } = menuState;
 
     let node: any;
@@ -23,11 +23,18 @@ const KeyListPage = (props: any) => {
     let searchBar: any = null;
     if (inited) {
         const [searchForm] = Form.useForm();
+        const params = {
+            serverID: match.params.serverID,
+            nodeID: match.params.nodeID,
+            db: match.params.db,
+            match: "",
+        };
 
+        ////////// breadcrumb
         breadcrumbRoutes = [
             { path: '', breadcrumbName: server.Name, },
             { path: '', breadcrumbName: node.Addr, },
-            { path: '', breadcrumbName: 'db' + match.params.db, },
+            { path: '', breadcrumbName: match.params.db, },
         ];
 
         ////////// search bar
@@ -35,9 +42,9 @@ const KeyListPage = (props: any) => {
             <Search placeholder="key name (support *)" allowClear enterButton="Search" onSearch={v => {
                 dispatch({
                     type: "keyListVM/getKeys", query: {
-                        serverID: match.params.serverID,
-                        nodeID: match.params.nodeID,
-                        db: match.params.db,
+                        serverID: params.serverID,
+                        nodeID: params.nodeID,
+                        db: params.db,
                         match: v,
                     }
                 });
@@ -45,10 +52,12 @@ const KeyListPage = (props: any) => {
         </Card>;
 
         ////////// table
-        const columns = [
+        const columns: any[] = [
             {
                 title: "Key",
                 dataIndex: "Key",
+                defaultSortOrder: "ascend",
+                sorter: (a: any, b: any) => a.Key.localeCompare(b.Key),
                 // filterDropdown: () => (
                 //     <Form form={searchForm}
                 //         style={{ padding: 8 }}
@@ -66,20 +75,58 @@ const KeyListPage = (props: any) => {
                 //         </Space>
                 //     </Form >
                 // ),
-                filterIcon: (filtered: any) => <SearchOutlined style={{ color: filtered ? '#1890ff' : undefined }} />,
-            }
+                // filterIcon: (filtered: any) => <SearchOutlined style={{ color: filtered ? '#1890ff' : undefined }} />,
+                render: (_: any, record: any) => <a>{record.Key}</a>,
+                onCell: (record: any) => {
+                    return {
+                        onClick: () => {
+                            const url = history.location.pathname + "/" + encodeURIComponent(record.Key);
+                            history.push(url);
+                        },
+                    };
+                },
+                className: "pointer",
+            },
+            {
+                title: 'Type',
+                dataIndex: 'Type',
+                sorter: (a: any, b: any) => a.Type.localeCompare(b.Type),
+                width: 100,
+                filters: [{ text: 'hash', value: 'hash' }, { text: 'string', value: 'string' }, { text: 'list', value: 'list' }, { text: 'set', value: 'set' }, { text: 'zset', value: 'zset' }],
+                onFilter: (value: any, record: any) => record.Type.includes(value),
+            },
+            {
+                title: 'Length',
+                dataIndex: 'Length',
+                width: 100,
+                align: "right",
+                sorter: (a: any, b: any) => a.Length - b.Length,
+            },
+            {
+                title: 'TTL',
+                dataIndex: 'TTL',
+                width: 100,
+                align: "right",
+                sorter: (a: any, b: any) => a.TTL - b.TTL,
+            },
         ];
-        const footer = keyListState.hasMore ? () => <div style={{ textAlign: "center" }}>
-            <Button type="link" icon={<MoreOutlined />} onClick={() => dispatch({ type: "keyListVM/loadMore" })}>more...</Button>
-        </div> : undefined;
+        const footer = () => <div style={{ textAlign: "center" }}>
+            {
+                keyListState.hasMore ?
+                    <Button type="link" icon={<MoreOutlined />} onClick={() => dispatch({ type: "keyListVM/loadMore" })}>Load more...</Button>
+                    :
+                    <Button type="link" disabled>All keys loaded</Button>
+            }
+        </div>
 
         table = <Table
             dataSource={keyListState.keys}
             rowKey="Key"
             columns={columns}
-            pagination={{ pageSize: 20, showTotal: (total) => <label>Total: {total}</label> }}
+            pagination={{ pageSize: 20, showTotal: (total) => <label>{keyListState.hasMore ? "Loaded" : "Total"}: {total}</label> }}
             loading={keyListLoading}
             size="small"
+            bordered
             footer={footer}
         >
         </Table>;
@@ -87,6 +134,7 @@ const KeyListPage = (props: any) => {
 
     return (
         <PageContainer
+            title="Key List"
             loading={!inited}
             header={{ breadcrumb: { routes: breadcrumbRoutes, }, }}
         >

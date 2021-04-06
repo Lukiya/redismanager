@@ -2,7 +2,7 @@ import { extend } from 'umi-request';
 import u from '@/u'
 
 const request = extend({
-    prefix: u.LocalAPI(),
+    prefix: u.LocalRootURL() + "api",
 });
 
 export async function SaveServer(data: any) {

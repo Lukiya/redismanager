@@ -1,6 +1,6 @@
 import { DatabaseOutlined, CloudServerOutlined } from '@ant-design/icons';
 import logo from "@/assets/logo.svg"
-import { connect, Link } from 'umi';
+import { connect, Link, useModel } from 'umi';
 import { Layout, Menu, Spin } from 'antd';
 import { useEffect } from 'react';
 
@@ -43,6 +43,7 @@ function buildMenu(dispatch: any, menuState: any) {
 const LayoutPage = (props: any) => {
     const { menuState, dispatch, loading } = props;
     useEffect(() => dispatch({ type: "menuVM/init" }), []);
+    const { initialState } = useModel('@@initialState');
 
     let menu: any;
     if (loading) {
@@ -63,7 +64,9 @@ const LayoutPage = (props: any) => {
                 {menu}
             </Sider>
             <Layout className="site-layout">
-                <Header className="site-layout-background" style={{ padding: 0 }} />
+                <Header className="site-layout-background" style={{ padding: 0 }}>
+                    <span style={{ color: "#fff" }}>{initialState?.info.version}</span>
+                </Header>
                 {props.children}
             </Layout>
         </Layout >

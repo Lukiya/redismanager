@@ -30,11 +30,30 @@ func init() {
 	_rm = NewRedisManager()
 }
 
-func TestFillData(t *testing.T) {
-	max := 3513
+func TestFillString(t *testing.T) {
+	max := 513
+	ctx := context.Background()
 	for i := 0; i < max; i++ {
 		key := fmt.Sprintf("STR_%05d", i)
-		_nativeClient.Set(context.Background(), key, key, -1)
+		_nativeClient.Set(ctx, key, key, -1)
+		// nativeClient.Del(key)
+	}
+}
+
+func TestFillHash(t *testing.T) {
+	max := 513
+	mmax := 602
+	ctx := context.Background()
+	for i := 0; i < max; i++ {
+		key := fmt.Sprintf("HASH_%05d", i)
+		members := make([]interface{}, 0, 2*mmax)
+		for j := 0; j < mmax; j++ {
+			members = append(members, fmt.Sprintf("FIELD_%05d", j))
+			members = append(members, fmt.Sprintf("VALUE_%05d", j))
+		}
+
+		_nativeClient.HSet(ctx, key, members)
+
 		// nativeClient.Del(key)
 	}
 }
