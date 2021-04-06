@@ -89,7 +89,7 @@ func TestServer(t *testing.T) {
 			// a := db.client.Keys(ctx, "*").Val()
 			// log.Info("---", len(a))
 
-			rs, err := db.GetKeys(&EntryQuery{
+			rs, err := db.GetKeys(&KeyQuery{
 				Cursor: 0,
 				Match:  "*",
 				Count:  5,
@@ -98,8 +98,8 @@ func TestServer(t *testing.T) {
 			if !assert.NoError(t, err) {
 				break
 			}
-			log.Info("---", len(rs.Entries))
-			atomic.AddInt64(&keyCount, int64(len(rs.Entries)))
+			log.Info("---", len(rs.Keys))
+			atomic.AddInt64(&keyCount, int64(len(rs.Keys)))
 		}
 	}
 

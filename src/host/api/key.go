@@ -23,7 +23,7 @@ func GetKeys(ctx host.IHttpContext) {
 	nodeID := ctx.GetParamString("nodeID")
 	db := ctx.GetParamInt("db")
 
-	query := new(rmr.EntryQuery)
+	query := new(rmr.KeyQuery)
 	err := ctx.ReadQuery(query)
 	if host.HandleErr(err, ctx) {
 		return

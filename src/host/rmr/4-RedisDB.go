@@ -38,13 +38,13 @@ func (x *RedisDB) Client() redis.UniversalClient {
 	return x.client
 }
 
-func (x *RedisDB) GetKeys(query *EntryQuery) (*EntryQueryResult, error) {
-	r := new(EntryQueryResult)
+func (x *RedisDB) GetKeys(query *KeyQuery) (*KeyQueryResult, error) {
+	r := new(KeyQueryResult)
 	keys, cur, err := x.client.Scan(context.Background(), query.Cursor, query.Match, query.Count).Result()
 	if err != nil {
 		return nil, serr.WithStack(err)
 	}
-	r.Entries = x.convert(keys)
+	r.Keys = x.convert(keys)
 	r.Cursor = cur
 	return r, err
 }

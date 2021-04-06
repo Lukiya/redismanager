@@ -19,13 +19,13 @@ type ServerConfig struct {
 	sredis.RedisConfig
 }
 
-type EntryQuery struct {
+type KeyQuery struct {
 	Cursor uint64
 	Count  int64
 	Match  string
 }
 
-type EntryQueryResult struct {
-	Cursor  uint64
-	Entries []*RedisKey
+type KeyQueryResult struct {
+	Cursor uint64
+	Keys   []*RedisKey
 }
