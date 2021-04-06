@@ -1,7 +1,7 @@
-import { GetCluster } from "@/services/cluster";
+import { GetServer } from "@/services/server";
 
 const _defaultState = {
-    cluster: {
+    server: {
         ID: "",
         Nodes: [],
     },
@@ -12,8 +12,8 @@ const _defaultState = {
 export default {
     state: _defaultState,
     effects: {
-        *getCluster({ clusterID }: any, { call, put }: any): any {
-            const resp = yield call(GetCluster, clusterID);
+        *getServer({ serverID }: any, { call, put }: any): any {
+            const resp = yield call(GetServer, serverID);
             const nodes = resp.Nodes;
             if (!nodes) {
                 yield put({ type: 'resetState' });
@@ -29,21 +29,21 @@ export default {
             yield put({
                 type: 'setState',
                 payload: {
-                    cluster: resp,
+                    server: resp,
                     // openKeys: [selectedNodeID],
                 },
             });
         },
         *init(_: any, { put }: any): any {
             yield put({
-                type: 'getCluster',
-                clusterID: "selected",
+                type: 'getServer',
+                serverID: "selected",
             });
         },
         *rebuild(_: any, { put }: any): any {
             yield put({
-                type: 'getCluster',
-                clusterID: "selected",
+                type: 'getServer',
+                serverID: "selected",
             });
 
             yield put({

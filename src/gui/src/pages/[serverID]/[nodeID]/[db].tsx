@@ -3,14 +3,15 @@ import { Table, Button, Space, Input, Form, Card } from 'antd';
 import { connect } from 'umi'
 import { MoreOutlined, SearchOutlined } from '@ant-design/icons'
 
+const { Search } = Input;
 
 const KeyListPage = (props: any) => {
     const { menuState, keyListState, keyListLoading, match, dispatch } = props;
-    const { cluster } = menuState;
+    const { server } = menuState;
 
     let node: any;
-    for (let i = 0; i < cluster.Nodes.length; i++) {
-        node = cluster.Nodes[i];
+    for (let i = 0; i < server.Nodes.length; i++) {
+        node = server.Nodes[i];
         if (node.ID == match.params.nodeID) {
             break;
         }
@@ -24,14 +25,23 @@ const KeyListPage = (props: any) => {
         const [searchForm] = Form.useForm();
 
         breadcrumbRoutes = [
-            { path: '', breadcrumbName: cluster.Name, },
+            { path: '', breadcrumbName: server.Name, },
             { path: '', breadcrumbName: node.Addr, },
             { path: '', breadcrumbName: 'db' + match.params.db, },
         ];
 
         ////////// search bar
         searchBar = <Card>
-
+            <Search placeholder="key name (support *)" allowClear enterButton="Search" onSearch={v => {
+                dispatch({
+                    type: "keyListVM/getKeys", query: {
+                        serverID: match.params.serverID,
+                        nodeID: match.params.nodeID,
+                        db: match.params.db,
+                        match: v,
+                    }
+                });
+            }} />
         </Card>;
 
         ////////// table
@@ -44,7 +54,7 @@ const KeyListPage = (props: any) => {
                 //         style={{ padding: 8 }}
                 //         onFinish={(values) => {
                 //             console.log(values);
-                //             dispatch({ type: "keyListVM/getEntries", query: {} });
+                //             dispatch({ type: "keyListVM/getKeys", query: {} });
                 //         }}>
                 //         <Form.Item name="match">
                 //             <Input />
@@ -64,10 +74,10 @@ const KeyListPage = (props: any) => {
         </div> : undefined;
 
         table = <Table
-            dataSource={keyListState.entries}
+            dataSource={keyListState.keys}
             rowKey="Key"
             columns={columns}
-            pagination={{ pageSize: 20 }}
+            pagination={{ pageSize: 20, showTotal: (total) => <label>Total: {total}</label> }}
             loading={keyListLoading}
             size="small"
             footer={footer}

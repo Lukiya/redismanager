@@ -8,11 +8,11 @@ import (
 	"github.com/syncfuture/go/u"
 )
 
-type SaveRedisEntryCommand struct {
-	Editing *RedisEntry `json:"editing"`
-	Backup  *RedisEntry `json:"backup"`
-}
-type RedisEntry struct {
+// type SaveRedisEntryCommand struct {
+// 	Editing *RedisKey `json:"editing"`
+// 	Backup  *RedisKey `json:"backup"`
+// }
+type RedisKey struct {
 	Key    string
 	Type   string
 	Field  string
@@ -23,11 +23,11 @@ type RedisEntry struct {
 	client redis.UniversalClient
 }
 
-func (x *RedisEntry) getType(ctx context.Context) {
+func (x *RedisKey) getType(ctx context.Context) {
 	x.Type = x.client.Type(ctx, x.Key).Val()
 }
 
-func (x *RedisEntry) getTTL(ctx context.Context) {
+func (x *RedisKey) getTTL(ctx context.Context) {
 	ttl := x.client.TTL(ctx, x.Key).Val().Seconds()
 	if ttl < 0 {
 		x.TTL = -1
@@ -36,7 +36,7 @@ func (x *RedisEntry) getTTL(ctx context.Context) {
 	}
 }
 
-func (x *RedisEntry) GetLength(ctx context.Context) {
+func (x *RedisKey) GetLength(ctx context.Context) {
 	var err error
 	switch x.Type {
 	case RedisType_String:
@@ -58,7 +58,7 @@ func (x *RedisEntry) GetLength(ctx context.Context) {
 	u.LogError(err)
 }
 
-func (x *RedisEntry) getValue(ctx context.Context, field string) {
+func (x *RedisKey) getValue(ctx context.Context, field string) {
 	var err error
 	switch x.Type {
 	case RedisType_String:
@@ -103,8 +103,8 @@ func (x *RedisEntry) getValue(ctx context.Context, field string) {
 	u.LogError(err)
 }
 
-func NewRedisEntry(client redis.UniversalClient, key string) (r *RedisEntry) {
-	r = new(RedisEntry)
+func NewRedisEntry(client redis.UniversalClient, key string) (r *RedisKey) {
+	r = new(RedisKey)
 	r.client = client
 	r.Key = key
 	ctx := context.Background()

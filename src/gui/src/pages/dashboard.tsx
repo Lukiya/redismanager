@@ -8,8 +8,8 @@ import { useEffect, useRef } from 'react';
 import { ColumnProps } from 'antd/es/table';
 
 const Dashboard = (props: any) => {
-    const { clusterListState, loading, dispatch } = props;
-    const { editingCluster } = clusterListState;
+    const { serverListState, loading, dispatch } = props;
+    const { editingServer } = serverListState;
     const formRef = useRef<FormInstance>();
 
     //////////// table
@@ -31,17 +31,17 @@ const Dashboard = (props: any) => {
             align: "right",
             width: 240,
             render: (_: any, record: any, index: number) => {
-                const btnSelect = record.Selected ? null : <Button type="primary" size="small" icon={<SelectOutlined />} onClick={() => dispatch({ type: "clusterListVM/selectCluster", payload: record })}>Select</Button>;
+                const btnSelect = record.Selected ? null : <Button type="primary" size="small" icon={<SelectOutlined />} onClick={() => dispatch({ type: "serverListVM/selectServer", payload: record })}>Select</Button>;
 
                 return (
                     <Space>
                         {btnSelect}
 
-                        <Button type="default" size="small" icon={<EditOutlined />} onClick={() => dispatch({ type: "clusterListVM/showEditor", payload: record })}>Edit</Button>
+                        <Button type="default" size="small" icon={<EditOutlined />} onClick={() => dispatch({ type: "serverListVM/showEditor", payload: record })}>Edit</Button>
 
                         <Popconfirm
                             title="Confirm?"
-                            onConfirm={() => dispatch({ type: "clusterListVM/removeCluster", cluster: record })}
+                            onConfirm={() => dispatch({ type: "serverListVM/removeServer", server: record })}
                             // onCancel={cancel}
                             okText="Yes"
                             cancelText="No"
@@ -59,7 +59,7 @@ const Dashboard = (props: any) => {
         size="small"
         columns={columns}
         loading={loading}
-        dataSource={clusterListState.clusters}
+        dataSource={serverListState.servers}
         rowClassName={(record) => record.Selected ? "hilightRow" : ""}
     />
 
@@ -67,18 +67,18 @@ const Dashboard = (props: any) => {
     const form = <ProForm
         formRef={formRef}
         onFinish={async (values) => {
-            values.ID = editingCluster.ID;
+            values.ID = editingServer.ID;
             await dispatch({
-                type: "clusterListVM/saveCluster",
+                type: "serverListVM/saveServer",
                 payload: values,
             })
         }}
         initialValues={{
-            ID: editingCluster.ID,
-            Name: editingCluster.Name,
-            Addrs: editingCluster.Addrs.join("\n"),
-            Password: editingCluster.Password,
-            Selected: editingCluster.Selected,
+            ID: editingServer.ID,
+            Name: editingServer.Name,
+            Addrs: editingServer.Addrs.join("\n"),
+            Password: editingServer.Password,
+            Selected: editingServer.Selected,
         }}
     >
         <ProForm.Group>
@@ -111,10 +111,10 @@ const Dashboard = (props: any) => {
 
     //////////// editor
     const editor = <Drawer
-        title="Cluster Editor"
+        title="Server Editor"
         width="375"
-        onClose={() => dispatch({ type: "clusterListVM/hideEditor" })}
-        visible={clusterListState.editorVisible}
+        onClose={() => dispatch({ type: "serverListVM/hideEditor" })}
+        visible={serverListState.editorVisible}
     >
         {form}
     </Drawer>;
@@ -128,7 +128,7 @@ const Dashboard = (props: any) => {
                     routes: [
                         {
                             path: '',
-                            breadcrumbName: 'Clusters',
+                            breadcrumbName: 'Servers',
                         },
                     ],
                 },
@@ -136,7 +136,7 @@ const Dashboard = (props: any) => {
         >
             <Card>
                 <div style={{ marginBottom: "10px", textAlign: "right" }}>
-                    <Button type="primary" onClick={() => dispatch({ type: "clusterListVM/showEditor" })}>New</Button>
+                    <Button type="primary" onClick={() => dispatch({ type: "serverListVM/showEditor" })}>New</Button>
                 </div>
                 {table}
             </Card>
@@ -145,7 +145,7 @@ const Dashboard = (props: any) => {
     );
 };
 
-export default connect(({ clusterListVM, loading }: any) => ({
-    clusterListState: clusterListVM,
-    loading: loading.models.clusterListVM,
+export default connect(({ serverListVM, loading }: any) => ({
+    serverListState: serverListVM,
+    loading: loading.models.serverListVM,
 }))(Dashboard);

@@ -12,20 +12,20 @@ const (
 	RedisType_ZSet   = "zset"
 )
 
-type ClusterConfig struct {
+type ServerConfig struct {
 	ID       string
 	Name     string
 	Selected bool
 	sredis.RedisConfig
 }
 
-type KeysQuery struct {
+type EntryQuery struct {
 	Cursor uint64
 	Count  int64
 	Match  string
 }
 
-type KeysQueryResult struct {
+type EntryQueryResult struct {
 	Cursor  uint64
-	Entries []*RedisEntry
+	Entries []*RedisKey
 }

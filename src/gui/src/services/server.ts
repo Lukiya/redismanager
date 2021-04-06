@@ -5,8 +5,8 @@ const request = extend({
     prefix: u.LocalAPI(),
 });
 
-export async function SaveCluster(data: any) {
-    const r = await request.post('/cluster', {
+export async function SaveServer(data: any) {
+    const r = await request.post('/server', {
         data: data,
     })
         .then(function (resp) {
@@ -19,8 +19,8 @@ export async function SaveCluster(data: any) {
     return r;
 }
 
-export async function GetClusters() {
-    const r = await request.get('/clusters')
+export async function GetServers() {
+    const r = await request.get('/servers')
         .then(function (resp) {
             return resp;
         })
@@ -31,8 +31,8 @@ export async function GetClusters() {
     return r;
 }
 
-export async function GetCluster(clusterID: string) {
-    const r = await request.get('/clusters/' + clusterID)
+export async function GetServer(serverID: string) {
+    const r = await request.get('/servers/' + serverID)
         .then(function (resp) {
             return resp;
         })
@@ -43,8 +43,8 @@ export async function GetCluster(clusterID: string) {
     return r;
 }
 
-export async function SelectCluster(id: string) {
-    const r = await request.post('/clusters/' + id)
+export async function SelectServer(id: string) {
+    const r = await request.post('/servers/' + id)
         .then(function (resp) {
             return resp;
         })
@@ -55,8 +55,8 @@ export async function SelectCluster(id: string) {
     return r;
 }
 
-export async function RemoveCluster(id: string) {
-    const r = await request.delete('/clusters/' + id)
+export async function RemoveServer(id: string) {
+    const r = await request.delete('/servers/' + id)
         .then(function (resp) {
             return resp;
         })

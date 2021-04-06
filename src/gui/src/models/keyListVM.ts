@@ -1,12 +1,12 @@
-import { GetEntries } from "@/services/key";
+import { GetKeys } from "@/services/key";
 
 const _defaultCount = 100;
 
 export default {
     state: {
-        entries: [],
+        keys: [],
         query: {
-            clusterID: "",
+            serverID: "",
             nodeID: "",
             db: 0,
             cursor: 0,
@@ -16,19 +16,19 @@ export default {
         hasMore: false,
     },
     effects: {
-        *getEntries({ query }: any, { call, put }: any): any {
+        *getKeys({ query }: any, { call, put }: any): any {
             query = {
                 ...query,
                 cursor: 0,
                 count: _defaultCount,
             };
-            const resp = yield call(GetEntries, query);
+            const resp = yield call(GetKeys, query);
 
-            if (resp?.Entries) {
+            if (resp?.Keys) {
                 query.cursor = resp.Cursor;
                 yield put({
                     type: 'setState', payload: {
-                        entries: resp.Entries,
+                        keys: resp.Keys,
                         query,
                         hasMore: resp.Cursor != 0,
                     }
@@ -44,11 +44,11 @@ export default {
             }
 
             const { query } = state;
-            const resp = yield call(GetEntries, query);
+            const resp = yield call(GetKeys, query);
 
-            if (resp?.Entries) {
+            if (resp?.Keys) {
                 query.cursor = resp.Cursor;
-                yield put({ type: 'appendEntries', payload: { resp, query } });
+                yield put({ type: 'appendKeys', payload: { resp, query } });
             } else {
                 console.warn("no json in response body");
             }
@@ -56,22 +56,22 @@ export default {
     },
     reducers: {
         setState(state: any, { payload }: any) { return { ...state, ...payload }; },
-        appendEntries(state: any, { payload }: any) {
+        appendKeys(state: any, { payload }: any) {
             const { resp, query } = payload;
             return {
                 ...state,
-                entries: state.entries.concat(resp.Entries),
+                keys: state.keys.concat(resp.Keys),
                 hasMore: resp.Cursor != 0,
                 query,
             };
         },
         // showEditor(state: any, { payload }: any) {
-        //     const editingCluster = payload ?? _defaultCluster;
+        //     const editingServer = payload ?? _defaultServer;
 
         //     return {
         //         ...state,
         //         editorVisible: true,
-        //         editingCluster,
+        //         editingServer,
         //     };
         // },
         // hideEditor(state: any) {
@@ -88,18 +88,18 @@ export default {
                 const array = regx.exec(pathname);
                 if (array?.length == 4) {
                     const query = {
-                        clusterID: array[1],
+                        serverID: array[1],
                         nodeID: array[2],
                         db: array[3],
                     };
-                    const menuKey = query.clusterID + "_" + query.nodeID + "_" + query.db;
+                    const menuKey = query.serverID + "_" + query.nodeID + "_" + query.db;
                     dispatch({
                         type: "menuVM/setState", payload: {
                             openKeys: [query.nodeID],
                             selectedKeys: [menuKey],
                         }
                     });
-                    dispatch({ type: "getEntries", query });
+                    dispatch({ type: "getKeys", query });
                 }
             });
         }

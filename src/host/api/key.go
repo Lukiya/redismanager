@@ -13,31 +13,31 @@ import (
 var KeyGroup = host.NewActionGroup(
 	nil,
 	[]*host.Action{
-		host.NewAction("GET/api/clusters/{clusterID}/{nodeID}/{db}/keys", "cluster__", GetKeys),
+		host.NewAction("GET/api/servers/{serverID}/{nodeID}/{db}/keys", "server__", GetKeys),
 	},
 	nil,
 )
 
 func GetKeys(ctx host.IHttpContext) {
-	clusterID := ctx.GetParamString("clusterID")
+	serverID := ctx.GetParamString("serverID")
 	nodeID := ctx.GetParamString("nodeID")
 	db := ctx.GetParamInt("db")
 
-	query := new(rmr.KeysQuery)
+	query := new(rmr.EntryQuery)
 	err := ctx.ReadQuery(query)
 	if host.HandleErr(err, ctx) {
 		return
 	}
 
-	cluster := core.Manager.GetCluster(clusterID)
-	if cluster == nil {
-		log.Warnf("cannot find cluster '%s'", clusterID)
+	Server := core.Manager.GetServer(serverID)
+	if Server == nil {
+		log.Warnf("cannot find Server '%s'", serverID)
 		return
 	}
 
-	node := cluster.GetNode(nodeID)
+	node := Server.GetNode(nodeID)
 	if node == nil {
-		log.Warnf("cannot find node '%s/%s'", clusterID, nodeID)
+		log.Warnf("cannot find node '%s/%s'", serverID, nodeID)
 		return
 	}
 

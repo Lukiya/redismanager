@@ -14,9 +14,9 @@ func IsJson(str string) bool {
 	return strings.HasPrefix(str, "{") && strings.HasSuffix(str, "}")
 }
 
-// func CheckCluster(cluster *rmr.RedisCluster, ctx host.IHttpContext) bool {
-// 	if cluster == nil {
-// 		host.HandleErr(serr.New("cluster cannot be nil"), ctx)
+// func CheckServer(Server *rmr.RedisServer, ctx host.IHttpContext) bool {
+// 	if Server == nil {
+// 		host.HandleErr(serr.New("Server cannot be nil"), ctx)
 // 		return true
 // 	}
 // 	return false
@@ -27,7 +27,7 @@ func IsJson(str string) bool {
 // 	db, err := strconv.Atoi(dbStr)
 // 	u.LogError(err)
 
-// 	// proxy := core.Manager.GetSelectedCluster()
+// 	// proxy := core.Manager.GetSelectedServer()
 // 	return proxy.GetClient(db)
 // }
 

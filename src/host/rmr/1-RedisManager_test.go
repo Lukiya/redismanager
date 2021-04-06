@@ -43,7 +43,7 @@ func TestGetKeys(t *testing.T) {
 	// a := _nativeClient.Keys(context.Background(), "*").Val()
 	// log.Info(len(a))
 	ctx := context.Background()
-	// a, err := _nativeClient.ClusterSlots(ctx).Result()
+	// a, err := _nativeClient.ServerSlots(ctx).Result()
 	// a, err := _nativeClient.Keys(ctx, "*").Result()
 	// log.Info(len(a), err)
 	// b, err := _nativeClient.Info(ctx, "keyspace").Result()
@@ -56,8 +56,8 @@ func TestGetKeys(t *testing.T) {
 	log.Info(c, err)
 }
 
-func TestSaveAndRemoveCluster(t *testing.T) {
-	sc := new(ClusterConfig)
+func TestSaveAndRemoveServer(t *testing.T) {
+	sc := new(ServerConfig)
 	sc.Addrs = []string{
 		"192.168.188.166:7000",
 		"192.168.188.166:7001",
@@ -72,14 +72,14 @@ func TestSaveAndRemoveCluster(t *testing.T) {
 	assert.NoError(t, err)
 }
 
-func TestCluster(t *testing.T) {
-	cluster := _rm.GetSelectedCluster()
-	assert.NotNil(t, cluster)
+func TestServer(t *testing.T) {
+	Server := _rm.GetSelectedServer()
+	assert.NotNil(t, Server)
 
 	keyCount := int64(0)
 	// ctx := context.Background()
 
-	for _, node := range cluster.Nodes {
+	for _, node := range Server.Nodes {
 		dbs, err := node.GetDBs()
 		if !assert.NoError(t, err) {
 			break
@@ -89,7 +89,7 @@ func TestCluster(t *testing.T) {
 			// a := db.client.Keys(ctx, "*").Val()
 			// log.Info("---", len(a))
 
-			rs, err := db.GetKeys(&KeysQuery{
+			rs, err := db.GetKeys(&EntryQuery{
 				Cursor: 0,
 				Match:  "*",
 				Count:  5,

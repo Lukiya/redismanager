@@ -9,11 +9,11 @@ import (
 )
 
 type RedisNode struct {
-	ID            string
-	Addr          string
-	password      string
-	DBs           []*RedisDB
-	clusterClient redis.UniversalClient
+	ID           string
+	Addr         string
+	password     string
+	DBs          []*RedisDB
+	ServerClient redis.UniversalClient
 }
 
 func NewStandaloneReidsNode(addr, pwd string) *RedisNode {
@@ -26,11 +26,11 @@ func NewStandaloneReidsNode(addr, pwd string) *RedisNode {
 	return r
 }
 
-func NewClusterRedisNode(addr string, clusterClient redis.UniversalClient) *RedisNode {
+func NewServerRedisNode(addr string, ServerClient redis.UniversalClient) *RedisNode {
 	r := &RedisNode{
 		// ID:            host.GenerateID(),
-		Addr:          addr,
-		clusterClient: clusterClient,
+		Addr:         addr,
+		ServerClient: ServerClient,
 	}
 
 	return r
@@ -43,8 +43,8 @@ func (x *RedisNode) LoadDBs() error {
 }
 
 func (x *RedisNode) GetDBs() ([]*RedisDB, error) {
-	if x.clusterClient != nil {
-		db0 := NewRedisDB(0, x.clusterClient)
+	if x.ServerClient != nil {
+		db0 := NewRedisDB(0, x.ServerClient)
 		return []*RedisDB{db0}, nil
 	} else {
 		db0Client := x.createStandaloneClient(0)

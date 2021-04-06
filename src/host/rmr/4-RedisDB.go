@@ -38,8 +38,8 @@ func (x *RedisDB) Client() redis.UniversalClient {
 	return x.client
 }
 
-func (x *RedisDB) GetKeys(query *KeysQuery) (*KeysQueryResult, error) {
-	r := new(KeysQueryResult)
+func (x *RedisDB) GetKeys(query *EntryQuery) (*EntryQueryResult, error) {
+	r := new(EntryQueryResult)
 	keys, cur, err := x.client.Scan(context.Background(), query.Cursor, query.Match, query.Count).Result()
 	if err != nil {
 		return nil, serr.WithStack(err)
@@ -49,8 +49,8 @@ func (x *RedisDB) GetKeys(query *KeysQuery) (*KeysQueryResult, error) {
 	return r, err
 }
 
-func (x *RedisDB) convert(keys []string) []*RedisEntry {
-	r := make([]*RedisEntry, len(keys))
+func (x *RedisDB) convert(keys []string) []*RedisKey {
+	r := make([]*RedisKey, len(keys))
 
 	f := stask.NewFlowScheduler(runtime.NumCPU())
 

@@ -32,7 +32,7 @@ func main() {
 	// core.Host.POST("/api/import/file", api.ImportFile)
 
 	core.Host.AddActionGroups(
-		api.ClusterGroup,
+		api.ServerGroup,
 		api.KeyGroup,
 	)
 

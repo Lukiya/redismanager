@@ -19,5 +19,6 @@ dist
 # other
 configs.json
 clusters.json
+servers.json
 src/io_test.go
 *.exe

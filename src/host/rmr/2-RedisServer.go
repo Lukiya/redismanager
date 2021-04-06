@@ -9,32 +9,32 @@ import (
 	"github.com/go-redis/redis/v8"
 )
 
-type RedisCluster struct {
+type RedisServer struct {
 	ID       string
 	Name     string
 	Nodes    []*RedisNode
-	config   *ClusterConfig
+	config   *ServerConfig
 	Selected bool
 }
 
-func NewRedisCluster(config *ClusterConfig) (r *RedisCluster, err error) {
-	r = &RedisCluster{
+func NewRedisServer(config *ServerConfig) (r *RedisServer, err error) {
+	r = &RedisServer{
 		ID:       config.ID,
 		Name:     config.Name,
 		config:   config,
 		Selected: config.Selected,
 	}
 	ctx := context.Background()
-	var clusterClient *redis.ClusterClient
+	var ServerClient *redis.ClusterClient
 	if len(config.Addrs) > 1 {
-		// cluster mode
-		clusterClient = redis.NewClusterClient(&redis.ClusterOptions{
+		// Server mode
+		ServerClient = redis.NewClusterClient(&redis.ClusterOptions{
 			Addrs:    config.Addrs,
 			Password: config.Password,
 		})
 
-		err = clusterClient.ForEachMaster(ctx, func(innerCtx context.Context, client *redis.Client) error {
-			node := NewClusterRedisNode(client.Options().Addr, client)
+		err = ServerClient.ForEachMaster(ctx, func(innerCtx context.Context, client *redis.Client) error {
+			node := NewServerRedisNode(client.Options().Addr, client)
 			r.Nodes = append(r.Nodes, node)
 			return nil
 		})
@@ -56,7 +56,7 @@ func NewRedisCluster(config *ClusterConfig) (r *RedisCluster, err error) {
 	return r, err
 }
 
-func (x *RedisCluster) GetNode(nodeID string) *RedisNode {
+func (x *RedisServer) GetNode(nodeID string) *RedisNode {
 	for _, v := range x.Nodes {
 		if v.ID == nodeID {
 			return v

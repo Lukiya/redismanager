@@ -8,7 +8,7 @@ const { Header, Content, Footer, Sider } = Layout;
 const { SubMenu } = Menu;
 
 function buildMenu(dispatch: any, menuState: any) {
-    const nodes = menuState.cluster.Nodes;
+    const nodes = menuState.server.Nodes;
     const nodeMenus = [];
 
     for (let i = 0; i < nodes.length; i++) {
@@ -18,9 +18,9 @@ function buildMenu(dispatch: any, menuState: any) {
         for (let i = 0; i < node.DBs.length; i++) {
             const db = node.DBs[i];
             const dbStr = "db" + db.DB;
-            const dbKey = menuState.cluster.ID + "_" + node.ID + "_" + db.DB;
+            const dbKey = menuState.server.ID + "_" + node.ID + "_" + db.DB;
 
-            const dbMenu = <Menu.Item key={dbKey} icon={<DatabaseOutlined />}><Link to={"/" + menuState.cluster.ID + "/" + node.ID + "/" + dbStr}>{dbStr}</Link></Menu.Item>;
+            const dbMenu = <Menu.Item key={dbKey} icon={<DatabaseOutlined />}><Link to={"/" + menuState.server.ID + "/" + node.ID + "/" + dbStr}>{dbStr}</Link></Menu.Item>;
 
             dbMenus.push(dbMenu);
         }
@@ -48,9 +48,9 @@ const LayoutPage = (props: any) => {
     if (loading) {
         menu = <div style={{ textAlign: "center", marginTop: "20px" }}><Spin /></div>
     } else {
-        menu = menuState.cluster.Nodes && menuState.cluster.Nodes.length > 0 ? (
+        menu = menuState.server.Nodes && menuState.server.Nodes.length > 0 ? (
             <div>
-                <h1 style={{ color: "white" }}><CloudServerOutlined /> {menuState.cluster.Name}</h1>
+                <h1 style={{ color: "white" }}><CloudServerOutlined /> {menuState.server.Name}</h1>
                 {buildMenu(dispatch, menuState)}
             </div>
         ) : null;

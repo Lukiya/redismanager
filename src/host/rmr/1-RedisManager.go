@@ -9,25 +9,25 @@ import (
 	"github.com/syncfuture/host"
 )
 
-const _filename = "./clusters.json"
+const _filename = "./Servers.json"
 
 type RedisManager struct {
-	// Clusters []*RedisCluster
-	Configs  []*ClusterConfig
-	Clusters map[string]*RedisCluster
+	// Servers []*RedisServer
+	Configs []*ServerConfig
+	Servers map[string]*RedisServer
 }
 
 func NewRedisManager() *RedisManager {
 	r := new(RedisManager)
 	err := r.load()
 	u.LogFaltal(err)
-	r.Clusters, err = r.generateClusters()
+	r.Servers, err = r.generateServers()
 	u.LogFaltal(err)
 	return r
 }
 
-func (x *RedisManager) GetSelectedCluster() *RedisCluster {
-	for _, v := range x.Clusters {
+func (x *RedisManager) GetSelectedServer() *RedisServer {
+	for _, v := range x.Servers {
 		if v.config.Selected {
 			return v
 		}
@@ -36,9 +36,9 @@ func (x *RedisManager) GetSelectedCluster() *RedisCluster {
 	return nil
 }
 
-func (x *RedisManager) GetCluster(clusterID string) *RedisCluster {
-	for _, v := range x.Clusters {
-		if v.ID == clusterID {
+func (x *RedisManager) GetServer(ServerID string) *RedisServer {
+	for _, v := range x.Servers {
+		if v.ID == ServerID {
 			return v
 		}
 	}
@@ -51,14 +51,14 @@ func (x *RedisManager) GetCluster(clusterID string) *RedisCluster {
 // 		x.add(rc)
 // 	}
 // 	var err error
-// 	x.Clusters, err = x.generateCluster()
+// 	x.Servers, err = x.generateServer()
 // 	err1 := x.save()
 // 	u.LogError(err1)
 // 	return err
 // }
 
 func (x *RedisManager) Remove(id string) (err error) {
-	x.Clusters, err = x.generateClusters()
+	x.Servers, err = x.generateServers()
 	if err != nil {
 		return err
 	}
@@ -70,18 +70,18 @@ func (x *RedisManager) Select(id string) error {
 	for _, sc := range x.Configs {
 		// if sc.ID == id {
 		// 	x.removeByIndex(i)
-		// 	x.Configs = append([]*ClusterConfig{sc}, x.Configs...)
+		// 	x.Configs = append([]*ServerConfig{sc}, x.Configs...)
 		// 	break
 		// }
 		sc.Selected = sc.ID == id
 	}
 
-	// x.Clusters = x.generateClusters()
+	// x.Servers = x.generateServers()
 	err := x.save()
 	return err
 }
 
-func (x *RedisManager) Save(config *ClusterConfig) (err error) {
+func (x *RedisManager) Save(config *ServerConfig) (err error) {
 	if config.ID == "" {
 		x.add(config)
 	} else {
@@ -103,7 +103,7 @@ func (x *RedisManager) Save(config *ClusterConfig) (err error) {
 		}
 	}
 
-	x.Clusters, err = x.generateClusters()
+	x.Servers, err = x.generateServers()
 	if err != nil {
 		return err
 	}
@@ -126,7 +126,7 @@ func (x *RedisManager) load() error {
 	data, err := os.ReadFile(_filename)
 	if err != nil {
 		if os.IsNotExist(err) {
-			x.Configs = make([]*ClusterConfig, 0)
+			x.Configs = make([]*ServerConfig, 0)
 			return nil
 		}
 		return serr.WithStack(err)
@@ -136,12 +136,12 @@ func (x *RedisManager) load() error {
 	return serr.WithStack(err)
 }
 
-func (x *RedisManager) generateClusters() (r map[string]*RedisCluster, err error) {
-	r = make(map[string]*RedisCluster, len(x.Configs))
+func (x *RedisManager) generateServers() (r map[string]*RedisServer, err error) {
+	r = make(map[string]*RedisServer, len(x.Configs))
 
 	// errs := make([]error, 0)
 	for _, sc := range x.Configs {
-		r[sc.ID], err = NewRedisCluster(sc)
+		r[sc.ID], err = NewRedisServer(sc)
 		if err != nil {
 			return nil, err
 		}
@@ -150,14 +150,14 @@ func (x *RedisManager) generateClusters() (r map[string]*RedisCluster, err error
 	return r, err
 }
 
-func (x *RedisManager) add(rc *ClusterConfig) {
+func (x *RedisManager) add(rc *ServerConfig) {
 	rc.ID = host.GenerateID()
 	x.generateName(rc)
 	x.Configs = append(x.Configs, rc)
 	x.Select(rc.ID) // set new item as selected
 }
 
-func (x *RedisManager) generateName(rc *ClusterConfig) {
+func (x *RedisManager) generateName(rc *ServerConfig) {
 	if rc.Name == "" {
 		// rc.Name = strings.Join(rc.Addrs, ",")
 		rc.Name = rc.ID
