@@ -1,18 +1,24 @@
 import { PageContainer } from '@ant-design/pro-layout';
-import { Table, Button, Space, Input, Form, Card } from 'antd';
+import { Table, Button, Drawer, Input, Form, Card, FormInstance } from 'antd';
+import ProForm, { ProFormText, ProFormTextArea, ProFormSwitch } from '@ant-design/pro-form';
 import { connect, Link } from 'umi'
-import { MoreOutlined, SearchOutlined } from '@ant-design/icons'
+import { MoreOutlined, SearchOutlined, EditOutlined } from '@ant-design/icons'
+import { useEffect, useRef } from 'react';
+import MemberEditor from '@/components/memberEditor'
+import u from '@/u';
 
 const { Search } = Input;
 
 const KeyListPage = (props: any) => {
     const { menuState, keyListState, keyListLoading, match, dispatch, history } = props;
     const { server } = menuState;
+    const { params } = match;
+    const formRef = useRef<FormInstance>();
 
     let node: any;
     for (let i = 0; i < server.Nodes.length; i++) {
         node = server.Nodes[i];
-        if (node.ID == match.params.nodeID) {
+        if (node.ID == params.nodeID) {
             break;
         }
     }
@@ -21,20 +27,21 @@ const KeyListPage = (props: any) => {
     let breadcrumbRoutes: any[] = [];
     let table: any = null;
     let searchBar: any = null;
+    let memberEditor: any = null;
     if (inited) {
         const [searchForm] = Form.useForm();
-        const params = {
-            serverID: match.params.serverID,
-            nodeID: match.params.nodeID,
-            db: match.params.db,
-            match: "",
-        };
+        // const params = {
+        //     serverID: match.params.serverID,
+        //     nodeID: match.params.nodeID,
+        //     db: match.params.db,
+        //     match: "",
+        // };
 
         ////////// breadcrumb
         breadcrumbRoutes = [
             { path: '', breadcrumbName: server.Name, },
             { path: '', breadcrumbName: node.Addr, },
-            { path: '', breadcrumbName: match.params.db, },
+            { path: '', breadcrumbName: params.db, },
         ];
 
         ////////// search bar
@@ -80,8 +87,19 @@ const KeyListPage = (props: any) => {
                 onCell: (record: any) => {
                     return {
                         onClick: () => {
-                            const url = history.location.pathname + "/" + encodeURIComponent(record.Key);
-                            history.push(url);
+                            if (record.Type == u.STRING) {
+                                dispatch({
+                                    type: "memberEditorVM/show", payload: {
+                                        ...params,
+                                        key: record.Key,
+                                        isNew: false,
+                                        field: "this",
+                                    }
+                                })
+                            } else {
+                                const url = history.location.pathname + "/" + encodeURIComponent(record.Key);
+                                history.push(url);
+                            }
                         },
                     };
                 },
@@ -92,7 +110,7 @@ const KeyListPage = (props: any) => {
                 dataIndex: 'Type',
                 sorter: (a: any, b: any) => a.Type.localeCompare(b.Type),
                 width: 100,
-                filters: [{ text: 'hash', value: 'hash' }, { text: 'string', value: 'string' }, { text: 'list', value: 'list' }, { text: 'set', value: 'set' }, { text: 'zset', value: 'zset' }],
+                filters: [{ text: u.HASH, value: u.HASH }, { text: u.STRING, value: u.STRING }, { text: u.LIST, value: u.LIST }, { text: u.SET, value: u.SET }, { text: u.ZSET, value: u.ZSET }],
                 onFilter: (value: any, record: any) => record.Type.includes(value),
             },
             {
@@ -108,6 +126,18 @@ const KeyListPage = (props: any) => {
                 width: 100,
                 align: "right",
                 sorter: (a: any, b: any) => a.TTL - b.TTL,
+            },
+            {
+                title: 'Action',
+                width: 100,
+                align: "center",
+                render: (_: any, record: any) => <Button size="small" icon={<EditOutlined />} onClick={() => dispatch({
+                    type: "memberEditorVM/show", payload: {
+                        ...params,
+                        key: record.Key,
+                        isNew: false,
+                    }
+                })}>Edit</Button>
             },
         ];
         const footer = () => <div style={{ textAlign: "center" }}>
@@ -130,6 +160,55 @@ const KeyListPage = (props: any) => {
             footer={footer}
         >
         </Table>;
+
+
+        //////////// editor
+        const editorForm = <ProForm
+            formRef={formRef}
+            onFinish={async (values) => {
+                // values.ID = editingServer.ID;
+                // await dispatch({
+                //     type: "serverListVM/saveServer",
+                //     payload: values,
+                // })
+            }}
+            initialValues={{
+                // ID: editingServer.ID,
+                // Name: editingServer.Name,
+                // Addrs: editingServer.Addrs.join("\n"),
+                // Password: editingServer.Password,
+                // Selected: editingServer.Selected,
+            }}
+        >
+            <ProForm.Group>
+                <ProFormText width="md" name="Name" label="Name" />
+                <ProFormText name="ID" hidden={true} />
+                <ProFormSwitch name="Selected" hidden={true} />
+            </ProForm.Group>
+            <ProForm.Group>
+                <ProFormTextArea width="md" name="Addrs" label="Node Address(es)&nbsp;" tooltip="Each node take one line" rules={[
+                    { required: true, message: 'node host address(es) are required.' },
+                    () => ({
+                        validator(_, value: string) {
+                            const regex = /^[a-zA-Z0-9\.]+:\d+?$/gm;
+                            const array = value.split("\n");
+                            const matches = value.match(regex);
+
+                            if (array.length == matches?.length) {
+                                return Promise.resolve();
+                            }
+                            return Promise.reject('Invalid host address(es) format.');
+                        },
+                    }),
+                ]} />
+            </ProForm.Group>
+            <ProForm.Group>
+                <ProFormText.Password width="md" name="Password" label="Password" />
+            </ProForm.Group>
+        </ProForm>;
+        useEffect(() => formRef.current?.resetFields(), [editorForm.props.initialValues]);
+
+        memberEditor = <MemberEditor />;
     }
 
     return (
@@ -140,6 +219,7 @@ const KeyListPage = (props: any) => {
         >
             {searchBar}
             {table}
+            {memberEditor}
         </PageContainer>
     );
 };

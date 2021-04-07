@@ -2,9 +2,12 @@ package rmr
 
 import (
 	"context"
+	"fmt"
 	"sync"
 
 	"github.com/go-redis/redis/v8"
+	"github.com/syncfuture/go/sconv"
+	"github.com/syncfuture/go/serr"
 	"github.com/syncfuture/go/u"
 )
 
@@ -16,10 +19,10 @@ type RedisKey struct {
 	client redis.UniversalClient
 }
 
-func (x *RedisKey) getType(ctx context.Context) {
+func (x *RedisKey) getType(ctx context.Context) error {
 	var err error
 	x.Type, err = x.client.Type(ctx, x.Key).Result()
-	u.LogError(err)
+	return serr.WithStack(err)
 }
 
 func (x *RedisKey) getTTL(ctx context.Context) {
@@ -59,12 +62,15 @@ func (x *RedisKey) getLength(ctx context.Context) {
 	u.LogError(err)
 }
 
-func NewRedisEntry(client redis.UniversalClient, key string) (r *RedisKey) {
+func newRedisKey(client redis.UniversalClient, key string) (r *RedisKey, err error) {
 	r = new(RedisKey)
 	r.client = client
 	r.Key = key
 	ctx := context.Background()
-	r.getType(ctx)
+	err = r.getType(ctx)
+	if err != nil {
+		return nil, err
+	}
 
 	wg := sync.WaitGroup{}
 	wg.Add(2)
@@ -78,5 +84,29 @@ func NewRedisEntry(client redis.UniversalClient, key string) (r *RedisKey) {
 	}()
 	wg.Wait()
 
-	return r
+	return r, nil
+}
+
+func (x *RedisKey) GetValue(field string) (string, error) {
+	ctx := context.Background()
+
+	switch x.Type {
+	case RedisType_String:
+		v, err := x.client.Get(ctx, x.Key).Result()
+		return v, serr.WithStack(err)
+	case RedisType_Hash:
+		v, err := x.client.HGet(ctx, x.Key, field).Result()
+		return v, serr.WithStack(err)
+	case RedisType_List:
+		index := sconv.ToInt64(field)
+		v, err := x.client.LIndex(ctx, x.Key, index).Result()
+		return v, serr.WithStack(err)
+	case RedisType_Set:
+		return field, nil
+	case RedisType_ZSet:
+		_, err := x.client.ZScore(ctx, x.Key, field).Result()
+		return field, serr.WithStack(err)
+	default:
+		return "", serr.New(fmt.Sprintf("'%s' with field '%s' is not supported", x.Type, field))
+	}
 }

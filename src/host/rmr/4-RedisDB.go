@@ -7,6 +7,7 @@ import (
 	"github.com/go-redis/redis/v8"
 	"github.com/syncfuture/go/serr"
 	"github.com/syncfuture/go/stask"
+	"github.com/syncfuture/go/u"
 	"github.com/syncfuture/host"
 )
 
@@ -58,6 +59,14 @@ func (x *RedisDB) GetKeys(query *KeyQuery) (*KeyQueryResult, error) {
 	return r, err
 }
 
+func (x *RedisDB) GetKey(key string) (*RedisKey, error) {
+	redisKey, err := newRedisKey(x.client, key)
+	if err != nil {
+		return nil, err
+	}
+	return redisKey, nil
+}
+
 // stringKeysToRedisKeys conver string key to redis key
 func (x *RedisDB) stringKeysToRedisKeys(keys []string) []*RedisKey {
 	r := make([]*RedisKey, len(keys))
@@ -65,7 +74,11 @@ func (x *RedisDB) stringKeysToRedisKeys(keys []string) []*RedisKey {
 	f := stask.NewFlowScheduler(runtime.NumCPU())
 
 	f.SliceRun(&keys, func(i int, v interface{}) {
-		r[i] = NewRedisEntry(x.client, v.(string))
+		redisKey, err := newRedisKey(x.client, v.(string))
+		if u.LogError(err) {
+			return
+		}
+		r[i] = redisKey
 	})
 
 	return r

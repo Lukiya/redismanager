@@ -20,18 +20,17 @@
     ]
   },
   "dependencies": {
-    "@ant-design/pro-layout": "^6.16.0",
-    "@ant-design/pro-table": "^2.32.2",
+    "@ant-design/pro-form": "^1.20.0",
+    "@ant-design/pro-layout": "^6.16.1",
     "@umijs/preset-react": "1.x",
-    "react-highlight-words": "^0.17.0",
     "umi": "^3.4.8"
   },
   "devDependencies": {
+    "@ant-design/colors": "^6.0.0",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
     "@umijs/test": "^3.4.7",
     "lint-staged": "^10.0.7",
-    "@ant-design/colors": "^6.0.0",
     "prettier": "^2.2.0",
     "react": "17.x",
     "react-dom": "17.x",
