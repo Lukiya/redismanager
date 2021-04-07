@@ -34,7 +34,9 @@ export async function GetKey(query: any) {
 
 export async function GetValue(query: any) {
     const url = '/servers/' + query.serverID + '/' + query.nodeID + '/' + query.db + "/" + encodeURIComponent(query.key) + "/" + encodeURIComponent(query.field);
-    const r = await request.get(url)
+    const r = await request.get(url, {
+        responseType: "text",
+    })
         .then(function (resp) {
             return resp;
         })

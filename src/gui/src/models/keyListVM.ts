@@ -1,6 +1,6 @@
 import { GetKeys } from "@/services/key";
 
-const _defaultCount = 100;
+const _defaultCount = 50;
 
 export default {
     state: {

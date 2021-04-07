@@ -6,7 +6,7 @@ import (
 
 	"github.com/Lukiya/redismanager/src/go/api"
 	"github.com/Lukiya/redismanager/src/go/core"
-	"github.com/syncfuture/go/shttp"
+	"github.com/syncfuture/go/u"
 	"github.com/syncfuture/host"
 )
 
@@ -34,8 +34,7 @@ func main() {
 	// core.Host.POST("/api/import/file", api.ImportFile)
 
 	core.Host.GET("/", func(ctx host.IHttpContext) {
-		ctx.SetContentType(shttp.CTYPE_JSON)
-		ctx.WriteString(`{"version":"` + core.Version + `"}`)
+		ctx.WriteJsonBytes(u.StrToBytes(`{"version":"` + core.Version + `"}`))
 	})
 
 	core.Host.AddActionGroups(

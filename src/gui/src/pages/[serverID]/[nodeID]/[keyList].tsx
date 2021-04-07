@@ -13,7 +13,6 @@ const KeyListPage = (props: any) => {
     const { menuState, keyListState, keyListLoading, match, dispatch, history } = props;
     const { server } = menuState;
     const { params } = match;
-    const formRef = useRef<FormInstance>();
 
     let node: any;
     for (let i = 0; i < server.Nodes.length; i++) {
@@ -29,7 +28,8 @@ const KeyListPage = (props: any) => {
     let searchBar: any = null;
     let memberEditor: any = null;
     if (inited) {
-        const [searchForm] = Form.useForm();
+        const formRef = useRef<FormInstance>();
+        // const [searchForm] = Form.useForm();
         // const params = {
         //     serverID: match.params.serverID,
         //     nodeID: match.params.nodeID,
