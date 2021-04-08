@@ -1,5 +1,5 @@
 import { connect } from "umi";
-import { Drawer, Space, Form, Input, InputNumber, Button, Row, Col } from "antd";
+import { Drawer, Space, Form, Input, InputNumber, Button, Row, Col, Spin } from "antd";
 import { SaveOutlined, CodeOutlined, BoxPlotOutlined, UndoOutlined } from '@ant-design/icons';
 import { useEffect } from "react";
 import u from "@/u";
@@ -8,12 +8,14 @@ const { TextArea } = Input;
 
 const MemberEditor = (props: any) => {
     const { memberEditorState, dispatch } = props;
-    const { redisKey, value } = memberEditorState;
+    const { redisKey, value, loading } = memberEditorState;
     const inited = redisKey?.Key != undefined;
     const hasValue = value != undefined && value != null;
     let form: any, filedEditor: any, valueEditor: any, btnReset: any, btnBeautify: any, btnMinify: any = undefined;
 
-    if (inited) {
+    if (loading) {
+        form = <div style={{ textAlign: "center", marginTop: 20 }}><Spin /></div>
+    } else if (inited) {
         const [formRef] = Form.useForm();
 
         //////////// form

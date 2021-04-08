@@ -8,61 +8,30 @@ const request = extend({
 export async function SaveServer(data: any) {
     const r = await request.post('/server', {
         data: data,
-    })
-        .then(function (resp) {
-            return resp;
-        })
-        .catch(function (err) {
-            console.error(err);
-        });
-
+    });
     return r;
 }
 
 export async function GetServers() {
-    const r = await request.get('/servers')
-        .then(function (resp) {
-            return resp;
-        })
-        .catch(function (err) {
-            console.error(err);
-        });
+    const r = await request.get('/servers');
 
     return r;
 }
 
 export async function GetServer(serverID: string) {
-    const r = await request.get('/servers/' + serverID)
-        .then(function (resp) {
-            return resp;
-        })
-        .catch(function (err) {
-            console.error(err);
-        });
+    const r = await request.get('/servers/' + serverID);
 
     return r;
 }
 
 export async function SelectServer(id: string) {
-    const r = await request.post('/servers/' + id)
-        .then(function (resp) {
-            return resp;
-        })
-        .catch(function (err) {
-            console.error(err);
-        });
+    const r = await request.post('/servers/' + id);
 
     return r;
 }
 
 export async function RemoveServer(id: string) {
-    const r = await request.delete('/servers/' + id)
-        .then(function (resp) {
-            return resp;
-        })
-        .catch(function (err) {
-            console.error(err);
-        });
+    const r = await request.delete('/servers/' + id);
 
     return r;
 }

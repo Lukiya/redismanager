@@ -7,6 +7,7 @@ export default {
         visible: false,
         isNew: false,
         canBeautify: false,
+        loading: true,
     },
     effects: {
         *load(_: any, { put, select }: any): any {
@@ -18,12 +19,13 @@ export default {
                 if (keyResp?.Key) {
                     if (keyResp.Type == u.STRING) {
                         const valueResp = yield GetValue(state);
-                        yield put({ type: 'setState', payload: { redisKey: keyResp, visible: true, value: valueResp, isNew: false, }, });
+                        yield put({ type: 'setState', payload: { redisKey: keyResp, visible: true, value: valueResp, isNew: false, loading: false }, });
                     } else {
-                        yield put({ type: 'setState', payload: { redisKey: keyResp, visible: true, value: undefined, isNew: false, }, });
+                        yield put({ type: 'setState', payload: { redisKey: keyResp, visible: true, value: undefined, isNew: false, loading: false }, });
                     }
                 } else {
                     console.warn(keyResp);
+                    yield put({ type: 'setState', payload: { loading: false }, });
                 }
             }
         },
@@ -37,7 +39,7 @@ export default {
                 old: state.redisKey,
             }
 
-           const resp =  yield SaveEntry(state, data);
+            const resp = yield SaveEntry(state, data);
         },
     },
     reducers: {
@@ -46,6 +48,7 @@ export default {
             return {
                 ...state,
                 ...payload,
+                loading: true,
                 visible: true,
             };
         },
