@@ -22,7 +22,7 @@ func IsJson(str string) bool {
 // 	return false
 // }
 
-// func GetClient(ctx host.IHttpContext) (r redis.Cmdable) {
+// func GetClient(ctx host.IHttpContext) (r redis.UniversalClient) {
 // 	dbStr := ctx.GetFormStringDefault("db", "0")
 // 	db, err := strconv.Atoi(dbStr)
 // 	u.LogError(err)

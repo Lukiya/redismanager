@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/Lukiya/redismanager/src/go/api"
+	"github.com/Lukiya/redismanager/src/go/common"
 	"github.com/Lukiya/redismanager/src/go/core"
 	"github.com/syncfuture/go/u"
 	"github.com/syncfuture/host"
@@ -34,7 +35,7 @@ func main() {
 	// core.Host.POST("/api/import/file", api.ImportFile)
 
 	core.Host.GET("/", func(ctx host.IHttpContext) {
-		ctx.WriteJsonBytes(u.StrToBytes(`{"version":"` + core.Version + `"}`))
+		ctx.WriteJsonBytes(u.StrToBytes(`{"version":"` + common.Version + `"}`))
 	})
 
 	core.Host.AddActionGroups(
@@ -43,7 +44,7 @@ func main() {
 	)
 
 	fmt.Println("------------------------------------------------")
-	fmt.Println("-             Redis Manager " + core.Version + "             -")
+	fmt.Println("-             Redis Manager " + common.Version + "             -")
 	fmt.Println("------------------------------------------------")
 
 	log.Fatal(core.Host.Run())

@@ -4,6 +4,7 @@ import (
 	"context"
 	"runtime"
 
+	"github.com/Lukiya/redismanager/src/go/common"
 	"github.com/go-redis/redis/v8"
 	"github.com/syncfuture/go/serr"
 	"github.com/syncfuture/go/stask"
@@ -65,6 +66,58 @@ func (x *RedisDB) GetKey(key string) (*RedisKey, error) {
 		return nil, err
 	}
 	return redisKey, nil
+}
+
+func (x *RedisDB) SaveValue(cmd *SaveRedisEntryCommand) error {
+	ctx := context.Background()
+
+	redisKey, err := x.GetKey(cmd.Old.Key)
+	if err != nil {
+		return err
+	}
+
+	switch redisKey.Type {
+	case common.RedisType_String:
+		err = saveString(ctx, x.client, cmd)
+		break
+	case common.RedisType_Hash:
+		err = saveHash(ctx, x.client, cmd)
+		break
+	case common.RedisType_List:
+		err = saveList(ctx, x.client, cmd)
+		break
+	case common.RedisType_Set:
+		err = saveSet(ctx, x.client, cmd)
+		break
+	case common.RedisType_ZSet:
+		err = saveZSet(ctx, x.client, cmd)
+		break
+	default:
+		err = serr.Errorf("key type '%s' is not supported", redisKey.Type)
+		break
+	}
+
+	if err != nil {
+		return err
+	}
+
+	////////// save TTL
+	err = saveTTL(ctx, x.client, cmd)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (x *RedisDB) keyExists(keys ...string) (bool, error) {
+	ctx := context.Background()
+	count, err := x.client.Exists(ctx, keys...).Result()
+	if err != nil {
+		return false, serr.WithStack(err)
+	}
+
+	return count > 0, nil
 }
 
 // stringKeysToRedisKeys conver string key to redis key

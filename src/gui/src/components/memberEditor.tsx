@@ -104,6 +104,11 @@ const MemberEditor = (props: any) => {
     return <Drawer
         title="Key Editor"
         width="90vw"
+        afterVisibleChange={visible => {
+            if (visible) {
+                dispatch({ type: "memberEditorVM/load" });
+            }
+        }}
         onClose={() => dispatch({ type: "memberEditorVM/hide" })}
         visible={memberEditorState.visible}
     >

@@ -79,7 +79,7 @@ func (x *RedisNode) GetDB(db int) (*RedisDB, error) {
 		return x.DBs[db], nil
 	}
 
-	return nil, serr.New("db index out of range: " + sconv.ToString(db))
+	return nil, serr.Errorf("db index out of range: %d", db)
 }
 
 func (x *RedisNode) createStandaloneClient(db int) redis.UniversalClient {

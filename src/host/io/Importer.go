@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"io"
+	"runtime"
 	"time"
 
 	"github.com/Lukiya/redismanager/src/go/common"
@@ -77,7 +78,7 @@ func (x *Importer) ImportKeys(in []byte) (imported int, err error) {
 	ctx := context.Background()
 	imported = len(entries)
 
-	scheduler := task.NewFlowScheduler(4)
+	scheduler := task.NewFlowScheduler(runtime.NumCPU())
 	scheduler.SliceRun(&entries, func(i int, v interface{}) {
 		entry := v.(*ExportFileEntry)
 
