@@ -32,8 +32,10 @@ func saveZSet(ctx context.Context, client redis.UniversalClient, cmd *SaveRedisE
 		if err != nil {
 			return serr.WithStack(err)
 		}
-	} else {
-		err = client.ZRem(ctx, cmd.Old.Key, cmd.Old.Value).Err()
+	}
+
+	if cmd.New.Field != "" {
+		err = client.ZRem(ctx, cmd.New.Key, cmd.Old.Value).Err()
 		if err != nil {
 			return serr.WithStack(err)
 		}

@@ -53,7 +53,7 @@ const MemberEditor = (props: any) => {
             }}>Minify</Button>;
         }
 
-        if (redisKey.Type != u.STRING) {
+        if (redisKey.Type != u.STRING && redisKey.Field) {
             filedEditor = <Col lg={6} xl={6} xxl={6}>
                 <Form.Item label="Filed" labelAlign="right" name="Filed">
                     <Input width="xl" placeholder="Filed" onChange={values => console.log(values)} />

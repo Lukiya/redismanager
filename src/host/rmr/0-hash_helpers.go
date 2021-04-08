@@ -34,7 +34,9 @@ func saveHash(ctx context.Context, client redis.UniversalClient, cmd *SaveRedisE
 		if err != nil {
 			return err
 		}
-	} else {
+	}
+
+	if cmd.New.Field != "" {
 		// # update value
 		err = client.HSet(ctx, cmd.New.Key, cmd.New.Field, cmd.New.Value).Err()
 		if err != nil {

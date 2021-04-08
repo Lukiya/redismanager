@@ -1,8 +1,8 @@
 import { PageContainer } from '@ant-design/pro-layout';
-import { Table, Button, Drawer, Input, Form, Card, FormInstance } from 'antd';
+import { Table, Button, Input, Menu, Card, FormInstance, Row, Col, Dropdown } from 'antd';
 import ProForm, { ProFormText, ProFormTextArea, ProFormSwitch } from '@ant-design/pro-form';
-import { connect, Link } from 'umi'
-import { MoreOutlined, SearchOutlined, EditOutlined } from '@ant-design/icons'
+import { connect } from 'umi'
+import { MoreOutlined, PlusOutlined, EditOutlined } from '@ant-design/icons'
 import { useEffect, useRef } from 'react';
 import MemberEditor from '@/components/memberEditor'
 import u from '@/u';
@@ -25,7 +25,7 @@ const KeyListPage = (props: any) => {
 
     let breadcrumbRoutes: any[] = [];
     let table: any = null;
-    let searchBar: any = null;
+    let actionBar: any = null;
     let memberEditor: any = null;
     if (inited) {
         const formRef = useRef<FormInstance>();
@@ -44,18 +44,38 @@ const KeyListPage = (props: any) => {
             { path: '', breadcrumbName: params.db, },
         ];
 
-        ////////// search bar
-        searchBar = <Card>
-            <Search placeholder="key name (support *)" allowClear enterButton="Search" onSearch={v => {
-                dispatch({
-                    type: "keyListVM/getKeys", query: {
-                        serverID: params.serverID,
-                        nodeID: params.nodeID,
-                        db: params.db,
-                        match: v,
-                    }
-                });
-            }} />
+        ////////// action bar
+        const menu = (
+            <Menu>
+                <Menu.Item key="string">string</Menu.Item>
+                <Menu.Item key="hash">hash</Menu.Item>
+                <Menu.Item key="list">list</Menu.Item>
+                <Menu.Item key="set">set</Menu.Item>
+                <Menu.Item key="zset">zset</Menu.Item>
+            </Menu>
+        );
+
+        actionBar = <Card>
+            <Row gutter={8}>
+                <Col>
+                    <Search placeholder="key name (support *)" allowClear enterButton="Search" onSearch={v => {
+                        dispatch({
+                            type: "keyListVM/getKeys", query: {
+                                serverID: params.serverID,
+                                nodeID: params.nodeID,
+                                db: params.db,
+                                match: v,
+                            }
+                        });
+                    }} />
+                </Col>
+                <Col>
+                    <Dropdown overlay={menu}>
+                        <Button icon={<PlusOutlined />}>New</Button>
+                    </Dropdown>
+                </Col>
+            </Row>
+
         </Card>;
 
         ////////// table
@@ -92,6 +112,7 @@ const KeyListPage = (props: any) => {
                                     type: "memberEditorVM/show", payload: {
                                         ...params,
                                         key: record.Key,
+                                        type: u.STRING,
                                         isNew: false,
                                         field: "this",
                                     }
@@ -135,6 +156,7 @@ const KeyListPage = (props: any) => {
                     type: "memberEditorVM/show", payload: {
                         ...params,
                         key: record.Key,
+                        type: record.Type,
                         isNew: false,
                     }
                 })}>Edit</Button>
@@ -217,7 +239,7 @@ const KeyListPage = (props: any) => {
             loading={!inited}
             header={{ breadcrumb: { routes: breadcrumbRoutes, }, }}
         >
-            {searchBar}
+            {actionBar}
             {table}
             {memberEditor}
         </PageContainer>

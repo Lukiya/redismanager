@@ -19,8 +19,10 @@ func saveSet(ctx context.Context, client redis.UniversalClient, cmd *SaveRedisEn
 		if err != nil {
 			return serr.WithStack(err)
 		}
-	} else {
-		err = client.SRem(ctx, cmd.Old.Key, cmd.Old.Value).Err()
+	}
+
+	if cmd.New.Field != "" {
+		err = client.SRem(ctx, cmd.New.Key, cmd.Old.Value).Err()
 		if err != nil {
 			return serr.WithStack(err)
 		}

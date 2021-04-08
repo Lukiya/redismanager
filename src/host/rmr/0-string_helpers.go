@@ -21,11 +21,11 @@ func saveString(ctx context.Context, client redis.UniversalClient, cmd *SaveRedi
 		if err != nil {
 			return serr.WithStack(err)
 		}
-	} else {
-		err = client.Set(ctx, cmd.New.Key, cmd.New.Value, time.Duration(-1)).Err()
-		if err != nil {
-			return serr.WithStack(err)
-		}
+	}
+
+	err = client.Set(ctx, cmd.New.Key, cmd.New.Value, time.Duration(-1)).Err()
+	if err != nil {
+		return serr.WithStack(err)
 	}
 	return nil
 }

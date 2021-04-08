@@ -20,7 +20,9 @@ func saveList(ctx context.Context, client redis.UniversalClient, cmd *SaveRedisE
 		if err != nil {
 			return serr.WithStack(err)
 		}
-	} else {
+	}
+
+	if cmd.New.Field != "" {
 		// # update value
 		index, err := strconv.ParseInt(cmd.New.Field, 10, 64)
 		if err != nil {

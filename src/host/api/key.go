@@ -2,11 +2,13 @@ package api
 
 import (
 	"encoding/json"
+	"errors"
+	"net/url"
 
-	"github.com/Lukiya/redismanager/src/go/core"
+	"github.com/Lukiya/redismanager/src/go/common"
 	"github.com/Lukiya/redismanager/src/go/rmr"
 
-	log "github.com/syncfuture/go/slog"
+	"github.com/syncfuture/go/u"
 	"github.com/syncfuture/host"
 )
 
@@ -22,28 +24,13 @@ var KeyGroup = host.NewActionGroup(
 )
 
 func GetKeys(ctx host.IHttpContext) {
-	serverID := ctx.GetParamString("serverID")
-	nodeID := ctx.GetParamString("nodeID")
-	db := ctx.GetParamInt("db")
 	query := new(rmr.KeyQuery)
 	err := ctx.ReadQuery(query)
 	if host.HandleErr(err, ctx) {
 		return
 	}
 
-	Server := core.Manager.GetServer(serverID)
-	if Server == nil {
-		log.Warnf("cannot find Server '%s'", serverID)
-		return
-	}
-
-	node := Server.GetNode(nodeID)
-	if node == nil {
-		log.Warnf("cannot find node '%s/%s'", serverID, nodeID)
-		return
-	}
-
-	dB, err := node.GetDB(db)
+	dB, err := getDB(ctx)
 	if host.HandleErr(err, ctx) {
 		return
 	}
@@ -82,6 +69,11 @@ func GetValue(ctx host.IHttpContext) {
 	}
 
 	field := ctx.GetParamString("field")
+	field, err = url.PathUnescape(field)
+	if host.HandleErr(err, ctx) {
+		return
+	}
+
 	v, err := redisKey.GetValue(field)
 	if host.HandleErr(err, ctx) {
 		return
@@ -100,7 +92,13 @@ func SaveEntry(ctx host.IHttpContext) {
 	ctx.ReadJSON(&cmd)
 
 	err = db.SaveValue(cmd)
-	if host.HandleErr(err, ctx) {
+
+	if errors.Is(err, common.KeyExistError) {
+		ctx.WriteJsonBytes(u.StrToBytes(`{"err":"` + err.Error() + `"}`))
+		return
+	} else if host.HandleErr(err, ctx) {
 		return
 	}
+
+	ctx.WriteJsonBytes(u.StrToBytes(`{"err":""}`))
 }

@@ -1,5 +1,7 @@
 package common
 
+import "errors"
+
 const (
 	Version               = "v2.0.0"
 	ContentTypeJson       = "application/json"
@@ -13,4 +15,8 @@ const (
 	ZipIndicator0         = 48
 	ZipIndicator1         = 49
 	ZipIndicatorSeperator = 124
+)
+
+var (
+	KeyExistError = errors.New("key already exists")
 )

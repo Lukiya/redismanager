@@ -71,6 +71,18 @@ func (x *RedisDB) GetKey(key string) (*RedisKey, error) {
 func (x *RedisDB) SaveValue(cmd *SaveRedisEntryCommand) error {
 	ctx := context.Background()
 
+	if cmd.IsNew {
+		// Check if new key is existing
+		exists, err := x.keyExists(cmd.New.Key)
+		if err != nil {
+			return err
+		}
+
+		if exists {
+			return common.KeyExistError
+		}
+	}
+
 	redisKey, err := x.GetKey(cmd.Old.Key)
 	if err != nil {
 		return err

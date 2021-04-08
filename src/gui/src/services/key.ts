@@ -46,3 +46,18 @@ export async function GetValue(query: any) {
 
     return r;
 }
+
+export async function SaveEntry(query: any, data: any) {
+    const url = '/servers/' + query.serverID + '/' + query.nodeID + '/' + query.db + "/" + encodeURIComponent(query.key) + "/" + encodeURIComponent(query.field);
+    const r = await request.post(url, {
+        data: data,
+    })
+        .then(function (resp) {
+            return resp;
+        })
+        .catch(function (err) {
+            console.error(err);
+        });
+
+    return r;
+}

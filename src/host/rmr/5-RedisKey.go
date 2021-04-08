@@ -2,11 +2,11 @@ package rmr
 
 import (
 	"context"
+	"strconv"
 	"sync"
 
 	"github.com/Lukiya/redismanager/src/go/common"
 	"github.com/go-redis/redis/v8"
-	"github.com/syncfuture/go/sconv"
 	"github.com/syncfuture/go/serr"
 	"github.com/syncfuture/go/u"
 )
@@ -56,7 +56,10 @@ func (x *RedisKey) GetValue(field string) (string, error) {
 		v, err := x.client.HGet(ctx, x.Key, field).Result()
 		return v, serr.WithStack(err)
 	case common.RedisType_List:
-		index := sconv.ToInt64(field)
+		index, err := strconv.ParseInt(field, 10, 64)
+		if err != nil {
+			return "", serr.WithStack(err)
+		}
 		v, err := x.client.LIndex(ctx, x.Key, index).Result()
 		return v, serr.WithStack(err)
 	case common.RedisType_Set:
