@@ -2,6 +2,8 @@ package io
 
 import (
 	"encoding/json"
+
+	"github.com/syncfuture/go/serr"
 )
 
 type ExportFileEntry struct {
@@ -13,7 +15,7 @@ type ExportFileEntry struct {
 func NewExportFileEntry(entryKey, entryType string, entryData interface{}) (*ExportFileEntry, error) {
 	d, err := json.Marshal(entryData)
 	if err != nil {
-		return nil, err
+		return nil, serr.WithStack(err)
 	}
 	r := &ExportFileEntry{
 		Key:  entryKey,
@@ -21,5 +23,5 @@ func NewExportFileEntry(entryKey, entryType string, entryData interface{}) (*Exp
 		Data: d,
 	}
 
-	return r, err
+	return r, nil
 }

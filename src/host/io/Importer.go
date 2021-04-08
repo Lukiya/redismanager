@@ -2,26 +2,23 @@ package io
 
 import (
 	"archive/zip"
-	"bytes"
 	"context"
 	"encoding/json"
 	"io"
 	"time"
 
-	"github.com/Lukiya/redismanager/src/go/core"
-
+	"github.com/Lukiya/redismanager/src/go/common"
 	"github.com/go-redis/redis/v8"
 	"github.com/syncfuture/go/serr"
 	task "github.com/syncfuture/go/stask"
-	"github.com/syncfuture/go/u"
 )
 
 type Importer struct {
 	Zip    bool
-	client redis.Cmdable
+	client redis.UniversalClient
 }
 
-func NewImporter(client redis.Cmdable) (r *Importer) {
+func NewImporter(client redis.UniversalClient) (r *Importer) {
 	r = new(Importer)
 	r.client = client
 	return r
@@ -29,30 +26,40 @@ func NewImporter(client redis.Cmdable) (r *Importer) {
 func (x *Importer) ImportZipFile(file io.ReaderAt, size int64) (imported int, err error) {
 	zipFile, err := zip.NewReader(file, size)
 	if err != nil {
+		err = serr.WithStack(err)
 		return
 	}
 
-	buf := make([]byte, 0, 1024)
-	bytesReader := bytes.NewBuffer(buf)
+	buf := _buffPool.GetBuffer()
+	defer func() { _buffPool.PutBuffer(buf) }()
 	zipEntry1Reader, err := zipFile.File[0].Open()
-	defer zipEntry1Reader.Close()
+	if err != nil {
+		err = serr.WithStack(err)
+		return
+	}
+	defer func() { zipEntry1Reader.Close() }()
 
-	io.Copy(bytesReader, zipEntry1Reader)
+	_, err = io.Copy(buf, zipEntry1Reader)
+	if err != nil {
+		err = serr.WithStack(err)
+		return
+	}
 
-	bytes := bytesReader.Bytes()
+	bytes := buf.Bytes()
 
 	return x.ImportKeys(bytes)
 }
 
 func (x *Importer) ImportKeys(in []byte) (imported int, err error) {
 	if in == nil || len(in) < 3 {
-		err = serr.Errorf("input bytes are missing")
+		err = serr.New("input bytes are missing")
 		return
 	}
-	if in[0] == core.ZipIndicator1 && in[1] == core.ZipIndicatorSeperator {
+	if in[0] == common.ZipIndicator1 && in[1] == common.ZipIndicatorSeperator {
 		// data is compressed, need to decompress
 		in, err = unzipBytes(in[2:]) // remove first 2 byte (zip indicator)
 		if err != nil {
+			err = serr.WithStack(err)
 			return
 		}
 	} else {
@@ -63,6 +70,7 @@ func (x *Importer) ImportKeys(in []byte) (imported int, err error) {
 	var entries []*ExportFileEntry
 	err = json.Unmarshal(in, &entries)
 	if err != nil {
+		err = serr.WithStack(err)
 		return
 	}
 
@@ -76,55 +84,76 @@ func (x *Importer) ImportKeys(in []byte) (imported int, err error) {
 		// Remove old key
 		err = x.client.Del(ctx, entry.Key).Err()
 		if err != nil {
+			err = serr.WithStack(err)
 			return
 		}
 
 		// Import new key by type
 		switch entry.Type {
-		case core.RedisType_String:
+		case common.RedisType_String:
 			var v string
 			err = json.Unmarshal(entry.Data, &v)
 			if err != nil {
+				err = serr.WithStack(err)
 				return
 			}
 			err = x.client.Set(ctx, entry.Key, v, time.Duration(-1)).Err()
-			u.LogError(err)
+			if err != nil {
+				err = serr.WithStack(err)
+				return
+			}
 			break
-		case core.RedisType_Hash:
+		case common.RedisType_Hash:
 			var v map[string]interface{}
 			err = json.Unmarshal(entry.Data, &v)
 			if err != nil {
+				err = serr.WithStack(err)
 				return
 			}
 			err = x.client.HMSet(ctx, entry.Key, v).Err()
-			u.LogError(err)
+			if err != nil {
+				err = serr.WithStack(err)
+				return
+			}
 			break
-		case core.RedisType_List:
+		case common.RedisType_List:
 			var v []interface{}
 			err = json.Unmarshal(entry.Data, &v)
 			if err != nil {
+				err = serr.WithStack(err)
 				return
 			}
 			err = x.client.RPush(ctx, entry.Key, v...).Err()
-			u.LogError(err)
+			if err != nil {
+				err = serr.WithStack(err)
+				return
+			}
 			break
-		case core.RedisType_Set:
+		case common.RedisType_Set:
 			var v []interface{}
 			err = json.Unmarshal(entry.Data, &v)
 			if err != nil {
+				err = serr.WithStack(err)
 				return
 			}
 			err = x.client.SAdd(ctx, entry.Key, v...).Err()
-			u.LogError(err)
+			if err != nil {
+				err = serr.WithStack(err)
+				return
+			}
 			break
-		case core.RedisType_ZSet:
+		case common.RedisType_ZSet:
 			var v []*redis.Z
 			err = json.Unmarshal(entry.Data, &v)
 			if err != nil {
+				err = serr.WithStack(err)
 				return
 			}
 			err = x.client.ZAdd(ctx, entry.Key, v...).Err()
-			u.LogError(err)
+			if err != nil {
+				err = serr.WithStack(err)
+				return
+			}
 			break
 		}
 	})
