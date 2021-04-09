@@ -1,30 +1,61 @@
 import { GetKey, GetValue, SaveEntry } from "@/services/key";
 import u from "@/u";
+const _defaultTitle = "Editor";
 
 export default {
     state: {
         redisKey: {},
         visible: false,
         isNew: false,
-        canBeautify: false,
         loading: true,
+        title: _defaultTitle,
     },
     effects: {
         *load(_: any, { put, select }: any): any {
             const state = yield select((x: any) => x["memberEditorVM"]);
             if (state.isNew) {
+                let redisKey: any;
+                if (state.type == u.STRING) {
+                    redisKey = { Key: "", Type: state.type, TTL: -1, };
+                } else {
+                    redisKey = { Key: "", Field: "", Type: state.type, TTL: -1, };
+                }
 
+                yield put({
+                    type: 'setState', payload: {
+                        loading: false,
+                        redisKey,
+                        value: "",
+                        title: 'new ' + state.type
+                    }
+                });
             } else {
-                const keyResp = yield GetKey(state);
-                if (keyResp?.Key) {
-                    if (keyResp.Type == u.STRING) {
+                const redisKey = yield GetKey(state);
+                if (redisKey?.Key) {
+                    if (redisKey.Type == u.STRING) {
                         const valueResp = yield GetValue(state);
-                        yield put({ type: 'setState', payload: { redisKey: keyResp, visible: true, value: valueResp, isNew: false, loading: false }, });
+                        yield put({
+                            type: 'setState', payload: {
+                                redisKey: redisKey,
+                                visible: true,
+                                value: valueResp,
+                                isNew: false,
+                                loading: false,
+                            },
+                        });
                     } else {
-                        yield put({ type: 'setState', payload: { redisKey: keyResp, visible: true, value: undefined, isNew: false, loading: false }, });
+                        yield put({
+                            type: 'setState', payload: {
+                                redisKey: redisKey,
+                                visible: true,
+                                value: undefined,
+                                isNew: false,
+                                loading: false,
+                            },
+                        });
                     }
                 } else {
-                    console.warn(keyResp);
+                    console.warn(redisKey);
                     yield put({ type: 'setState', payload: { loading: false }, });
                 }
             }
@@ -37,6 +68,7 @@ export default {
             const data = {
                 new: values,
                 old: state.redisKey,
+                isNew: state.isNew,
             }
 
             const resp = yield SaveEntry(state, data);
@@ -50,6 +82,7 @@ export default {
                 ...payload,
                 loading: true,
                 visible: true,
+                title: _defaultTitle,
             };
         },
         hide(state: any) {

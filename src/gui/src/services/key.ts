@@ -31,7 +31,7 @@ export async function GetValue(query: any) {
 }
 
 export async function SaveEntry(query: any, data: any) {
-    const url = '/servers/' + query.serverID + '/' + query.nodeID + '/' + query.db + "/" + encodeURIComponent(query.key) + "/" + encodeURIComponent(query.field);
+    const url = '/servers/' + query.serverID + '/' + query.nodeID + '/' + query.db;
     const r = await request.post(url, {
         data: data,
     });

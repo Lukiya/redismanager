@@ -30,7 +30,7 @@ type KeyQueryResult struct {
 type SaveRedisEntryCommand struct {
 	New   *RedisEntry `json:"new"`
 	Old   *RedisEntry `json:"old"`
-	IsNew bool
+	IsNew bool        `json:"isNew"`
 }
 type RedisEntry struct {
 	Key   string

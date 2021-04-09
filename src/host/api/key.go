@@ -18,7 +18,7 @@ var KeyGroup = host.NewActionGroup(
 		host.NewAction("GET/api/servers/{serverID}/{nodeID}/{db}", "key__", GetKeys),
 		host.NewAction("GET/api/servers/{serverID}/{nodeID}/{db}/{key}", "key__", GetKey),
 		host.NewAction("GET/api/servers/{serverID}/{nodeID}/{db}/{key}/{field}", "key__", GetValue),
-		host.NewAction("POST/api/servers/{serverID}/{nodeID}/{db}/{key}/{field}", "key__", SaveEntry),
+		host.NewAction("POST/api/servers/{serverID}/{nodeID}/{db}", "key__", SaveEntry),
 	},
 	nil,
 )

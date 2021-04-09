@@ -6,31 +6,44 @@ import u from "@/u";
 
 const { TextArea } = Input;
 
-const MemberEditor = (props: any) => {
-    const { memberEditorState, dispatch } = props;
+const buildValueEditor = (value: string) => {
+    let valueLines = value.match(/\n/ig)?.length;
+    valueLines = valueLines! <= 30 ? valueLines : 30;
+    return <Form.Item name="Value">
+        <TextArea rows={(valueLines)}></TextArea>
+    </Form.Item>;
+};
+
+const buildFieldEditor = (redisKey: any) => {
+    if (redisKey.Type != u.STRING && redisKey.Field != undefined) {
+        const fieldEditorDisabled = redisKey.Type == u.LIST;
+        let fieldLabel = "field";
+        if (redisKey.Type == u.LIST) {
+            fieldLabel = "Index";
+        }
+        return <Col lg={6} xl={6} xxl={6}>
+            <Form.Item label={fieldLabel} labelAlign="right" name="Filed">
+                <Input width="xl" placeholder={fieldLabel} readOnly={fieldEditorDisabled} />
+            </Form.Item>
+        </Col>;
+    }
+
+    return undefined;
+};
+
+const buildForm = (memberEditorState: any, dispatch: any) => {
     const { redisKey, value, loading } = memberEditorState;
-    const inited = redisKey?.Key != undefined;
-    const hasValue = value != undefined && value != null;
-    let form: any, filedEditor: any, valueEditor: any, btnReset: any, btnBeautify: any, btnMinify: any = undefined;
 
     if (loading) {
-        form = <div style={{ textAlign: "center", marginTop: 20 }}><Spin /></div>
-    } else if (inited) {
+        return <div style={{ textAlign: "center", marginTop: 20 }}><Spin /></div>
+    } else if (redisKey?.Key != undefined) {
+
         const [formRef] = Form.useForm();
 
-        //////////// form
-        const initialValues = {
-            Key: redisKey.Key,
-            TTL: redisKey.TTL,
-            Value: value,
-        };
+        let valueEditor: any, btnReset: any, btnBeautify: any, btnMinify: any = undefined;
 
-        if (hasValue) {
-            let valueLines = value.match(/\n/ig)?.length;
-            valueLines = valueLines <= 30 ? valueLines : 30;
-            valueEditor = <Form.Item name="Value">
-                <TextArea rows={(valueLines)}></TextArea>
-            </Form.Item>;
+        if (value != undefined) {
+            valueEditor = buildValueEditor(value);
 
             btnReset = <Button icon={<UndoOutlined />} style={{ width: 93 }} onClick={() => formRef.resetFields()}>Reset</Button>;
             btnBeautify = <Button type="dashed" icon={<CodeOutlined />} style={{ width: 93 }} onClick={() => {
@@ -55,16 +68,14 @@ const MemberEditor = (props: any) => {
             }}>Minify</Button>;
         }
 
-        if (redisKey.Type != u.STRING && redisKey.Field) {
-            filedEditor = <Col lg={6} xl={6} xxl={6}>
-                <Form.Item label="Filed" labelAlign="right" name="Filed">
-                    <Input width="xl" placeholder="Filed" onChange={values => console.log(values)} />
-                </Form.Item>
-            </Col>;
-        }
+        const fieldEditor = buildFieldEditor(redisKey);
 
-
-        form = <Form
+        const initialValues = {
+            Key: redisKey.Key,
+            TTL: redisKey.TTL,
+            Value: value,
+        };
+        const form = <Form
             form={formRef}
             onFinish={(values) => {
                 dispatch({ type: "memberEditorVM/save", values });
@@ -77,7 +88,7 @@ const MemberEditor = (props: any) => {
                         <Input width="xl" placeholder="Key" />
                     </Form.Item>
                 </Col>
-                {filedEditor}
+                {fieldEditor}
                 <Col>
                     <Form.Item label="TTL" labelAlign="right" name="TTL">
                         <InputNumber placeholder="TTL" min={-1} precision={0} />
@@ -98,13 +109,24 @@ const MemberEditor = (props: any) => {
             </Row>
             {valueEditor}
         </Form>;
-
         useEffect(() => formRef?.resetFields(), [form.props.initialValues]);
+
+        return form;
+    }
+};
+
+const MemberEditor = (props: any) => {
+    const { memberEditorState, dispatch } = props;
+    const { title } = memberEditorState;
+    let form: any = undefined;
+
+    if (memberEditorState.visible) {
+        //////////// form
+        form = buildForm(memberEditorState, dispatch);
     }
 
-
     return <Drawer
-        title="Key Editor"
+        title={title}
         width="90vw"
         afterVisibleChange={visible => {
             if (visible) {
