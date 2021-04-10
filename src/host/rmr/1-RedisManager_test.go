@@ -58,6 +58,24 @@ func TestFillHash(t *testing.T) {
 	}
 }
 
+func TestFillList(t *testing.T) {
+	max := 513
+	mmax := 602
+	ctx := context.Background()
+	for i := 0; i < max; i++ {
+		key := fmt.Sprintf("LIST_%05d", i)
+		// _nativeClient.Del(ctx, key)
+		members := make([]interface{}, 0, mmax)
+		for j := 0; j < mmax; j++ {
+			members = append(members, fmt.Sprintf("VALUE_%05d", j))
+		}
+
+		_nativeClient.RPush(ctx, key, members)
+
+		// nativeClient.Del(key)
+	}
+}
+
 func TestGetKeys(t *testing.T) {
 	// a := _nativeClient.Keys(context.Background(), "*").Val()
 	// log.Info(len(a))
@@ -108,7 +126,7 @@ func TestServer(t *testing.T) {
 			// a := db.client.Keys(ctx, "*").Val()
 			// log.Info("---", len(a))
 
-			rs, err := db.GetKeys(&KeyQuery{
+			rs, err := db.GetKeys(&KeysQuery{
 				Cursor: 0,
 				Match:  "*",
 				Count:  5,

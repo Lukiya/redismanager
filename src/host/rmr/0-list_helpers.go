@@ -36,3 +36,27 @@ func saveList(ctx context.Context, client redis.UniversalClient, cmd *SaveRedisE
 
 	return
 }
+
+func getListhMembers(ctx context.Context, client redis.UniversalClient, query *MembersQuery) (*MembersQueryResult, error) {
+	keys, err := client.LRange(ctx, query.Key, int64(query.Cursor), int64(query.Cursor)+query.Count).Result()
+	if err != nil {
+		return nil, serr.WithStack(err)
+	}
+
+	r := new(MembersQueryResult)
+	r.Members = make([]*MemberResult, 0, query.Count)
+
+	if len(keys) == 0 {
+		query.Cursor = 0
+	} else {
+		for i := range keys {
+			r.Members = append(r.Members, &MemberResult{
+				Field: query.Cursor + uint64(i),
+				Value: keys[i],
+			})
+		}
+		r.Cursor = query.Cursor + uint64(query.Count) + 1
+	}
+
+	return r, nil
+}

@@ -1,4 +1,4 @@
-import { GetServer } from "@/services/server";
+import { GetServer } from "@/services/serverAPI";
 
 const _defaultState = {
     server: {

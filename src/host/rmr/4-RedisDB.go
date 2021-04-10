@@ -40,8 +40,8 @@ func (x *RedisDB) Client() redis.UniversalClient {
 	return x.client
 }
 
-func (x *RedisDB) GetKeys(query *KeyQuery) (*KeyQueryResult, error) {
-	r := new(KeyQueryResult)
+func (x *RedisDB) GetKeys(query *KeysQuery) (*KeysQueryResult, error) {
+	r := new(KeysQueryResult)
 	keys, cur, err := x.client.Scan(context.Background(), query.Cursor, query.Match, query.Count).Result()
 	if err != nil {
 		return nil, serr.WithStack(err)
@@ -58,6 +58,24 @@ func (x *RedisDB) GetKeys(query *KeyQuery) (*KeyQueryResult, error) {
 	r.Keys = x.stringKeysToRedisKeys(keys)
 	r.Cursor = cur
 	return r, err
+}
+
+func (x *RedisDB) GetMembers(query *MembersQuery) (*MembersQueryResult, error) {
+	if query.Type == "" {
+		return nil, serr.New("type is missing")
+	}
+
+	ctx := context.Background()
+	switch query.Type {
+	case common.RedisType_Hash:
+		r, err := getHashMembers(ctx, x.client, query)
+		return r, err
+	case common.RedisType_List:
+		r, err := getListhMembers(ctx, x.client, query)
+		return r, err
+	default:
+		return nil, serr.Errorf("key type '%s' is not supported", query.Type)
+	}
 }
 
 func (x *RedisDB) GetKey(key string) (*RedisKey, error) {

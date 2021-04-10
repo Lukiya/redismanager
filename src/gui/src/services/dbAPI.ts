@@ -6,9 +6,13 @@ const request = extend({
     prefix: u.LocalRootURL() + "api",
 });
 
-export async function GetKeys(query: any) {
-    query.match = query.match ?? "";
-    const url = '/servers/' + query.serverID + '/' + query.nodeID + '/' + query.db + '?Cursor=' + query.cursor + "&Count=" + query.count + "&Match=" + encodeURIComponent(query.match);
+export async function GetMembers(query: any) {
+    const url = '/servers/' + query.serverID + '/' + query.nodeID + '/' + query.db
+        + '?Cursor=' + query.cursor
+        + "&Count=" + query.count
+        + '&Key=' + encodeURIComponent(query.key)
+        + '&Type=' + query.type
+        + "&Match=" + encodeURIComponent(query.keyword);
     const r = await request.get(url);
 
     return r;

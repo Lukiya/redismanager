@@ -1,28 +1,20 @@
-import { GetKeys } from "@/services/key";
-
-const _defaultCount = 50;
+import { GetMembers } from "@/services/dbAPI";
+import u from "@/u";
 
 export default {
     state: {
         keys: [],
-        query: {
-            serverID: "",
-            nodeID: "",
-            db: 0,
-            cursor: 0,
-            count: _defaultCount,
-            match: "",
-        },
+        query: u.DefaultQuery,
         hasMore: false,
     },
     effects: {
-        *getKeys({ query }: any, { call, put }: any): any {
+        *load({ query }: any, { put }: any): any {
+            // const resp = yield call(GetKeys, query);
             query = {
+                ...u.DefaultQuery,
                 ...query,
-                cursor: 0,
-                count: _defaultCount,
             };
-            const resp = yield call(GetKeys, query);
+            const resp = yield GetMembers(query);
 
             if (resp?.Keys) {
                 query.cursor = resp.Cursor;
@@ -37,14 +29,15 @@ export default {
                 console.warn("no json in response body");
             }
         },
-        *loadMore(_: any, { call, put, select }: any): any {
+        *loadMore(_: any, { put, select }: any): any {
             const state = yield select((x: any) => x["keyListVM"]);
             if (!state.hasMore) {
                 return;
             }
 
             const { query } = state;
-            const resp = yield call(GetKeys, query);
+            // const resp = yield call(GetKeys, query);
+            const resp = yield GetMembers(query);
 
             if (resp?.Keys) {
                 query.cursor = resp.Cursor;
@@ -65,21 +58,6 @@ export default {
                 query,
             };
         },
-        // showEditor(state: any, { payload }: any) {
-        //     const editingServer = payload ?? _defaultServer;
-
-        //     return {
-        //         ...state,
-        //         editorVisible: true,
-        //         editingServer,
-        //     };
-        // },
-        // hideEditor(state: any) {
-        //     return {
-        //         ...state,
-        //         editorVisible: false,
-        //     };
-        // },
     },
     subscriptions: {
         setup({ dispatch, history }: any) {
@@ -88,6 +66,7 @@ export default {
                 const array = regx.exec(pathname);
                 if (array?.length == 4) {
                     const query = {
+                        ...u.DefaultQuery,
                         serverID: array[1],
                         nodeID: array[2],
                         db: array[3],
@@ -99,7 +78,7 @@ export default {
                             selectedKeys: [menuKey],
                         }
                     });
-                    dispatch({ type: "getKeys", query });
+                    dispatch({ type: "load", query });
                 }
             });
         }

@@ -1,4 +1,4 @@
-import { GetKey, GetValue, SaveEntry } from "@/services/key";
+import { GetKey, GetValue, SaveEntry } from "@/services/dbAPI";
 import u from "@/u";
 const _defaultTitle = "Editor";
 

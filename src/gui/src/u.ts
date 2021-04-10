@@ -1,6 +1,3 @@
-// import moment from "moment";
-// import { request } from "umi";
-// import { message } from 'antd';
 function createShiftArr(step: any) {
 
     var space = '    ';
@@ -37,6 +34,16 @@ const u = {
     LIST: "list",
     SET: "set",
     ZSET: "zset",
+    DefaultQuery: {
+        serverID: '',
+        nodeID: '',
+        key: '',
+        type: '',
+        db: 0,
+        cursor: 0,
+        count: 50,
+        keyword: '',
+    },
     LocalRootURL: () => {
         const r = process.env.NODE_ENV === "production" ? "/" : "http://localhost:16379/";
         return r;

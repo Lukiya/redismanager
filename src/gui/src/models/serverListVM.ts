@@ -1,4 +1,4 @@
-import { GetServers, RemoveServer, SaveServer, SelectServer } from "@/services/server";
+import { GetServers, RemoveServer, SaveServer, SelectServer } from "@/services/serverAPI";
 const _defaultServer = {
     ID: "",
     Name: "",

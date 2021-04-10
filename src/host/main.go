@@ -18,7 +18,7 @@ func main() {
 
 	core.Host.AddActionGroups(
 		api.ServerGroup,
-		api.KeyGroup,
+		api.DBGroup,
 	)
 
 	fmt.Println("------------------------------------------------")

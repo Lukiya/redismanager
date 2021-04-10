@@ -4,6 +4,7 @@ import { connect, history } from 'umi'
 import { MoreOutlined, PlusOutlined, EditOutlined } from '@ant-design/icons'
 import MemberEditor from '@/components/memberEditor'
 import u from '@/u';
+import RedisDrawer from '@/components/RedisDrawer';
 
 const { Search } = Input;
 
@@ -45,7 +46,7 @@ const buildColumns = (dispatch: any, params: any) => {
             //         style={{ padding: 8 }}
             //         onFinish={(values) => {
             //             console.log(values);
-            //             dispatch({ type: "keyListVM/getKeys", query: {} });
+            //             dispatch({ type: "keyListVM/load", query: {} });
             //         }}>
             //         <Form.Item name="match">
             //             <Input />
@@ -62,20 +63,12 @@ const buildColumns = (dispatch: any, params: any) => {
             onCell: (record: any) => {
                 return {
                     onClick: () => {
-                        if (record.Type == u.STRING) {
-                            dispatch({
-                                type: "memberEditorVM/show", payload: {
-                                    ...params,
-                                    key: record.Key,
-                                    type: u.STRING,
-                                    isNew: false,
-                                    field: "this",
-                                }
-                            });
-                        } else {
-                            const url = history.location.pathname + "/" + encodeURIComponent(record.Key);
-                            history.push(url);
-                        }
+                        dispatch({
+                            type: "redisDrawerVM/show", payload: {
+                                ...params,
+                                redisKey: record,
+                            }
+                        });
                     },
                 };
             },
@@ -103,28 +96,15 @@ const buildColumns = (dispatch: any, params: any) => {
             align: "right",
             sorter: (a: any, b: any) => a.TTL - b.TTL,
         },
-        {
-            title: 'Action',
-            width: 100,
-            align: "center",
-            render: (_: any, record: any) => <Button size="small" icon={<EditOutlined />} onClick={() => dispatch({
-                type: "memberEditorVM/show", payload: {
-                    ...params,
-                    key: record.Key,
-                    type: record.Type,
-                    isNew: false,
-                }
-            })}>Edit</Button>
-        },
     ];
 
     return columns;
 };
 
 const KeyListPage = (props: any) => {
-    const { menuState, keyListState, keyListLoading, match, dispatch, history } = props;
-    const { server } = menuState;
-    const { params } = match;
+    const { menuState: { server }, keyListState, keyListLoading, match: { params }, dispatch } = props;
+    // const { server } = menuState;
+    // const { params } = match;
 
     let node: any;
     for (let i = 0; i < server.Nodes.length; i++) {
@@ -138,7 +118,7 @@ const KeyListPage = (props: any) => {
     let breadcrumbRoutes: any[] = [];
     let table: any = null;
     let actionBar: any = null;
-    let memberEditor: any = null;
+    // let memberEditor: any = null;
     if (inited) {
         ////////// breadcrumb
         breadcrumbRoutes = [
@@ -163,11 +143,11 @@ const KeyListPage = (props: any) => {
                 <Col>
                     <Search placeholder="key name (support *)" allowClear enterButton="Search" onSearch={v => {
                         dispatch({
-                            type: "keyListVM/getKeys", query: {
+                            type: "keyListVM/load", query: {
                                 serverID: params.serverID,
                                 nodeID: params.nodeID,
                                 db: params.db,
-                                match: v,
+                                keyword: v,
                             }
                         });
                     }} />
@@ -204,7 +184,7 @@ const KeyListPage = (props: any) => {
         </Table>;
 
         //////////// editor
-        memberEditor = <MemberEditor />;
+        // memberEditor = <MemberEditor />;
     }
 
     return (
@@ -215,7 +195,7 @@ const KeyListPage = (props: any) => {
         >
             {actionBar}
             {table}
-            {memberEditor}
+            {<RedisDrawer params={params}></RedisDrawer>}
         </PageContainer>
     );
 };

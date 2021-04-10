@@ -58,3 +58,31 @@ func renameHashField(ctx context.Context, client redis.UniversalClient, key, old
 	err = client.HDel(ctx, key, oldField).Err()
 	return serr.WithStack(err)
 }
+
+func getHashMembers(ctx context.Context, client redis.UniversalClient, query *MembersQuery) (*MembersQueryResult, error) {
+	keys, cur, err := client.HScan(ctx, query.Key, query.Cursor, query.Match, query.Count).Result()
+	if err != nil {
+		return nil, serr.WithStack(err)
+	}
+	if len(keys) < int(query.Count) && cur > 0 {
+		// if return keys is less than count limit, but has cursor
+		var leftKeys []string
+		// then keep read left keys
+		keys, cur, err = client.HScan(ctx, query.Key, query.Cursor, query.Match, query.Count).Result()
+		// and append it to results
+		keys = append(keys, leftKeys...)
+	}
+
+	r := new(MembersQueryResult)
+	r.Members = make([]*MemberResult, 0, query.Count)
+	r.Cursor = cur
+	for i := range keys {
+		if i%2 == 0 {
+			r.Members = append(r.Members, &MemberResult{
+				Field: keys[i],
+				Value: keys[i+1],
+			})
+		}
+	}
+	return r, nil
+}
