@@ -33,3 +33,29 @@ func saveSet(ctx context.Context, client redis.UniversalClient, cmd *SaveRedisEn
 	}
 	return err
 }
+
+func getSetMembers(ctx context.Context, client redis.UniversalClient, query *MembersQuery) (*MembersQueryResult, error) {
+	keys, cur, err := client.SScan(ctx, query.Key, query.Cursor, query.Match, query.Count).Result()
+	if err != nil {
+		return nil, serr.WithStack(err)
+	}
+	if len(keys) < int(query.Count) && cur > 0 {
+		// if return keys is less than count limit, but has cursor
+		var leftKeys []string
+		// then keep read left keys
+		keys, cur, err = client.SScan(ctx, query.Key, query.Cursor, query.Match, query.Count).Result()
+		// and append it to results
+		keys = append(keys, leftKeys...)
+	}
+
+	r := new(MembersQueryResult)
+	r.Members = make([]*MemberResult, 0, len(keys))
+	r.Cursor = cur
+	for _, value := range keys {
+		r.Members = append(r.Members, &MemberResult{
+			Field: value,
+			Value: value,
+		})
+	}
+	return r, nil
+}

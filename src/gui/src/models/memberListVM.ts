@@ -5,7 +5,7 @@ export default {
     state: {
         ...u.DefaultQuery,
         dataSource: [],
-        loading: true,
+        // loading: true,
         hasMore: false,
     },
     effects: {
@@ -16,7 +16,7 @@ export default {
             };
             const resp = yield GetMembers(payload);
             if (resp?.Members) {
-                payload.loading = false;
+                // payload.loading = false;
                 payload.dataSource = resp.Members;
                 payload.cursor = resp.Cursor;
                 payload.hasMore = resp.Cursor != 0;
@@ -44,7 +44,7 @@ export default {
         appendMembers(state: any, { resp }: any) {
             return {
                 ...state,
-                loading: false,
+                // loading: false,
                 dataSource: state.dataSource.concat(resp.Members),
                 cursor: resp.Cursor,
                 hasMore: resp.Cursor != 0,

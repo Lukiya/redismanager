@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/go-redis/redis/v8"
+	"github.com/syncfuture/go/sconv"
 	"github.com/syncfuture/go/serr"
 )
 
@@ -49,4 +50,32 @@ func saveZSet(ctx context.Context, client redis.UniversalClient, cmd *SaveRedisE
 	}
 
 	return nil
+}
+
+func getZSetMembers(ctx context.Context, client redis.UniversalClient, query *MembersQuery) (*MembersQueryResult, error) {
+	keys, cur, err := client.ZScan(ctx, query.Key, query.Cursor, query.Match, query.Count).Result()
+	if err != nil {
+		return nil, serr.WithStack(err)
+	}
+	if len(keys) < int(query.Count) && cur > 0 {
+		// if return keys is less than count limit, but has cursor
+		var leftKeys []string
+		// then keep read left keys
+		keys, cur, err = client.ZScan(ctx, query.Key, query.Cursor, query.Match, query.Count).Result()
+		// and append it to results
+		keys = append(keys, leftKeys...)
+	}
+
+	r := new(MembersQueryResult)
+	r.Members = make([]*MemberResult, 0, query.Count)
+	r.Cursor = cur
+	for i := range keys {
+		if i%2 == 0 {
+			r.Members = append(r.Members, &MemberResult{
+				Field: sconv.ToFloat64(keys[i+1]),
+				Value: keys[i],
+			})
+		}
+	}
+	return r, nil
 }

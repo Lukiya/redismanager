@@ -1,36 +1,61 @@
 import { connect } from "umi";
-import { Drawer, Space, Form, Input, InputNumber, Button, Row, Col, Spin, Card, Table } from "antd";
-import { SaveOutlined, CodeOutlined, BoxPlotOutlined, UndoOutlined, MoreOutlined } from '@ant-design/icons';
-import { useEffect } from "react";
+import { Button, Table } from "antd";
+import { MoreOutlined } from '@ant-design/icons';
 import u from "@/u";
 
-const buildColums = () => {
-    const columns: any[] = [
-        {
-            title: 'Field',
-            dataIndex: 'Field',
-            key: 'Field',
-            defaultSortOrder: "ascend",
-            // onCell: this.showEditor,
-            className: "pointer",
-            sorter: (a: any, b: any) => {
-                const aType = typeof (a);
-                if (aType == "string") {
-                    return a.Field.localeCompare(b.Field);
-                } else {
-                    return a.Field - b.Field;
-                }
+const buildColums = (props: any) => {
+    const { memberListState: { type } } = props;
+
+    let title = "Field";
+    switch (type) {
+        case u.LIST:
+            title = "Index";
+            break;
+        case u.ZSET:
+            title = "Score";
+            break;
+    }
+
+    if (type != u.SET) {
+        const columns: any[] = [
+            {
+                title: title,
+                dataIndex: 'Field',
+                key: 'Field',
+                defaultSortOrder: "ascend",
+                // onCell: this.showEditor,
+                className: "pointer",
+                sorter: (a: any, b: any) => {
+                    const aType = typeof (a.Field);
+                    if (aType == "string") {
+                        return a.Field.localeCompare(b.Field);
+                    } else {
+                        return a.Field - b.Field;
+                    }
+                },
             },
-            // ...this.getColumnSearchProps('Field'),
-        },
-        {
-            title: "Value",
-            dataIndex: "Value",
-            className: "pointer",
-            sorter: (a: any, b: any) => a.Key.localeCompare(b.Key),
-        },
-    ];
-    return columns;
+            {
+                title: "Value",
+                dataIndex: "Value",
+                className: "pointer",
+                sorter: (a: any, b: any) => a.Key.localeCompare(b.Key),
+            },
+        ];
+        return columns;
+    } else {
+        const columns: any[] = [
+            {
+                title: title,
+                dataIndex: 'Field',
+                key: 'Field',
+                defaultSortOrder: "ascend",
+                // onCell: this.showEditor,
+                className: "pointer",
+                sorter: (a: any, b: any) => a.Field.localeCompare(b.Field),
+            },
+        ];
+        return columns;
+    }
 };
 
 const buildFooter = (props: any) => {
@@ -48,9 +73,10 @@ const buildFooter = (props: any) => {
 };
 
 const MemberList = (props: any) => {
-    const { memberListState: { loading, dataSource, hasMore } } = props;
+    // const { memberListState: { loading, dataSource, hasMore } } = props;
+    const { memberListState: { dataSource, hasMore }, loading } = props;
 
-    const columns = buildColums();
+    const columns = buildColums(props);
     const footer = buildFooter(props);
 
     return <Table
@@ -67,6 +93,7 @@ const MemberList = (props: any) => {
 };
 
 // export default EntryEditor
-export default connect(({ memberListVM }: any) => ({
+export default connect(({ memberListVM, loading }: any) => ({
     memberListState: memberListVM,
+    loading: loading.models.memberListVM,
 }))(MemberList);

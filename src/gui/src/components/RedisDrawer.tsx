@@ -21,6 +21,12 @@ const RedisDrawer = (props: any) => {
         afterVisibleChange={visible => {
             if (visible) {
                 if (isList) {
+                    // dispatch({
+                    //     type: "memberListVM/setState", payload: {
+                    //         loading: true,
+                    //     }
+                    // });
+
                     dispatch({
                         type: "memberListVM/load", payload: {
                             serverID: params.serverID,

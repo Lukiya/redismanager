@@ -64,16 +64,49 @@ func TestFillList(t *testing.T) {
 	ctx := context.Background()
 	for i := 0; i < max; i++ {
 		key := fmt.Sprintf("LIST_%05d", i)
-		// _nativeClient.Del(ctx, key)
 		members := make([]interface{}, 0, mmax)
 		for j := 0; j < mmax; j++ {
 			members = append(members, fmt.Sprintf("VALUE_%05d", j))
 		}
 
 		_nativeClient.RPush(ctx, key, members)
-
-		// nativeClient.Del(key)
 	}
+}
+
+func TestFillSet(t *testing.T) {
+	max := 513
+	mmax := 602
+	ctx := context.Background()
+	for i := 0; i < max; i++ {
+		key := fmt.Sprintf("SET_%05d", i)
+		members := make([]interface{}, 0, mmax)
+		for j := 0; j < mmax; j++ {
+			members = append(members, fmt.Sprintf("VALUE_%05d", j))
+		}
+
+		_nativeClient.SAdd(ctx, key, members)
+	}
+}
+
+func TestFillZSet(t *testing.T) {
+	max := 513
+	mmax := 602
+	ctx := context.Background()
+	pip := _nativeClient.Pipeline()
+
+	for i := 0; i < max; i++ {
+		key := fmt.Sprintf("ZSET_%05d", i)
+		for j := 0; j < mmax; j++ {
+			pip.ZAdd(ctx, key, &redis.Z{
+				Score:  float64(j),
+				Member: fmt.Sprintf("VALUE_%05d", j),
+			})
+		}
+
+		// pip.Del(ctx, key)
+	}
+
+	pip.Exec(ctx)
 }
 
 func TestGetKeys(t *testing.T) {

@@ -71,7 +71,13 @@ func (x *RedisDB) GetMembers(query *MembersQuery) (*MembersQueryResult, error) {
 		r, err := getHashMembers(ctx, x.client, query)
 		return r, err
 	case common.RedisType_List:
-		r, err := getListhMembers(ctx, x.client, query)
+		r, err := getListMembers(ctx, x.client, query)
+		return r, err
+	case common.RedisType_Set:
+		r, err := getSetMembers(ctx, x.client, query)
+		return r, err
+	case common.RedisType_ZSet:
+		r, err := getZSetMembers(ctx, x.client, query)
 		return r, err
 	default:
 		return nil, serr.Errorf("key type '%s' is not supported", query.Type)
