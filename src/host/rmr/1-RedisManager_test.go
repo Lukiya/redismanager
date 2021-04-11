@@ -62,6 +62,8 @@ func TestFillList(t *testing.T) {
 	max := 513
 	mmax := 602
 	ctx := context.Background()
+	pip := _nativeClient.Pipeline()
+
 	for i := 0; i < max; i++ {
 		key := fmt.Sprintf("LIST_%05d", i)
 		members := make([]interface{}, 0, mmax)
@@ -69,8 +71,11 @@ func TestFillList(t *testing.T) {
 			members = append(members, fmt.Sprintf("VALUE_%05d", j))
 		}
 
-		_nativeClient.RPush(ctx, key, members)
+		pip.RPush(ctx, key, members)
+		// pip.Del(ctx, key)
 	}
+
+	pip.Exec(ctx)
 }
 
 func TestFillSet(t *testing.T) {

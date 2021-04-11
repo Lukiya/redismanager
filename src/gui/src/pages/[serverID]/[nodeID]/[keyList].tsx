@@ -165,7 +165,7 @@ const KeyListPage = (props: any) => {
         const footer = () => <div style={{ textAlign: "center" }}>
             {
                 keyListState.hasMore ?
-                    <Button type="link" icon={<MoreOutlined />} onClick={() => dispatch({ type: "keyListVM/loadMore" })}>Load more...</Button>
+                    <Button type="link" icon={<MoreOutlined />} loading={keyListLoading} onClick={() => dispatch({ type: "keyListVM/loadMore" })}>Load more...</Button>
                     :
                     <Button type="link" disabled>All keys loaded</Button>
             }

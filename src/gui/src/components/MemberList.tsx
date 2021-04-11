@@ -59,12 +59,12 @@ const buildColums = (props: any) => {
 };
 
 const buildFooter = (props: any) => {
-    const { dispatch, memberListState: { hasMore } } = props;
+    const { dispatch, memberListState: { hasMore }, loading } = props;
 
     const footer = () => <div style={{ textAlign: "center" }}>
         {
             hasMore ?
-                <Button type="link" icon={<MoreOutlined />} onClick={() => dispatch({ type: "memberListVM/loadMore" })}>Load more...</Button>
+                <Button type="link" icon={<MoreOutlined />} loading={loading} onClick={() => dispatch({ type: "memberListVM/loadMore" })}>Load more...</Button>
                 :
                 <Button type="link" disabled>All keys loaded</Button>
         }
