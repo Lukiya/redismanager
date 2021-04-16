@@ -5,27 +5,47 @@ import u from "@/u";
 import DrawerActionBar from "./DrawerActionBar";
 import { useEffect } from "react";
 
+const onCelClick = (record: any, props: any) => {
+    const { memberListState: { redisKey }, dispatch, params } = props;
+
+    return {
+        onClick: () => {
+            const payload = {
+                ...params,
+                redisKey,
+            };
+
+            if (redisKey.Type != u.STRING && redisKey.Type != u.SET) {
+                payload.field = record.Field;
+            }
+
+            dispatch({ type: "memberEditorVM/show", payload });
+        },
+    };
+};
+
 const buildColums = (props: any) => {
-    const { memberListState: { type }, loading } = props;
+    const { memberListState: { redisKey }, loading } = props;
 
     let title = "Field";
-    switch (type) {
+    switch (redisKey.Type) {
         case u.LIST:
             title = "Index";
             break;
         case u.ZSET:
             title = "Score";
             break;
+        case u.SET:
+            title = "Value";
+            break;
     }
 
-    if (type != u.SET) {
+    if (redisKey.Type != u.SET) {
         const columns: any[] = [
             {
                 title: title,
                 dataIndex: 'Field',
-                key: 'Field',
                 defaultSortOrder: "ascend",
-                // onCell: this.showEditor,
                 className: "pointer",
                 sorter: (a: any, b: any) => {
                     const aType = typeof (a.Field);
@@ -35,12 +55,14 @@ const buildColums = (props: any) => {
                         return a.Field - b.Field;
                     }
                 },
+                onCell: (r: any) => onCelClick(r, props),
             },
             {
                 title: "Value",
-                dataIndex: "Value",
+                dataIndex: 'Value',
                 className: "pointer",
                 sorter: (a: any, b: any) => a.Key.localeCompare(b.Key),
+                onclick: () => alert(1),
             },
         ];
         return columns;
@@ -48,12 +70,11 @@ const buildColums = (props: any) => {
         const columns: any[] = [
             {
                 title: title,
-                dataIndex: 'Field',
-                key: 'Field',
+                dataIndex: 'Value',
                 defaultSortOrder: "ascend",
-                // onCell: this.showEditor,
                 className: "pointer",
-                sorter: (a: any, b: any) => a.Field.localeCompare(b.Field),
+                sorter: (a: any, b: any) => a.Value.localeCompare(b.Value),
+                onCell: (r: any) => onCelClick(r, props),
             },
         ];
         return columns;
@@ -77,10 +98,7 @@ const buildFooter = (props: any) => {
 const buildForm = (props: any) => {
     const { memberListState: { redisKey }, loading, dispatch } = props;
 
-    if (loading) {
-        return <div style={{ textAlign: "center", marginTop: 20 }}><Spin /></div>
-    } else if (redisKey?.Key != undefined) {
-
+    if (redisKey?.Key != undefined) {
         const [formRef] = Form.useForm();
 
         const form = <Form
@@ -101,25 +119,30 @@ const MemberList = (props: any) => {
 
     const columns = buildColums(props);
     const footer = buildFooter(props);
-    const form = buildForm(props);
-    // console.log(form.props.initialValues);
+    let form: any, table: any = undefined;
 
-    const table = <Table
-        rowKey="Field"
-        dataSource={dataSource}
-        columns={columns}
-        loading={loading}
-        pagination={{ pageSize: 20, showTotal: (total) => <label>{hasMore ? "Loaded" : "Total"}: {total}</label> }}
-        footer={footer}
-        className="sublist"
-        size="small"
-        bordered
-    ></Table>;
+    if (visible) {
+        //////////// form
+        form = buildForm(props);
+
+        //////////// table
+        table = <Table
+            rowKey="Field"
+            dataSource={dataSource}
+            columns={columns}
+            loading={loading}
+            pagination={{ pageSize: 20, showTotal: (total) => <label>{hasMore ? "Loaded" : "Total"}: {total}</label> }}
+            footer={footer}
+            className="sublist"
+            size="small"
+            bordered
+        ></Table>;
+    }
 
     const drawer = <Drawer
         title={title}
         visible={visible}
-        width="90vw"
+        width="95vw"
         afterVisibleChange={(v: boolean) => {
             if (v) {
                 dispatch({

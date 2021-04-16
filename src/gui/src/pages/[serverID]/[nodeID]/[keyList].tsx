@@ -4,7 +4,6 @@ import { connect, history } from 'umi'
 import { MoreOutlined, PlusOutlined, EditOutlined } from '@ant-design/icons'
 import MemberEditor from '@/components/memberEditor'
 import u from '@/u';
-import RedisDrawer from '@/components/RedisDrawer';
 import MemberList from '@/components/MemberList';
 
 const { Search } = Input;

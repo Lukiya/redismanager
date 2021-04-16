@@ -34,28 +34,16 @@ export default {
             } else {
                 const redisKey = yield GetKey(state);
                 if (redisKey?.Key) {
-                    if (redisKey.Type == u.STRING) {
-                        const valueResp = yield GetValue(state);
-                        yield put({
-                            type: 'setState', payload: {
-                                redisKey: redisKey,
-                                visible: true,
-                                value: valueResp,
-                                isNew: false,
-                                loading: false,
-                            },
-                        });
-                    } else {
-                        yield put({
-                            type: 'setState', payload: {
-                                redisKey: redisKey,
-                                visible: true,
-                                value: undefined,
-                                isNew: false,
-                                loading: false,
-                            },
-                        });
-                    }
+                    const valueResp = yield GetValue(state);
+                    yield put({
+                        type: 'setState', payload: {
+                            redisKey: redisKey,
+                            // visible: true,
+                            value: valueResp,
+                            isNew: false,
+                            loading: false,
+                        },
+                    });
                 } else {
                     console.warn(redisKey);
                     yield put({ type: 'setState', payload: { loading: false }, });

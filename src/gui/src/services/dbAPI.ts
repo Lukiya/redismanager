@@ -29,7 +29,7 @@ export async function GetKey(query: any) {
 }
 
 export async function GetValue(query: any) {
-    const url = '/servers/' + query.serverID + '/' + query.nodeID + '/' + query.db + "/" + encodeURIComponent(query.redisKey.Key) + "/" + encodeURIComponent(query.redisKey.Field);
+    const url = '/servers/' + query.serverID + '/' + query.nodeID + '/' + query.db + "/" + encodeURIComponent(query.redisKey.Key) + "/" + encodeURIComponent(query.field);
     const r = await request.get(url, {
         responseType: "text",
     });

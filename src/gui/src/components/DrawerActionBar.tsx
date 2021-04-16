@@ -2,8 +2,10 @@ import u from '@/u';
 import { Space, Form, Input, InputNumber, Row, Col, Button } from 'antd';
 import { SaveOutlined, CodeOutlined, BoxPlotOutlined, UndoOutlined } from '@ant-design/icons';
 
-const buildFieldEditor = (redisKey: any) => {
-    if (redisKey.Type != u.STRING && redisKey.Field != undefined) {
+const buildFieldEditor = (props: any) => {
+    const { redisKey, field } = props;
+
+    if (redisKey.Type != u.STRING && field != undefined) {
         const fieldEditorDisabled = redisKey.Type == u.LIST;
         let fieldLabel = "field";
         switch (redisKey.Type) {
@@ -15,8 +17,8 @@ const buildFieldEditor = (redisKey: any) => {
                 break;
         }
         return <Col lg={6} xl={6} xxl={6}>
-            <Form.Item label={fieldLabel} labelAlign="right" name="Filed">
-                <Input width="xl" placeholder={fieldLabel} readOnly={fieldEditorDisabled} />
+            <Form.Item label={fieldLabel} labelAlign="right" name="Field">
+                <Input width="xl" placeholder={fieldLabel} readOnly={fieldEditorDisabled} style={fieldEditorDisabled ? { backgroundColor: "#f0f0f0" } : undefined} />
             </Form.Item>
         </Col>;
     }
@@ -25,8 +27,9 @@ const buildFieldEditor = (redisKey: any) => {
 };
 
 const DrawerActionBar = (props: any) => {
-    const { redisKey, formRef } = props;
-    const fieldEditor = buildFieldEditor(redisKey);
+    const { formRef } = props;
+    // console.log(props);
+    const fieldEditor = buildFieldEditor(props);
 
     const form = <Row gutter={8}>
         <Col lg={6} xl={6} xxl={6}>

@@ -15,25 +15,8 @@ const buildValueEditor = (value: string) => {
     </Form.Item>;
 };
 
-// const buildFieldEditor = (redisKey: any) => {
-//     if (redisKey.Type != u.STRING && redisKey.Field != undefined) {
-//         const fieldEditorDisabled = redisKey.Type == u.LIST;
-//         let fieldLabel = "field";
-//         if (redisKey.Type == u.LIST) {
-//             fieldLabel = "Index";
-//         }
-//         return <Col lg={6} xl={6} xxl={6}>
-//             <Form.Item label={fieldLabel} labelAlign="right" name="Filed">
-//                 <Input width="xl" placeholder={fieldLabel} readOnly={fieldEditorDisabled} />
-//             </Form.Item>
-//         </Col>;
-//     }
-
-//     return undefined;
-// };
-
 const buildForm = (memberEditorState: any, dispatch: any) => {
-    const { redisKey, value, loading } = memberEditorState;
+    const { redisKey, field, value, loading } = memberEditorState;
 
     if (loading) {
         return <div style={{ textAlign: "center", marginTop: 20 }}><Spin /></div>
@@ -42,7 +25,6 @@ const buildForm = (memberEditorState: any, dispatch: any) => {
         const [formRef] = Form.useForm();
 
         let valueEditor: any = undefined;
-        // let valueEditor: any, btnReset: any, btnBeautify: any, btnMinify: any = undefined;
 
         if (value != undefined) {
             valueEditor = buildValueEditor(value);
@@ -70,11 +52,10 @@ const buildForm = (memberEditorState: any, dispatch: any) => {
             // }}>Minify</Button>;
         }
 
-        // const fieldEditor = buildFieldEditor(redisKey);
-
         const initialValues = {
             Key: redisKey.Key,
             TTL: redisKey.TTL,
+            Field: field,
             Value: value,
         };
         const form = <Form
@@ -84,7 +65,7 @@ const buildForm = (memberEditorState: any, dispatch: any) => {
             }}
             initialValues={initialValues}
         >
-            <DrawerActionBar redisKey={redisKey} formRef={formRef}></DrawerActionBar>
+            <DrawerActionBar redisKey={redisKey} field={field} formRef={formRef}></DrawerActionBar>
             {valueEditor}
         </Form>;
         useEffect(() => formRef?.resetFields(), [form.props.initialValues]);
