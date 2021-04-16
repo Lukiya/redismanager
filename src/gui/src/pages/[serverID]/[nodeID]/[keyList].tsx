@@ -5,6 +5,7 @@ import { MoreOutlined, PlusOutlined, EditOutlined } from '@ant-design/icons'
 import MemberEditor from '@/components/memberEditor'
 import u from '@/u';
 import RedisDrawer from '@/components/RedisDrawer';
+import MemberList from '@/components/MemberList';
 
 const { Search } = Input;
 
@@ -63,12 +64,11 @@ const buildColumns = (dispatch: any, params: any) => {
             onCell: (record: any) => {
                 return {
                     onClick: () => {
-                        dispatch({
-                            type: "redisDrawerVM/show", payload: {
-                                ...params,
-                                redisKey: record,
-                            }
-                        });
+                        if (record.Type == u.STRING) {
+                            dispatch({ type: "memberEditorVM/show", payload: { ...params, redisKey: record } });
+                        } else {
+                            dispatch({ type: "memberListVM/show", payload: { ...params, redisKey: record } });
+                        }
                     },
                 };
             },
@@ -103,8 +103,6 @@ const buildColumns = (dispatch: any, params: any) => {
 
 const KeyListPage = (props: any) => {
     const { menuState: { server }, keyListState, keyListLoading, match: { params }, dispatch } = props;
-    // const { server } = menuState;
-    // const { params } = match;
 
     let node: any;
     for (let i = 0; i < server.Nodes.length; i++) {
@@ -195,7 +193,8 @@ const KeyListPage = (props: any) => {
         >
             {actionBar}
             {table}
-            {<RedisDrawer params={params}></RedisDrawer>}
+            <MemberList params={params}></MemberList>
+            <MemberEditor params={params}></MemberEditor>
         </PageContainer>
     );
 };

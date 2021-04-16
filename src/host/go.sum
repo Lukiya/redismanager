@@ -202,6 +202,7 @@ github.com/sirupsen/logrus v1.4.2/go.mod h1:tLMulIdttU9McNUspp0xgXVQah82FyeX6Mwd
 github.com/sony/sonyflake v1.0.0 h1:MpU6Ro7tfXwgn2l5eluf9xQvQJDROTBImNCfRXn/YeM=
 github.com/sony/sonyflake v1.0.0/go.mod h1:Jv3cfhf/UFtolOTTRd3q4Nl6ENqM+KfyZ5PseKfZGF4=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
+github.com/stretchr/objx v0.1.1 h1:2vfRuCMp5sSVIDSqO8oNnWJq7mPa6KVP3iPIwFBuy8A=
 github.com/stretchr/objx v0.1.1/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/testify v1.2.2/go.mod h1:a8OnRcib4nhh0OaRAV+Yts87kKdq0PP7pXfy6kDkUVs=
 github.com/stretchr/testify v1.3.0/go.mod h1:M5WIy9Dh21IEIfnGCwXGc5bZfKNJtfHm1UVUgZn+9EI=
@@ -212,8 +213,12 @@ github.com/stretchr/testify v1.7.0 h1:nwc3DEeHmmLAfoZucVR881uASk0Mfjw8xYJ99tb5Cc
 github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
 github.com/syncfuture/go v1.6.0 h1:Mvahe0au/L0qdcZ8hCfpu3i2hHIxJjOvDiHaEq/EgWU=
 github.com/syncfuture/go v1.6.0/go.mod h1:cv1xbuKopTMEZxPz2IvpkqrKHVYTTkndXikixz1K1Wo=
+github.com/syncfuture/go v1.6.1 h1:wWA8gs7n9DzQr2WghJsqm0wlfMaj0T9irhDjM/LFTqs=
+github.com/syncfuture/go v1.6.1/go.mod h1:cv1xbuKopTMEZxPz2IvpkqrKHVYTTkndXikixz1K1Wo=
 github.com/syncfuture/host v1.4.2 h1:OzB6kCjRV3wPEbwxsx9R+YVee415aTORMza9znyHnVQ=
 github.com/syncfuture/host v1.4.2/go.mod h1:3HjDS/PsyRvogD8/7gqocmFhJKS25O31xoZLzGnWgsg=
+github.com/syncfuture/host v1.4.3 h1:vpx1V2nkqn+nwJlt81pjphl1TJsIwdl+BXsmx+WXbRg=
+github.com/syncfuture/host v1.4.3/go.mod h1:qBqnQgtVm3A3OSKHhYrUtXBFh+bSEnNES31HoVCSHG4=
 github.com/tidwall/gjson v1.7.4 h1:19cchw8FOxkG5mdLRkGf9jqIqEyqdZhPqW60XfyFxk8=
 github.com/tidwall/gjson v1.7.4/go.mod h1:5/xDoumyyDNerp2U36lyolv46b3uF/9Bu6OfyQ9GImk=
 github.com/tidwall/match v1.0.3 h1:FQUVvBImDutD8wJLN6c5eMzWtjgONK9MwIBCOrUJKeE=

@@ -13,6 +13,8 @@ export default {
     effects: {
         *load(_: any, { put, select }: any): any {
             const state = yield select((x: any) => x["memberEditorVM"]);
+            // console.log(state);
+
             if (state.isNew) {
                 let redisKey: any;
                 if (state.type == u.STRING) {
@@ -80,6 +82,7 @@ export default {
             return {
                 ...state,
                 ...payload,
+                // key: payload.redisKey.Key,
                 loading: true,
                 visible: true,
                 title: _defaultTitle,

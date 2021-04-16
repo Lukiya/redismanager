@@ -30,20 +30,31 @@ func init() {
 	_rm = NewRedisManager()
 }
 
+func TestFillAllData(t *testing.T) {
+	TestFillString(t)
+	TestFillHash(t)
+	TestFillList(t)
+	TestFillSet(t)
+	TestFillZSet(t)
+}
+
 func TestFillString(t *testing.T) {
 	max := 513
 	ctx := context.Background()
+	pip := _nativeClient.Pipeline()
 	for i := 0; i < max; i++ {
 		key := fmt.Sprintf("STR_%05d", i)
-		_nativeClient.Set(ctx, key, key, -1)
+		pip.Set(ctx, key, key, -1)
 		// nativeClient.Del(key)
 	}
+	pip.Exec(ctx)
 }
 
 func TestFillHash(t *testing.T) {
 	max := 513
 	mmax := 602
 	ctx := context.Background()
+	pip := _nativeClient.Pipeline()
 	for i := 0; i < max; i++ {
 		key := fmt.Sprintf("HASH_%05d", i)
 		members := make([]interface{}, 0, 2*mmax)
@@ -52,10 +63,11 @@ func TestFillHash(t *testing.T) {
 			members = append(members, fmt.Sprintf("VALUE_%05d", j))
 		}
 
-		_nativeClient.HSet(ctx, key, members)
+		pip.HSet(ctx, key, members)
 
 		// nativeClient.Del(key)
 	}
+	pip.Exec(ctx)
 }
 
 func TestFillList(t *testing.T) {

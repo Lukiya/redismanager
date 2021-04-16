@@ -7,11 +7,14 @@ const request = extend({
 });
 
 export async function GetMembers(query: any) {
+    const key = query.redisKey?.Key ?? "";
+    const type = query.redisKey?.Type ?? "";
+
     const url = '/servers/' + query.serverID + '/' + query.nodeID + '/' + query.db
         + '?Cursor=' + query.cursor
         + "&Count=" + query.count
-        + '&Key=' + encodeURIComponent(query.key)
-        + '&Type=' + query.type
+        + '&Key=' + encodeURIComponent(key)
+        + '&Type=' + type
         + "&Match=" + encodeURIComponent(query.keyword);
     const r = await request.get(url);
 
@@ -19,14 +22,14 @@ export async function GetMembers(query: any) {
 }
 
 export async function GetKey(query: any) {
-    const url = '/servers/' + query.serverID + '/' + query.nodeID + '/' + query.db + "/" + encodeURIComponent(query.key);
+    const url = '/servers/' + query.serverID + '/' + query.nodeID + '/' + query.db + "/" + encodeURIComponent(query.redisKey.Key);
     const r = await request.get(url);
 
     return r;
 }
 
 export async function GetValue(query: any) {
-    const url = '/servers/' + query.serverID + '/' + query.nodeID + '/' + query.db + "/" + encodeURIComponent(query.key) + "/" + encodeURIComponent(query.field);
+    const url = '/servers/' + query.serverID + '/' + query.nodeID + '/' + query.db + "/" + encodeURIComponent(query.redisKey.Key) + "/" + encodeURIComponent(query.redisKey.Field);
     const r = await request.get(url, {
         responseType: "text",
     });

@@ -1,26 +1,31 @@
-import { GetMembers } from "@/services/dbAPI";
+import { GetKey, GetMembers } from "@/services/dbAPI";
 import u from "@/u";
 
 export default {
     state: {
         ...u.DefaultQuery,
+        redisKey: {},
         dataSource: [],
         // loading: true,
         hasMore: false,
+        visible: false,
     },
     effects: {
-        *load({ payload }: any, { put, select }: any): any {
-            payload = {
-                ...u.DefaultQuery,
-                ...payload,
-            };
-            const resp = yield GetMembers(payload);
-            if (resp?.Members) {
-                // payload.loading = false;
-                payload.dataSource = resp.Members;
-                payload.cursor = resp.Cursor;
-                payload.hasMore = resp.Cursor != 0;
-                yield put({ type: "setState", payload });
+        *load(_: any, { put, select }: any): any {
+            const state = yield select((x: any) => x["memberListVM"]);
+            const kResp = yield GetKey(state);
+            if (kResp?.Key) {
+                const mResp = yield GetMembers(state);
+                if (mResp?.Members) {
+                    yield put({
+                        type: "setState", payload: {
+                            redisKey: kResp,
+                            dataSource: mResp.Members,
+                            cursor: mResp.Cursor,
+                            hasMore: mResp.Cursor != 0,
+                        }
+                    });
+                }
             } else {
                 console.warn("no json in response body");
             }
@@ -48,6 +53,20 @@ export default {
                 dataSource: state.dataSource.concat(resp.Members),
                 cursor: resp.Cursor,
                 hasMore: resp.Cursor != 0,
+            };
+        },
+        show(state: any, { payload }: any,) {
+            return {
+                ...state,
+                ...payload,
+                // key: payload.redisKey.Key,
+                visible: true,
+            };
+        },
+        hide(state: any) {
+            return {
+                ...state,
+                visible: false,
             };
         },
     },

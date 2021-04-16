@@ -1,10 +1,12 @@
 import { connect } from "umi";
-import { Button, Table } from "antd";
+import { Button, Table, Drawer, Form, Spin } from "antd";
 import { MoreOutlined } from '@ant-design/icons';
 import u from "@/u";
+import DrawerActionBar from "./DrawerActionBar";
+import { useEffect } from "react";
 
 const buildColums = (props: any) => {
-    const { memberListState: { type } } = props;
+    const { memberListState: { type }, loading } = props;
 
     let title = "Field";
     switch (type) {
@@ -72,14 +74,37 @@ const buildFooter = (props: any) => {
     return footer;
 };
 
+const buildForm = (props: any) => {
+    const { memberListState: { redisKey }, loading, dispatch } = props;
+
+    if (loading) {
+        return <div style={{ textAlign: "center", marginTop: 20 }}><Spin /></div>
+    } else if (redisKey?.Key != undefined) {
+
+        const [formRef] = Form.useForm();
+
+        const form = <Form
+            form={formRef}
+            initialValues={redisKey}
+        >
+            <DrawerActionBar redisKey={redisKey} formRef={formRef}></DrawerActionBar>
+        </Form>;
+        useEffect(() => formRef?.resetFields(), [form.props.initialValues]);
+
+        return form;
+    }
+};
+
 const MemberList = (props: any) => {
     // const { memberListState: { loading, dataSource, hasMore } } = props;
-    const { memberListState: { dataSource, hasMore }, loading } = props;
+    const { memberListState: { dataSource, hasMore, title, visible, redisKey }, params, loading, dispatch } = props;
 
     const columns = buildColums(props);
     const footer = buildFooter(props);
+    const form = buildForm(props);
+    // console.log(form.props.initialValues);
 
-    return <Table
+    const table = <Table
         rowKey="Field"
         dataSource={dataSource}
         columns={columns}
@@ -90,6 +115,31 @@ const MemberList = (props: any) => {
         size="small"
         bordered
     ></Table>;
+
+    const drawer = <Drawer
+        title={title}
+        visible={visible}
+        width="90vw"
+        afterVisibleChange={(v: boolean) => {
+            if (v) {
+                dispatch({
+                    type: "memberListVM/load", payload: {
+                        serverID: params.serverID,
+                        nodeID: params.nodeID,
+                        db: params.db,
+                        key: redisKey.Key,
+                        type: redisKey.Type,
+                    }
+                });
+            }
+        }}
+        onClose={() => dispatch({ type: "memberListVM/hide" })}
+    >
+        {form}
+        {table}
+    </Drawer>;
+
+    return drawer;
 };
 
 // export default EntryEditor
