@@ -72,8 +72,8 @@ func getZSetMembers(ctx context.Context, client redis.UniversalClient, query *Me
 	for i := range keys {
 		if i%2 == 0 {
 			r.Members = append(r.Members, &MemberResult{
-				Field: sconv.ToFloat64(keys[i+1]),
-				Value: keys[i],
+				Field: keys[i],
+				Value: sconv.ToFloat64(keys[i+1]), // score
 			})
 		}
 	}

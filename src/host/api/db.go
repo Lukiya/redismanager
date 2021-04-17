@@ -17,7 +17,7 @@ var DBGroup = host.NewActionGroup(
 	[]*host.Action{
 		host.NewAction("GET/api/servers/{serverID}/{nodeID}/{db}", "key__", GetMembers),
 		host.NewAction("GET/api/servers/{serverID}/{nodeID}/{db}/{key}", "key__", GetKey),
-		host.NewAction("GET/api/servers/{serverID}/{nodeID}/{db}/{key}/{field}", "key__", GetValue),
+		host.NewAction("POST/api/servers/{serverID}/{nodeID}/{db}/{key}", "key__", GetValue),
 		host.NewAction("POST/api/servers/{serverID}/{nodeID}/{db}", "key__", SaveEntry),
 	},
 	nil,
@@ -87,7 +87,7 @@ func GetValue(ctx host.IHttpContext) {
 		return
 	}
 
-	field := ctx.GetParamString("field")
+	field := ctx.GetFormString("field")
 	field, err = url.PathUnescape(field)
 	if host.HandleErr(err, ctx) {
 		return

@@ -15,10 +15,7 @@ const onCelClick = (record: any, props: any) => {
                 redisKey,
             };
 
-            if (redisKey.Type != u.STRING && redisKey.Type != u.SET) {
-                payload.field = record.Field;
-            }
-
+            payload.field = redisKey.Type != u.SET ? record.Field : undefined; // set to undefined to clear vm cache
             dispatch({ type: "memberEditorVM/show", payload });
         },
     };
@@ -27,23 +24,37 @@ const onCelClick = (record: any, props: any) => {
 const buildColums = (props: any) => {
     const { memberListState: { redisKey }, loading } = props;
 
-    let title = "Field";
+    let fieldTitle = "Field";
+    let valueTitle = "Value";
     switch (redisKey.Type) {
         case u.LIST:
-            title = "Index";
-            break;
-        case u.ZSET:
-            title = "Score";
+            fieldTitle = "Index";
             break;
         case u.SET:
-            title = "Value";
+            fieldTitle = "Value";
+            break;
+        case u.ZSET:
+            fieldTitle = "Value";
+            valueTitle = "Score";
             break;
     }
 
-    if (redisKey.Type != u.SET) {
+    if (redisKey.Type == u.SET) {
         const columns: any[] = [
             {
-                title: title,
+                title: fieldTitle,
+                dataIndex: 'Value',
+                defaultSortOrder: "ascend",
+                className: "pointer",
+                sorter: (a: any, b: any) => a.Value.localeCompare(b.Value),
+                onCell: (r: any) => onCelClick(r, props),
+            },
+        ];
+        return columns;
+    } else {
+        const columns: any[] = [
+            {
+                title: fieldTitle,
                 dataIndex: 'Field',
                 defaultSortOrder: "ascend",
                 className: "pointer",
@@ -58,22 +69,17 @@ const buildColums = (props: any) => {
                 onCell: (r: any) => onCelClick(r, props),
             },
             {
-                title: "Value",
+                title: valueTitle,
                 dataIndex: 'Value',
                 className: "pointer",
-                sorter: (a: any, b: any) => a.Key.localeCompare(b.Key),
-                onclick: () => alert(1),
-            },
-        ];
-        return columns;
-    } else {
-        const columns: any[] = [
-            {
-                title: title,
-                dataIndex: 'Value',
-                defaultSortOrder: "ascend",
-                className: "pointer",
-                sorter: (a: any, b: any) => a.Value.localeCompare(b.Value),
+                sorter: (a: any, b: any) => {
+                    const aType = typeof (a.Value);
+                    if (aType == "string") {
+                        return a.Value.localeCompare(b.Value);
+                    } else {
+                        return a.Value - b.Value;
+                    }
+                },
                 onCell: (r: any) => onCelClick(r, props),
             },
         ];

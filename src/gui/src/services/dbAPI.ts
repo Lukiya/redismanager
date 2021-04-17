@@ -29,8 +29,10 @@ export async function GetKey(query: any) {
 }
 
 export async function GetValue(query: any) {
-    const url = '/servers/' + query.serverID + '/' + query.nodeID + '/' + query.db + "/" + encodeURIComponent(query.redisKey.Key) + "/" + encodeURIComponent(query.field);
-    const r = await request.get(url, {
+    const url = '/servers/' + query.serverID + '/' + query.nodeID + '/' + query.db + "/" + encodeURIComponent(query.redisKey.Key);
+    const r = await request.post(url, {
+        requestType: "form",
+        data: { field: query.field },
         responseType: "text",
     });
 

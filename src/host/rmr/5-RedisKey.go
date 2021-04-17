@@ -7,6 +7,7 @@ import (
 
 	"github.com/Lukiya/redismanager/src/go/common"
 	"github.com/go-redis/redis/v8"
+	"github.com/syncfuture/go/sconv"
 	"github.com/syncfuture/go/serr"
 	"github.com/syncfuture/go/u"
 )
@@ -65,8 +66,8 @@ func (x *RedisKey) GetValue(field string) (string, error) {
 	case common.RedisType_Set:
 		return field, nil
 	case common.RedisType_ZSet:
-		_, err := x.client.ZScore(ctx, x.Key, field).Result()
-		return field, serr.WithStack(err)
+		v, err := x.client.ZScore(ctx, x.Key, field).Result()
+		return sconv.ToString(v), serr.WithStack(err)
 	default:
 		return "", serr.Errorf("'%s' with field '%s' is not supported", x.Type, field)
 	}

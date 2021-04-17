@@ -16,7 +16,7 @@ const buildValueEditor = (value: string) => {
 };
 
 const buildForm = (memberEditorState: any, dispatch: any) => {
-    const { redisKey, field, value, loading } = memberEditorState;
+    let { redisKey, field, value, loading } = memberEditorState;
 
     if (loading) {
         return <div style={{ textAlign: "center", marginTop: 20 }}><Spin /></div>
@@ -25,6 +25,12 @@ const buildForm = (memberEditorState: any, dispatch: any) => {
         const [formRef] = Form.useForm();
 
         let valueEditor: any = undefined;
+
+        if (redisKey.Type == u.ZSET) {
+            const t = value;
+            value = field;
+            field = t;
+        }
 
         if (value != undefined) {
             valueEditor = buildValueEditor(value);

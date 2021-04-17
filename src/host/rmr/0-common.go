@@ -35,7 +35,7 @@ type MembersQuery struct {
 
 type MemberResult struct {
 	Field interface{}
-	Value string
+	Value interface{}
 }
 
 type MembersQueryResult struct {
