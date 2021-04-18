@@ -6,21 +6,33 @@ const buildFieldEditor = (props: any) => {
     const { redisKey, field } = props;
 
     if (redisKey.Type != u.STRING && field != undefined) {
-        const fieldEditorDisabled = redisKey.Type == u.LIST;
+        let input: any;
         let fieldLabel = "field";
         switch (redisKey.Type) {
             case u.LIST:
                 fieldLabel = "Index";
-                break;
+                input = <InputNumber precision={0} placeholder={fieldLabel} readOnly={true} style={{ backgroundColor: "#f0f0f0" }} />;
+                return <Col>
+                    <Form.Item label={fieldLabel} labelAlign="right" name="Field">
+                        {input}
+                    </Form.Item>
+                </Col>;
             case u.ZSET:
                 fieldLabel = "Score";
-                break;
+                input = <InputNumber precision={2} placeholder={fieldLabel} />;
+                return <Col>
+                    <Form.Item label={fieldLabel} labelAlign="right" name="Field">
+                        {input}
+                    </Form.Item>
+                </Col>;
+            default:
+                input = <Input width="xl" placeholder={fieldLabel} />;
+                return <Col lg={6} xl={6} xxl={6}>
+                    <Form.Item label={fieldLabel} labelAlign="right" name="Field">
+                        {input}
+                    </Form.Item>
+                </Col>;
         }
-        return <Col lg={6} xl={6} xxl={6}>
-            <Form.Item label={fieldLabel} labelAlign="right" name="Field">
-                <Input width="xl" placeholder={fieldLabel} readOnly={fieldEditorDisabled} style={fieldEditorDisabled ? { backgroundColor: "#f0f0f0" } : undefined} />
-            </Form.Item>
-        </Col>;
     }
 
     return undefined;
