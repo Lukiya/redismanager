@@ -1,4 +1,4 @@
-package rmr
+package main
 
 import (
 	"context"
@@ -9,12 +9,11 @@ import (
 )
 
 var (
-	_rm           *RedisManager
-	_nativeClient *redis.ClusterClient
+	_clusterClient *redis.ClusterClient
 )
 
 func init() {
-	_nativeClient = redis.NewClusterClient(&redis.ClusterOptions{
+	_clusterClient = redis.NewClusterClient(&redis.ClusterOptions{
 		Addrs: []string{
 			"192.168.188.166:7000",
 			"192.168.188.166:7001",
@@ -24,20 +23,19 @@ func init() {
 			"192.168.188.166:7005",
 		},
 	})
-	_rm = NewRedisManager()
 }
-func TestFillAllData(t *testing.T) {
-	TestFillString(t)
-	TestFillHash(t)
-	TestFillList(t)
-	TestFillSet(t)
-	TestFillZSet(t)
+func TestClusterFillAllData(t *testing.T) {
+	TestClusterFillString(t)
+	TestClusterFillHash(t)
+	TestClusterFillList(t)
+	TestClusterFillSet(t)
+	TestClusterFillZSet(t)
 }
 
-func TestFillString(t *testing.T) {
-	max := 600
+func TestClusterFillString(t *testing.T) {
+	max := 513
 	ctx := context.Background()
-	pip := _nativeClient.Pipeline()
+	pip := _clusterClient.Pipeline()
 	for i := 0; i < max; i++ {
 		key := fmt.Sprintf("STR_%05d", i)
 		pip.Set(ctx, key, key, -1)
@@ -46,11 +44,11 @@ func TestFillString(t *testing.T) {
 	pip.Exec(ctx)
 }
 
-func TestFillHash(t *testing.T) {
+func TestClusterFillHash(t *testing.T) {
 	max := 513
 	mmax := 602
 	ctx := context.Background()
-	pip := _nativeClient.Pipeline()
+	pip := _clusterClient.Pipeline()
 	for i := 0; i < max; i++ {
 		key := fmt.Sprintf("HASH_%05d", i)
 		members := make([]interface{}, 0, 2*mmax)
@@ -66,11 +64,11 @@ func TestFillHash(t *testing.T) {
 	pip.Exec(ctx)
 }
 
-func TestFillList(t *testing.T) {
+func TestClusterFillList(t *testing.T) {
 	max := 513
 	mmax := 602
 	ctx := context.Background()
-	pip := _nativeClient.Pipeline()
+	pip := _clusterClient.Pipeline()
 
 	for i := 0; i < max; i++ {
 		key := fmt.Sprintf("LIST_%05d", i)
@@ -86,7 +84,7 @@ func TestFillList(t *testing.T) {
 	pip.Exec(ctx)
 }
 
-func TestFillSet(t *testing.T) {
+func TestClusterFillSet(t *testing.T) {
 	max := 513
 	mmax := 602
 	ctx := context.Background()
@@ -97,15 +95,15 @@ func TestFillSet(t *testing.T) {
 			members = append(members, fmt.Sprintf("VALUE_%05d", j))
 		}
 
-		_nativeClient.SAdd(ctx, key, members)
+		_clusterClient.SAdd(ctx, key, members)
 	}
 }
 
-func TestFillZSet(t *testing.T) {
+func TestClusterFillZSet(t *testing.T) {
 	max := 513
 	mmax := 602
 	ctx := context.Background()
-	pip := _nativeClient.Pipeline()
+	pip := _clusterClient.Pipeline()
 
 	for i := 0; i < max; i++ {
 		key := fmt.Sprintf("ZSET_%05d", i)

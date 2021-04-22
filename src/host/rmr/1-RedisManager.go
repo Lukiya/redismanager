@@ -55,6 +55,8 @@ func (x *RedisManager) GetServer(serverID string) *RedisServer {
 // }
 
 func (x *RedisManager) Remove(id string) (err error) {
+	x.removeByID(id)
+
 	x.Servers = x.generateServers()
 	err = x.save()
 	return err
@@ -113,13 +115,18 @@ func (x *RedisManager) save() error {
 }
 
 func (x *RedisManager) load() error {
+	x.Configs = make([]*ServerConfig, 0)
+
 	data, err := os.ReadFile(_filename)
 	if err != nil {
 		if os.IsNotExist(err) {
-			x.Configs = make([]*ServerConfig, 0)
 			return nil
 		}
 		return serr.WithStack(err)
+	}
+
+	if len(data) == 0 {
+		return nil
 	}
 
 	err = json.Unmarshal(data, &x.Configs)
@@ -137,11 +144,11 @@ func (x *RedisManager) generateServers() (r map[string]*RedisServer) {
 	return r
 }
 
-func (x *RedisManager) add(rc *ServerConfig) {
-	rc.ID = host.GenerateID()
-	x.generateName(rc)
-	x.Configs = append(x.Configs, rc)
-	x.Select(rc.ID) // set new item as selected
+func (x *RedisManager) add(config *ServerConfig) {
+	config.ID = host.GenerateID()
+	x.generateName(config)
+	x.Configs = append(x.Configs, config)
+	x.Select(config.ID) // set new item as selected
 }
 
 func (x *RedisManager) generateName(config *ServerConfig) {
