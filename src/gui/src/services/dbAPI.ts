@@ -21,11 +21,10 @@ export async function GetMembers(query: any) {
             Key: key,
             Type: type,
             Query: {
-                Cursor: query.cursor,
                 Count: query.count,
                 Keyword: query.keyword,
             },
-            Queries: query.queries,
+            Cursors: query.cursors,
         }
     });
 

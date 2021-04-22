@@ -32,15 +32,15 @@ func TestClusterRedisServer(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, db)
 
-	keys, err := db.GetAllKeys(&ScanQuerySet{
+	scanResult, err := db.GetAllKeys(&ScanQuerySet{
 		// Keyword: "STR*",
 		Query: &ScanQuery{
 			Count: 800,
 		},
 	})
 	assert.NoError(t, err)
-	assert.NotEmpty(t, keys)
-	t.Log(len(keys))
+	assert.NotEmpty(t, scanResult.Keys)
+	t.Log(len(scanResult.Keys))
 
 	key, err := db.GetKey("HASH_00001")
 	assert.NoError(t, err)

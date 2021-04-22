@@ -29,6 +29,7 @@ func (x *StandaloneRedisDB) ScanKeys(querySet *ScanQuerySet) (*ScanKeyResult, er
 	locker := new(sync.Mutex)
 	result := &ScanKeyResult{
 		Cursors: make(map[string]uint64, 1),
+		Keys:    make([]*RedisKey, 0),
 	}
 
 	err := scanKeys(ctx, locker, nil, result, x.id, x.client, querySet.Query)
@@ -45,6 +46,7 @@ func (x *StandaloneRedisDB) ScanMoreKeys(querySet *ScanQuerySet) (*ScanKeyResult
 	locker := new(sync.Mutex)
 	result := &ScanKeyResult{
 		Cursors: make(map[string]uint64, len(querySet.Cursors)),
+		Keys:    make([]*RedisKey, 0),
 	}
 
 	err := scanKeys(ctx, locker, nil, result, x.id, x.client, &ScanQuery{
@@ -58,7 +60,7 @@ func (x *StandaloneRedisDB) ScanMoreKeys(querySet *ScanQuerySet) (*ScanKeyResult
 	return result, nil
 }
 
-func (x *StandaloneRedisDB) GetAllKeys(querySet *ScanQuerySet) ([]*RedisKey, error) {
+func (x *StandaloneRedisDB) GetAllKeys(querySet *ScanQuerySet) (*ScanKeyResult, error) {
 	var keys []*RedisKey
 
 	scanResult, err := x.ScanKeys(querySet)
@@ -85,7 +87,10 @@ func (x *StandaloneRedisDB) GetAllKeys(querySet *ScanQuerySet) ([]*RedisKey, err
 		}
 	}
 
-	return keys, nil
+	return &ScanKeyResult{
+		Cursors: make(map[string]uint64),
+		Keys:    keys,
+	}, nil
 }
 
 func (x *StandaloneRedisDB) GetKey(key string) (*RedisKey, error) {

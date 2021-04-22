@@ -17,13 +17,14 @@ export default {
             };
             const resp = yield GetMembers(query);
 
-            if (resp?.Keys) {
-                query.cursors = resp.Cursor;
+            if (resp?.Keys && resp?.Cursors) {
+                query.cursors = resp.Cursors;
+                const curs = Object.keys(resp.Cursors);
                 yield put({
                     type: 'setState', payload: {
                         keys: resp.Keys,
                         query,
-                        hasMore: resp.Cursor != 0,
+                        hasMore: curs.length > 0,
                     }
                 });
             } else {
@@ -40,7 +41,7 @@ export default {
             // const resp = yield call(GetKeys, query);
             const resp = yield GetMembers(query);
 
-            if (resp?.Keys) {
+            if (resp?.Keys && resp?.Cursors) {
                 query.cursors = resp.Cursors;
                 yield put({ type: 'appendKeys', payload: { resp, query } });
             } else {
@@ -52,10 +53,11 @@ export default {
         setState(state: any, { payload }: any) { return { ...state, ...payload }; },
         appendKeys(state: any, { payload }: any) {
             const { resp, query } = payload;
+            const curs = Object.keys(resp.Cursors);
             return {
                 ...state,
                 keys: state.keys.concat(resp.Keys),
-                hasMore: resp.Cursor != 0,
+                hasMore: curs.length > 0,
                 query,
             };
         },

@@ -30,6 +30,7 @@ func (x *ClusterRedisDB) ScanKeys(querySet *ScanQuerySet) (*ScanKeyResult, error
 	queries := make(map[string]*ScanQuery, len(x.masterClients))
 	result := &ScanKeyResult{
 		Cursors: make(map[string]uint64, len(x.masterClients)),
+		Keys:    make([]*RedisKey, 0),
 	}
 	wg := new(sync.WaitGroup)
 	errCh := make(chan error, 1)
@@ -68,6 +69,7 @@ func (x *ClusterRedisDB) ScanMoreKeys(querySet *ScanQuerySet) (*ScanKeyResult, e
 	locker := new(sync.Mutex)
 	result := &ScanKeyResult{
 		Cursors: make(map[string]uint64, len(querySet.Cursors)),
+		Keys:    make([]*RedisKey, 0),
 	}
 	wg := new(sync.WaitGroup)
 	errCh := make(chan error, 1)
@@ -99,7 +101,7 @@ func (x *ClusterRedisDB) ScanMoreKeys(querySet *ScanQuerySet) (*ScanKeyResult, e
 	}
 }
 
-func (x *ClusterRedisDB) GetAllKeys(querySet *ScanQuerySet) ([]*RedisKey, error) {
+func (x *ClusterRedisDB) GetAllKeys(querySet *ScanQuerySet) (*ScanKeyResult, error) {
 	var keys []*RedisKey
 
 	scanResult, err := x.ScanKeys(querySet)
@@ -125,7 +127,10 @@ func (x *ClusterRedisDB) GetAllKeys(querySet *ScanQuerySet) ([]*RedisKey, error)
 		}
 	}
 
-	return keys, nil
+	return &ScanKeyResult{
+		Cursors: make(map[string]uint64),
+		Keys:    keys,
+	}, nil
 }
 
 func (x *ClusterRedisDB) GetKey(key string) (*RedisKey, error) {

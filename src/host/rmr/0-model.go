@@ -7,7 +7,7 @@ const (
 type IRedisDB interface {
 	ScanKeys(query *ScanQuerySet) (*ScanKeyResult, error)
 	ScanMoreKeys(query *ScanQuerySet) (*ScanKeyResult, error)
-	GetAllKeys(query *ScanQuerySet) ([]*RedisKey, error)
+	GetAllKeys(query *ScanQuerySet) (*ScanKeyResult, error)
 	GetKey(key string) (*RedisKey, error)
 	GetElements(query *ScanQuerySet) (*ScanElementResult, error)
 	KeyExists(key string) (bool, error)
