@@ -16,7 +16,7 @@ func getDB(ctx host.IHttpContext) (rmr.IRedisDB, error) {
 
 	var err error
 
-	server := core.Manager.GetServer(serverID)
+	server, err := core.Manager.GetServer(serverID)
 	if server == nil {
 		return nil, serr.Errorf("cannot find Server '%s'", serverID)
 	}

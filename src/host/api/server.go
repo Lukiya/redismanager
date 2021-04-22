@@ -49,10 +49,14 @@ func GetServers(ctx host.IHttpContext) {
 func GetServer(ctx host.IHttpContext) {
 	serverID := ctx.GetParamString("id")
 	var server *rmr.RedisServer
+	var err error
 	if serverID == "selected" {
 		server = core.Manager.GetSelectedServer()
 	} else {
-		server = core.Manager.GetServer(serverID)
+		server, err = core.Manager.GetServer(serverID)
+		if host.HandleErr(err, ctx) {
+			return
+		}
 	}
 	// if helpers.CheckServer(server, ctx) {
 	// 	return
@@ -60,12 +64,6 @@ func GetServer(ctx host.IHttpContext) {
 
 	if server == nil {
 		log.Warnf("server '%s' is nil", serverID)
-		return
-	}
-
-	// connect before return
-	err := server.Connect()
-	if host.HandleErr(err, ctx) {
 		return
 	}
 

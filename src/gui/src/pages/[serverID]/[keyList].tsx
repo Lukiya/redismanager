@@ -103,24 +103,25 @@ const buildColumns = (dispatch: any, params: any) => {
 const KeyListPage = (props: any) => {
     const { menuState: { server }, keyListState, keyListLoading, match: { params }, dispatch } = props;
 
-    let node: any;
-    for (let i = 0; i < server.Nodes.length; i++) {
-        node = server.Nodes[i];
-        if (node.ID == params.nodeID) {
-            break;
-        }
-    }
-    let inited = node != undefined;
+    // let node: any;
+    // for (let i = 0; i < server.Nodes.length; i++) {
+    //     node = server.Nodes[i];
+    //     if (node.ID == params.nodeID) {
+    //         break;
+    //     }
+    // }
+    // let inited = node != undefined;
 
     let breadcrumbRoutes: any[] = [];
     let table: any = null;
     let actionBar: any = null;
     // let memberEditor: any = null;
+    const inited = true;
     if (inited) {
         ////////// breadcrumb
         breadcrumbRoutes = [
             { path: '', breadcrumbName: server.Name, },
-            { path: '', breadcrumbName: node.Addr, },
+            // { path: '', breadcrumbName: node.Addr, },
             { path: '', breadcrumbName: params.db, },
         ];
 

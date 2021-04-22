@@ -5,9 +5,9 @@ const (
 )
 
 type IRedisDB interface {
-	ScanKeys(query *ScanQuery) (map[string]*KeyQueryResult, error)
-	ScanMoreKeys(queries map[string]*ScanQuery) (map[string]*KeyQueryResult, error)
-	GetAllKeys(query *ScanQuery) ([]*RedisKey, error)
+	ScanKeys(query *ScanQuerySet) (*ScanKeyResult, error)
+	ScanMoreKeys(query *ScanQuerySet) (*ScanKeyResult, error)
+	GetAllKeys(query *ScanQuerySet) ([]*RedisKey, error)
 	GetKey(key string) (*RedisKey, error)
 	GetElements(query *ScanQuerySet) (*ElementQueryResult, error)
 	KeyExists(key string) (bool, error)
@@ -37,9 +37,9 @@ type ScanQuery struct {
 	Keyword string
 }
 
-type KeyQueryResult struct {
-	Cursor uint64
-	Keys   []*RedisKey
+type ScanKeyResult struct {
+	Cursors map[string]uint64
+	Keys    []*RedisKey
 }
 
 type ElementResult struct {

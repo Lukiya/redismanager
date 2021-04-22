@@ -8,34 +8,24 @@ const { Header, Content, Footer, Sider } = Layout;
 const { SubMenu } = Menu;
 
 function buildMenu(dispatch: any, menuState: any) {
-    const nodes = menuState.server.Nodes;
-    const nodeMenus = [];
+    const dbs = menuState.server.DBs;
+    const dbMenus = [];
 
-    for (let i = 0; i < nodes.length; i++) {
-        const node = nodes[i];
-        const dbMenus = [];
-
-        for (let i = 0; i < node.DBs.length; i++) {
-            const db = node.DBs[i];
-            const dbStr = "db" + db.DB;
-            const dbKey = menuState.server.ID + "_" + node.ID + "_" + db.DB;
-
-            const dbMenu = <Menu.Item key={dbKey} icon={<DatabaseOutlined />}><Link to={"/" + menuState.server.ID + "/" + node.ID + "/" + dbStr}>{dbStr}</Link></Menu.Item>;
-
-            dbMenus.push(dbMenu);
-        }
-
-        const nodeMenu = <SubMenu key={node.ID} title={node.Addr}>{dbMenus}</SubMenu>;
-        nodeMenus.push(nodeMenu);
+    for (let i = 0; i < dbs.length; i++) {
+        const db = dbs[i];
+        const dbStr = "db" + db.DB;
+        const key = db.DB.toString();
+        const dbMenu = <Menu.Item key={key} icon={<DatabaseOutlined />}><Link to={"/" + menuState.server.ID + "/" + db.DB}>{dbStr}</Link></Menu.Item>
+        dbMenus.push(dbMenu);
     }
 
 
     return (
         <Menu title="Test" theme="dark" mode="inline"
-            openKeys={menuState.openKeys} onOpenChange={(openKeys) => dispatch({ type: "menuVM/setOpenKeys", openKeys })}
+            // openKeys={menuState.openKeys} onOpenChange={(openKeys) => dispatch({ type: "menuVM/setOpenKeys", openKeys })}
             selectedKeys={menuState.selectedKeys}
         >
-            {nodeMenus}
+            {dbMenus}
         </Menu >
     );
 }
@@ -49,7 +39,7 @@ const LayoutPage = (props: any) => {
     if (loading) {
         menu = <div style={{ textAlign: "center", marginTop: "20px" }}><Spin /></div>
     } else {
-        menu = menuState.server.Nodes && menuState.server.Nodes.length > 0 ? (
+        menu = menuState.server.DBs && menuState.server.DBs.length > 0 ? (
             <div>
                 <h1 style={{ color: "white" }}><CloudServerOutlined /> {menuState.server.Name}</h1>
                 {buildMenu(dispatch, menuState)}

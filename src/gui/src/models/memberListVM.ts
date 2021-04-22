@@ -28,7 +28,7 @@ export default {
                     });
                 }
             } else {
-                console.warn("no json in response body");
+                console.log("no json in response body");
             }
         },
         *loadMore(_: any, { put, select }: any): any {
@@ -41,7 +41,7 @@ export default {
             if (resp?.Members) {
                 yield put({ type: 'appendMembers', resp });
             } else {
-                console.warn("no json in response body");
+                console.log("no json in response body");
             }
         },
         *save({ values }: any, { put, select }: any): any {

@@ -23,24 +23,26 @@ type ClusterRedisDB struct {
 	masterClients map[string]*redis.Client
 }
 
-func (x *ClusterRedisDB) ScanKeys(query *ScanQuery) (map[string]*KeyQueryResult, error) {
+func (x *ClusterRedisDB) ScanKeys(querySet *ScanQuerySet) (*ScanKeyResult, error) {
 	ctx := context.Background()
 
 	locker := new(sync.Mutex)
 	queries := make(map[string]*ScanQuery, len(x.masterClients))
-	results := make(map[string]*KeyQueryResult, len(x.masterClients))
+	result := &ScanKeyResult{
+		Cursors: make(map[string]uint64, len(x.masterClients)),
+	}
 	wg := new(sync.WaitGroup)
 	errCh := make(chan error, 1)
 
 	for i, c := range x.masterClients {
 		wg.Add(1)
 		queries[i] = &ScanQuery{
-			Keyword: query.Keyword,
-			Count:   query.Count,
+			Keyword: querySet.Query.Keyword,
+			Count:   querySet.Query.Count,
 		}
 
 		go func(id string, client *redis.Client, query *ScanQuery) {
-			err := scanKeys(ctx, locker, wg, &results, id, client, query)
+			err := scanKeys(ctx, locker, wg, result, id, client, query)
 			if err != nil {
 				select {
 				case errCh <- err:
@@ -56,23 +58,25 @@ func (x *ClusterRedisDB) ScanKeys(query *ScanQuery) (map[string]*KeyQueryResult,
 	case err := <-errCh:
 		return nil, err
 	default:
-		return results, nil
+		return result, nil
 	}
 }
 
-func (x *ClusterRedisDB) ScanMoreKeys(queries map[string]*ScanQuery) (map[string]*KeyQueryResult, error) {
+func (x *ClusterRedisDB) ScanMoreKeys(querySet *ScanQuerySet) (*ScanKeyResult, error) {
 	ctx := context.Background()
 
 	locker := new(sync.Mutex)
-	results := make(map[string]*KeyQueryResult, len(queries))
+	result := &ScanKeyResult{
+		Cursors: make(map[string]uint64, len(querySet.Queries)),
+	}
 	wg := new(sync.WaitGroup)
 	errCh := make(chan error, 1)
 
 	for i, c := range x.masterClients {
-		if q, ok := queries[i]; ok {
+		if q, ok := querySet.Queries[i]; ok {
 			wg.Add(1)
 			go func(id string, client *redis.Client, query *ScanQuery) {
-				err := scanKeys(ctx, locker, wg, &results, id, client, query)
+				err := scanKeys(ctx, locker, wg, result, id, client, query)
 				if err != nil {
 					select {
 					case errCh <- err:
@@ -88,43 +92,39 @@ func (x *ClusterRedisDB) ScanMoreKeys(queries map[string]*ScanQuery) (map[string
 	case err := <-errCh:
 		return nil, err
 	default:
-		return results, nil
+		return result, nil
 	}
 }
 
-func (x *ClusterRedisDB) GetAllKeys(query *ScanQuery) ([]*RedisKey, error) {
+func (x *ClusterRedisDB) GetAllKeys(querySet *ScanQuerySet) ([]*RedisKey, error) {
 	var keys []*RedisKey
 
-	m, err := x.ScanKeys(query)
+	scanResult, err := x.ScanKeys(querySet)
 	if err != nil {
 		return nil, err
 	}
 
-	for _, v := range m {
-		keys = append(keys, v.Keys...)
-	}
+	keys = append(keys, scanResult.Keys...)
 
-	for len(m) > 0 {
-		moreQueries := make(map[string]*ScanQuery, len(m))
-		for i, v := range m {
-			if v.Cursor > 0 {
-				moreQueries[i] = &ScanQuery{
-					Cursor:  uint64(v.Cursor),
-					Keyword: query.Keyword,
+	for len(scanResult.Cursors) > 0 {
+		querySet.Queries = make(map[string]*ScanQuery, len(scanResult.Cursors))
+		for i, cur := range scanResult.Cursors {
+			if cur > 0 {
+				querySet.Queries[i] = &ScanQuery{
+					Cursor:  uint64(cur),
+					Keyword: querySet.Query.Keyword,
 				}
 			}
 		}
-		if len(moreQueries) > 0 {
-			m, err = x.ScanMoreKeys(moreQueries)
+		if len(querySet.Queries) > 0 {
+			scanResult, err = x.ScanMoreKeys(querySet)
 			if err != nil {
 				return nil, err
 			}
-			for _, v := range m {
-				keys = append(keys, v.Keys...)
-			}
+			keys = append(keys, scanResult.Keys...)
 		} else {
-			for k := range m {
-				delete(m, k)
+			for k := range scanResult.Cursors {
+				delete(scanResult.Cursors, k)
 			}
 		}
 	}

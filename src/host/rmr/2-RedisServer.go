@@ -11,48 +11,55 @@ import (
 
 func NewRedisServer(config *ServerConfig) *RedisServer {
 	return &RedisServer{
+		ID:     config.ID,
+		Name:   config.Name,
 		config: config,
 	}
 }
 
 type RedisServer struct {
+	ID     string
+	Name   string
 	config *ServerConfig
 	DBs    []IRedisDB
 }
 
 func (x *RedisServer) Connect() error {
-	clusterOptions := &redis.ClusterOptions{
-		Addrs:    x.config.Addrs,
-		Password: x.config.Password,
-	}
-
-	clusterClient := redis.NewClusterClient(clusterOptions)
-
-	masterClients := make(map[string]*redis.Client, 0)
-	ctx := context.Background()
-	locker := new(sync.Mutex)
-	err := clusterClient.ForEachMaster(ctx, func(c context.Context, client *redis.Client) error {
-		locker.Lock()
-		id := generateClientID(client)
-		masterClients[id] = client
-		locker.Unlock()
-		return nil
-	})
-
-	if err != nil {
-		if err.Error() == _clusterDisabedError {
-			////////// Standalone
-			x.DBs, err = x.getDBs()
-			if err != nil {
-				return err
-			}
-			return nil
+	if len(x.DBs) == 0 {
+		clusterOptions := &redis.ClusterOptions{
+			Addrs:    x.config.Addrs,
+			Password: x.config.Password,
 		}
-		return serr.WithStack(err)
+
+		clusterClient := redis.NewClusterClient(clusterOptions)
+
+		masterClients := make(map[string]*redis.Client, 0)
+		ctx := context.Background()
+		locker := new(sync.Mutex)
+		err := clusterClient.ForEachMaster(ctx, func(c context.Context, client *redis.Client) error {
+			locker.Lock()
+			id := generateClientID(client)
+			masterClients[id] = client
+			locker.Unlock()
+			return nil
+		})
+
+		if err != nil {
+			if err.Error() == _clusterDisabedError {
+				////////// Standalone
+				x.DBs, err = x.getDBs()
+				if err != nil {
+					return err
+				}
+				return nil
+			}
+			return serr.WithStack(err)
+		}
+
+		db := NewClusterRedisDB(clusterClient, masterClients)
+		x.DBs = []IRedisDB{db}
 	}
 
-	db := NewClusterRedisDB(clusterClient, masterClients)
-	x.DBs = []IRedisDB{db}
 	return nil
 }
 

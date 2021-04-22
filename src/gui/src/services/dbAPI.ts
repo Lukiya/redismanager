@@ -10,7 +10,7 @@ export async function GetMembers(query: any) {
     const key = query.redisKey?.Key ?? "";
     const type = query.redisKey?.Type ?? "";
 
-    const url = '/servers/' + query.serverID + '/' + query.db;
+    const url = '/servers/' + query.serverID + '/' + query.db + "/scan";
     // + '?Cursor=' + query.cursor
     // + "&Count=" + query.count
     // + '&Key=' + encodeURIComponent(key)
@@ -51,7 +51,7 @@ export async function GetValue(query: any) {
 }
 
 export async function SaveEntry(query: any, data: any) {
-    const url = '/servers/' + query.serverID + '/' + query.db;
+    const url = '/servers/' + query.serverID + '/' + query.db + '/save';
     const r = await request.post(url, {
         data: data,
     });

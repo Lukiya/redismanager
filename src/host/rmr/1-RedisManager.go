@@ -35,12 +35,13 @@ func (x *RedisManager) GetSelectedServer() *RedisServer {
 	return nil
 }
 
-func (x *RedisManager) GetServer(serverID string) *RedisServer {
-	// if r, ok := x.Servers[serverID]; ok {
-	// 	return r
-	// }
+func (x *RedisManager) GetServer(serverID string) (*RedisServer, error) {
+	if r, ok := x.Servers[serverID]; ok {
+		err := r.Connect()
+		return r, err
+	}
 
-	return x.Servers[serverID]
+	return nil, nil
 }
 
 // func (x *ServerManager) Add(redisConfigs ...*RedisConfigX) error {

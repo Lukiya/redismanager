@@ -23,67 +23,68 @@ type StandaloneRedisDB struct {
 	client *redis.Client
 }
 
-func (x *StandaloneRedisDB) ScanKeys(query *ScanQuery) (map[string]*KeyQueryResult, error) {
+func (x *StandaloneRedisDB) ScanKeys(querySet *ScanQuerySet) (*ScanKeyResult, error) {
 	ctx := context.Background()
 
 	locker := new(sync.Mutex)
-	restuls := make(map[string]*KeyQueryResult, 1)
+	result := &ScanKeyResult{
+		Cursors: make(map[string]uint64, 1),
+	}
 
-	err := scanKeys(ctx, locker, nil, &restuls, x.id, x.client, query)
+	err := scanKeys(ctx, locker, nil, result, x.id, x.client, querySet.Query)
 	if err != nil {
 		return nil, err
 	}
 
-	return restuls, nil
+	return result, nil
 }
 
-func (x *StandaloneRedisDB) ScanMoreKeys(queries map[string]*ScanQuery) (map[string]*KeyQueryResult, error) {
+func (x *StandaloneRedisDB) ScanMoreKeys(querySet *ScanQuerySet) (*ScanKeyResult, error) {
 	ctx := context.Background()
 
 	locker := new(sync.Mutex)
-	results := make(map[string]*KeyQueryResult, len(queries))
+	result := &ScanKeyResult{
+		Cursors: make(map[string]uint64, len(querySet.Queries)),
+	}
 
-	err := scanKeys(ctx, locker, nil, &results, x.id, x.client, queries[x.id])
+	err := scanKeys(ctx, locker, nil, result, x.id, x.client, querySet.Queries[x.id])
 	if err != nil {
 		return nil, err
 	}
 
-	return results, nil
+	return result, nil
 }
 
-func (x *StandaloneRedisDB) GetAllKeys(query *ScanQuery) ([]*RedisKey, error) {
+func (x *StandaloneRedisDB) GetAllKeys(querySet *ScanQuerySet) ([]*RedisKey, error) {
 	var keys []*RedisKey
 
-	m, err := x.ScanKeys(query)
+	scanResult, err := x.ScanKeys(querySet)
 	if err != nil {
 		return nil, err
 	}
 
-	for _, v := range m {
-		keys = append(keys, v.Keys...)
-	}
+	keys = append(keys, scanResult.Keys...)
 
-	for len(m) > 0 {
-		moreQueries := make(map[string]*ScanQuery, len(m))
-		for i, v := range m {
-			if v.Cursor > 0 {
-				moreQueries[i] = &ScanQuery{
-					Cursor:  uint64(v.Cursor),
-					Keyword: query.Keyword,
+	for len(scanResult.Cursors) > 0 {
+		querySet.Queries = make(map[string]*ScanQuery, len(scanResult.Cursors))
+		for i, cur := range scanResult.Cursors {
+			if cur > 0 {
+				querySet.Queries[i] = &ScanQuery{
+					Cursor:  uint64(cur),
+					Keyword: querySet.Query.Keyword,
 				}
 			}
 		}
-		if len(moreQueries) > 0 {
-			m, err = x.ScanMoreKeys(moreQueries)
+		if len(querySet.Queries) > 0 {
+			scanResult, err = x.ScanMoreKeys(querySet)
 			if err != nil {
 				return nil, err
 			}
-			for _, v := range m {
-				keys = append(keys, v.Keys...)
-			}
+
+			keys = append(keys, scanResult.Keys...)
 		} else {
-			for k := range m {
-				delete(m, k)
+			for k := range scanResult.Cursors {
+				delete(scanResult.Cursors, k)
 			}
 		}
 	}

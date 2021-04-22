@@ -26,7 +26,7 @@ export default {
                     }
                 });
             } else {
-                console.warn("no json in response body");
+                console.log("no json in response body");
             }
         },
         *loadMore(_: any, { put, select }: any): any {
@@ -43,7 +43,7 @@ export default {
                 query.cursor = resp.Cursor;
                 yield put({ type: 'appendKeys', payload: { resp, query } });
             } else {
-                console.warn("no json in response body");
+                console.log("no json in response body");
             }
         },
     },
@@ -62,19 +62,18 @@ export default {
     subscriptions: {
         setup({ dispatch, history }: any) {
             return history.listen(({ pathname }: any) => {
-                const regx = /^\/(\w+)\/(\d{3})\/db(\d{1,2})$/;
+                const regx = /^\/(\w+)\/(\d{1,2})$/;
                 const array = regx.exec(pathname);
-                if (array?.length == 4) {
+                if (array?.length == 3) {
                     const query = {
                         ...u.DefaultQuery,
                         serverID: array[1],
-                        nodeID: array[2],
-                        db: array[3],
+                        db: array[2],
                     };
-                    const menuKey = query.serverID + "_" + query.nodeID + "_" + query.db;
+                    const menuKey = query.db.toString();
                     dispatch({
                         type: "menuVM/setState", payload: {
-                            openKeys: [query.nodeID],
+                            // openKeys: [query.nodeID],
                             selectedKeys: [menuKey],
                         }
                     });

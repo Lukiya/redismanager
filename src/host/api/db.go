@@ -14,10 +14,10 @@ import (
 var DBGroup = host.NewActionGroup(
 	nil,
 	[]*host.Action{
-		host.NewAction("POST/api/servers/{serverID}/{db}", "key__", GetKeysOrElements),
+		host.NewAction("POST/api/servers/{serverID}/{db}/scan", "key__", GetKeysOrElements),
 		host.NewAction("GET/api/servers/{serverID}/{db}/{key}", "key__", GetKey),
 		host.NewAction("POST/api/servers/{serverID}/{db}/{key}", "key__", GetValue),
-		host.NewAction("POST/api/servers/{serverID}/{db}", "key__", SaveEntry),
+		host.NewAction("POST/api/servers/{serverID}/{db}/save", "key__", SaveEntry),
 		host.NewAction("DELETE/api/servers/{serverID}/{db}/{key}", "key__", DeleteEntry),
 	},
 	nil,
@@ -29,19 +29,19 @@ func GetKeysOrElements(ctx host.IHttpContext) {
 		return
 	}
 
-	scanQuery := new(rmr.ScanQuerySet)
-	err = ctx.ReadJSON(scanQuery)
+	scanQuerySet := new(rmr.ScanQuerySet)
+	err = ctx.ReadJSON(scanQuerySet)
 	if host.HandleErr(err, ctx) {
 		return
 	}
 
-	if scanQuery.Key == "" {
+	if scanQuerySet.Key == "" {
 		// Scan keys
-		var rs map[string]*rmr.KeyQueryResult
-		if scanQuery.Queries == nil {
-			rs, err = dB.ScanKeys(scanQuery.Query)
+		var rs *rmr.ScanKeyResult
+		if scanQuerySet.Queries == nil {
+			rs, err = dB.ScanKeys(scanQuerySet)
 		} else {
-			rs, err = dB.ScanMoreKeys(scanQuery.Queries)
+			rs, err = dB.ScanMoreKeys(scanQuerySet)
 		}
 		if host.HandleErr(err, ctx) {
 			return
@@ -52,10 +52,11 @@ func GetKeysOrElements(ctx host.IHttpContext) {
 			return
 		}
 
+		print(u.BytesToStr(data))
 		ctx.WriteJsonBytes(data)
 	} else {
 		// scan members
-		rs, err := dB.GetElements(scanQuery)
+		rs, err := dB.GetElements(scanQuerySet)
 		if host.HandleErr(err, ctx) {
 			return
 		}

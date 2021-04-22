@@ -3,9 +3,9 @@ import { GetServer } from "@/services/serverAPI";
 const _defaultState = {
     server: {
         ID: "",
-        Nodes: [],
+        DBs: [],
     },
-    openKeys: [],
+    // openKeys: [],
     selectedKeys: [],
 };
 
@@ -14,8 +14,8 @@ export default {
     effects: {
         *getServer({ serverID }: any, { call, put }: any): any {
             const resp = yield call(GetServer, serverID);
-            const nodes = resp.Nodes;
-            if (!nodes) {
+            const dbs = resp.DBs;
+            if (!dbs) {
                 yield put({ type: 'resetState' });
                 return;
             }
@@ -40,12 +40,12 @@ export default {
                 serverID: "selected",
             });
 
-            yield put({
-                type: 'setState',
-                payload: {
-                    openKeys: ["000"],
-                },
-            });
+            // yield put({
+            //     type: 'setState',
+            //     payload: {
+            //         openKeys: ["000"],
+            //     },
+            // });
         },
         *rebuild(_: any, { put }: any): any {
             yield put({
@@ -56,7 +56,7 @@ export default {
             yield put({
                 type: 'setState',
                 payload: {
-                    openKeys: ["000"],
+                    // openKeys: ["000"],
                     selectedKeys: [],
                 },
             });
@@ -70,20 +70,20 @@ export default {
                 ..._defaultState,
             };
         },
-        setOpenKeys(state: any, { openKeys }: any) {
-            if (openKeys.length > 0) {
-                openKeys = [openKeys[openKeys.length - 1]];
-            }
-            return {
-                ...state,
-                openKeys,
-            };
-        },
-        setSelectedKeys(state: any, { selectedKeys }: any) {
-            return {
-                ...state,
-                selectedKeys: selectedKeys,
-            };
-        },
+        // setOpenKeys(state: any, { openKeys }: any) {
+        //     if (openKeys.length > 0) {
+        //         openKeys = [openKeys[openKeys.length - 1]];
+        //     }
+        //     return {
+        //         ...state,
+        //         openKeys,
+        //     };
+        // },
+        // setSelectedKeys(state: any, { selectedKeys }: any) {
+        //     return {
+        //         ...state,
+        //         selectedKeys: selectedKeys,
+        //     };
+        // },
     },
 };
