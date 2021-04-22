@@ -1,5 +1,6 @@
-import { GetKey, GetMembers } from "@/services/dbAPI";
+import { GetKey, GetMembers, SaveEntry } from "@/services/dbAPI";
 import u from "@/u";
+import { message } from 'antd';
 
 export default {
     state: {
@@ -41,6 +42,19 @@ export default {
                 yield put({ type: 'appendMembers', resp });
             } else {
                 console.warn("no json in response body");
+            }
+        },
+        *save({ values }: any, { put, select }: any): any {
+            const state = yield select((x: any) => x["memberListVM"]);
+            const data = {
+                new: values,
+                old: state.redisKey,
+                isNew: false,
+            }
+
+            const resp = yield SaveEntry(state, data);
+            if (resp?.err) {
+                message.error(resp.err);
             }
         },
     },

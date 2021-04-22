@@ -14,12 +14,14 @@ import (
 type Exporter struct {
 	Zip    bool
 	client redis.UniversalClient
+	ctx    context.Context
 }
 
-func NewExporter(zip bool, client redis.UniversalClient) (r *Exporter) {
+func NewExporter(ctx context.Context, zip bool, client redis.UniversalClient) (r *Exporter) {
 	r = new(Exporter)
 	r.client = client
 	r.Zip = zip
+	r.ctx = ctx
 	return r
 }
 
@@ -60,9 +62,7 @@ func (x *Exporter) ExportKey(key string) (r *ExportFileEntry, err error) {
 		panic("key is missing")
 	}
 
-	ctx := context.Background()
-
-	redisType, err := x.client.Type(ctx, key).Result()
+	redisType, err := x.client.Type(x.ctx, key).Result()
 	if err != nil {
 		return nil, serr.WithStack(err)
 	}
@@ -70,35 +70,35 @@ func (x *Exporter) ExportKey(key string) (r *ExportFileEntry, err error) {
 	// Export whole key
 	switch redisType {
 	case common.RedisType_String:
-		v, err := x.client.Get(ctx, key).Result()
+		v, err := x.client.Get(x.ctx, key).Result()
 		if err != nil {
 			return nil, serr.WithStack(err)
 		}
 		r, err = NewExportFileEntry(key, redisType, v)
 		break
 	case common.RedisType_Hash:
-		v, err := x.client.HGetAll(ctx, key).Result()
+		v, err := x.client.HGetAll(x.ctx, key).Result()
 		if err != nil {
 			return nil, serr.WithStack(err)
 		}
 		r, err = NewExportFileEntry(key, redisType, v)
 		break
 	case common.RedisType_List:
-		v, err := x.client.LRange(ctx, key, 0, -1).Result()
+		v, err := x.client.LRange(x.ctx, key, 0, -1).Result()
 		if err != nil {
 			return nil, serr.WithStack(err)
 		}
 		r, err = NewExportFileEntry(key, redisType, v)
 		break
 	case common.RedisType_Set:
-		v, err := x.client.SMembers(ctx, key).Result()
+		v, err := x.client.SMembers(x.ctx, key).Result()
 		if err != nil {
 			return nil, serr.WithStack(err)
 		}
 		r, err = NewExportFileEntry(key, redisType, v)
 		break
 	case common.RedisType_ZSet:
-		v, err := x.client.ZRangeByScoreWithScores(ctx, key, &redis.ZRangeBy{
+		v, err := x.client.ZRangeByScoreWithScores(x.ctx, key, &redis.ZRangeBy{
 			Min: "-inf",
 			Max: "+inf",
 		}).Result()

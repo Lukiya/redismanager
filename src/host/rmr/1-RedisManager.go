@@ -21,8 +21,7 @@ func NewRedisManager() *RedisManager {
 	r := new(RedisManager)
 	err := r.load()
 	u.LogFaltal(err)
-	r.Servers, err = r.generateServers()
-	u.LogFaltal(err)
+	r.Servers = r.generateServers()
 	return r
 }
 
@@ -36,14 +35,12 @@ func (x *RedisManager) GetSelectedServer() *RedisServer {
 	return nil
 }
 
-func (x *RedisManager) GetServer(ServerID string) *RedisServer {
-	for _, v := range x.Servers {
-		if v.ID == ServerID {
-			return v
-		}
-	}
+func (x *RedisManager) GetServer(serverID string) *RedisServer {
+	// if r, ok := x.Servers[serverID]; ok {
+	// 	return r
+	// }
 
-	return nil
+	return x.Servers[serverID]
 }
 
 // func (x *ServerManager) Add(redisConfigs ...*RedisConfigX) error {
@@ -58,10 +55,7 @@ func (x *RedisManager) GetServer(ServerID string) *RedisServer {
 // }
 
 func (x *RedisManager) Remove(id string) (err error) {
-	x.Servers, err = x.generateServers()
-	if err != nil {
-		return err
-	}
+	x.Servers = x.generateServers()
 	err = x.save()
 	return err
 }
@@ -81,32 +75,28 @@ func (x *RedisManager) Select(id string) error {
 	return err
 }
 
-func (x *RedisManager) Save(config *ServerConfig) (err error) {
-	if config.ID == "" {
-		x.add(config)
+func (x *RedisManager) Save(in *ServerConfig) (err error) {
+	if in.ID == "" {
+		x.add(in)
 	} else {
 		found := -1
-		for i, rc := range x.Configs {
-			if rc.ID == config.ID {
+		for i, config := range x.Configs {
+			if config.ID == in.ID {
 				found = i
-				rc.Addrs = config.Addrs
-				rc.DB = config.DB
-				rc.Name = config.Name
-				rc.Password = config.Password
-				x.generateName(rc)
+				config.Addrs = in.Addrs
+				config.Name = in.Name
+				config.Password = in.Password
+				x.generateName(config)
 				break
 			}
 		}
 		if found < 0 {
 			// if not found, still add
-			x.add(config)
+			x.add(in)
 		}
 	}
 
-	x.Servers, err = x.generateServers()
-	if err != nil {
-		return err
-	}
+	x.Servers = x.generateServers()
 
 	err = x.save()
 	return err
@@ -136,18 +126,15 @@ func (x *RedisManager) load() error {
 	return serr.WithStack(err)
 }
 
-func (x *RedisManager) generateServers() (r map[string]*RedisServer, err error) {
+func (x *RedisManager) generateServers() (r map[string]*RedisServer) {
 	r = make(map[string]*RedisServer, len(x.Configs))
 
 	// errs := make([]error, 0)
-	for _, sc := range x.Configs {
-		r[sc.ID], err = NewRedisServer(sc)
-		if err != nil {
-			return nil, err
-		}
+	for _, config := range x.Configs {
+		r[config.ID] = NewRedisServer(config)
 	}
 
-	return r, err
+	return r
 }
 
 func (x *RedisManager) add(rc *ServerConfig) {
@@ -157,10 +144,10 @@ func (x *RedisManager) add(rc *ServerConfig) {
 	x.Select(rc.ID) // set new item as selected
 }
 
-func (x *RedisManager) generateName(rc *ServerConfig) {
-	if rc.Name == "" {
+func (x *RedisManager) generateName(config *ServerConfig) {
+	if config.Name == "" {
 		// rc.Name = strings.Join(rc.Addrs, ",")
-		rc.Name = rc.ID
+		config.Name = config.ID
 	}
 }
 

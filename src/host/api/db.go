@@ -15,28 +15,34 @@ import (
 var DBGroup = host.NewActionGroup(
 	nil,
 	[]*host.Action{
-		host.NewAction("GET/api/servers/{serverID}/{nodeID}/{db}", "key__", GetMembers),
-		host.NewAction("GET/api/servers/{serverID}/{nodeID}/{db}/{key}", "key__", GetKey),
-		host.NewAction("POST/api/servers/{serverID}/{nodeID}/{db}/{key}", "key__", GetValue),
-		host.NewAction("POST/api/servers/{serverID}/{nodeID}/{db}", "key__", SaveEntry),
+		host.NewAction("POST/api/servers/{serverID}/{db}", "key__", GetKeysOrMembers),
+		host.NewAction("GET/api/servers/{serverID}/{db}/{key}", "key__", GetKey),
+		host.NewAction("POST/api/servers/{serverID}/{db}/{key}", "key__", GetValue),
+		host.NewAction("POST/api/servers/{serverID}/{db}", "key__", SaveEntry),
 	},
 	nil,
 )
 
-func GetMembers(ctx host.IHttpContext) {
+func GetKeysOrMembers(ctx host.IHttpContext) {
 	dB, err := getDB(ctx)
 	if host.HandleErr(err, ctx) {
 		return
 	}
 
-	key := ctx.GetFormString("Key")
-	if key == "" {
-		query := new(rmr.KeysQuery)
-		err := ctx.ReadQuery(query)
-		if host.HandleErr(err, ctx) {
-			return
+	scanQuery := new(rmr.ScanQuerySet)
+	err = ctx.ReadJSON(scanQuery)
+	if host.HandleErr(err, ctx) {
+		return
+	}
+
+	if scanQuery.Key == "" {
+		// Scan keys
+		var rs map[string]*rmr.KeyQueryResult
+		if scanQuery.Queries == nil {
+			rs, err = dB.ScanKeys(scanQuery.Query)
+		} else {
+			rs, err = dB.ScanMoreKeys(scanQuery.Queries)
 		}
-		rs, err := dB.GetKeys(query)
 		if host.HandleErr(err, ctx) {
 			return
 		}
@@ -48,12 +54,8 @@ func GetMembers(ctx host.IHttpContext) {
 
 		ctx.WriteJsonBytes(data)
 	} else {
-		query := new(rmr.MembersQuery)
-		err := ctx.ReadQuery(query)
-		if host.HandleErr(err, ctx) {
-			return
-		}
-		rs, err := dB.GetMembers(query)
+		// scan members
+		rs, err := dB.GetMembers(scanQuery)
 		if host.HandleErr(err, ctx) {
 			return
 		}

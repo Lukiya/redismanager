@@ -5,34 +5,40 @@ import { SaveOutlined, CodeOutlined, BoxPlotOutlined, UndoOutlined } from '@ant-
 const buildFieldEditor = (props: any) => {
     const { redisKey, field } = props;
 
-    if (redisKey.Type != u.STRING && field != undefined) {
-        let input: any;
-        let fieldLabel = "field";
-        switch (redisKey.Type) {
-            case u.LIST:
-                fieldLabel = "Index";
-                input = <InputNumber precision={0} placeholder={fieldLabel} readOnly={true} style={{ backgroundColor: "#f0f0f0" }} />;
-                return <Col>
-                    <Form.Item label={fieldLabel} labelAlign="right" name="Field">
-                        {input}
-                    </Form.Item>
-                </Col>;
-            case u.ZSET:
-                fieldLabel = "Score";
-                input = <InputNumber precision={2} placeholder={fieldLabel} />;
-                return <Col>
-                    <Form.Item label={fieldLabel} labelAlign="right" name="Field">
-                        {input}
-                    </Form.Item>
-                </Col>;
-            default:
-                input = <Input width="xl" placeholder={fieldLabel} />;
-                return <Col lg={6} xl={6} xxl={6}>
-                    <Form.Item label={fieldLabel} labelAlign="right" name="Field">
-                        {input}
-                    </Form.Item>
-                </Col>;
-        }
+    if (redisKey.Type == u.HASH && field != undefined) {
+        return <Col lg={6} xl={6} xxl={6}>
+            <Form.Item label="Field" labelAlign="right" name="Field">
+                <Input width="xl" placeholder="Field" />
+            </Form.Item>
+        </Col>;
+    }
+
+    return undefined;
+};
+
+const buildScoreEditor = (props: any) => {
+    const { redisKey, field } = props;
+
+    if (redisKey.Type == u.ZSET && field != undefined) {
+        return <Col>
+            <Form.Item label="Score" labelAlign="right" name="Field">
+                <InputNumber precision={2} placeholder="Score" />
+            </Form.Item>
+        </Col>;
+    }
+
+    return undefined;
+};
+
+const buildIndexEditor = (props: any) => {
+    const { redisKey, field } = props;
+
+    if (redisKey.Type == u.LIST && field != undefined) {
+        return <Col>
+            <Form.Item label="Index" labelAlign="right" name="Field">
+                <InputNumber precision={0} placeholder="Index" min={0} readOnly={true} style={{ backgroundColor: "#f0f0f0" }} />
+            </Form.Item>
+        </Col>;
     }
 
     return undefined;
@@ -40,8 +46,9 @@ const buildFieldEditor = (props: any) => {
 
 const DrawerActionBar = (props: any) => {
     const { formRef } = props;
-    // console.log(props);
     const fieldEditor = buildFieldEditor(props);
+    const scoreEditor = buildScoreEditor(props);
+    const indexEditor = buildIndexEditor(props);
 
     const form = <Row gutter={8}>
         <Col lg={6} xl={6} xxl={6}>
@@ -50,6 +57,8 @@ const DrawerActionBar = (props: any) => {
             </Form.Item>
         </Col>
         {fieldEditor}
+        {scoreEditor}
+        {indexEditor}
         <Col>
             <Form.Item label="TTL" labelAlign="right" name="TTL">
                 <InputNumber placeholder="TTL" min={-1} precision={0} />

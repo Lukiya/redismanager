@@ -20,12 +20,11 @@ type RedisKey struct {
 	client redis.UniversalClient
 }
 
-func newRedisKey(client redis.UniversalClient, key string) (r *RedisKey, err error) {
+func newRedisKey(ctx context.Context, client redis.UniversalClient, key string) (r *RedisKey, err error) {
 	r = new(RedisKey)
 	r.client = client
 	r.Key = key
 
-	ctx := context.Background()
 	err = r.getType(ctx)
 	if err != nil {
 		return nil, err

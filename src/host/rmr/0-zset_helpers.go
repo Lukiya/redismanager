@@ -9,7 +9,15 @@ import (
 	"github.com/syncfuture/go/serr"
 )
 
-func saveZSet(ctx context.Context, client redis.UniversalClient, cmd *SaveRedisEntryCommand) error {
+func saveZSet(ctx context.Context, client redis.UniversalClient, clusterClient *redis.ClusterClient, cmd *SaveRedisEntryCommand) error {
+	if clusterClient != nil {
+		var err error
+		client, err = clusterClient.MasterForKey(ctx, cmd.New.Key)
+		if err != nil {
+			return serr.WithStack(err)
+		}
+	}
+
 	var err error
 	var score float64
 	if cmd.New.Field != "" {
@@ -29,9 +37,9 @@ func saveZSet(ctx context.Context, client redis.UniversalClient, cmd *SaveRedisE
 		}
 	} else if cmd.New.Key != cmd.Old.Key {
 		// rename key
-		err = client.Rename(ctx, cmd.Old.Key, cmd.New.Key).Err()
+		err = renameKey(ctx, client, clusterClient, cmd.Old.Key, cmd.New.Key)
 		if err != nil {
-			return serr.WithStack(err)
+			return err
 		}
 	}
 
@@ -52,28 +60,28 @@ func saveZSet(ctx context.Context, client redis.UniversalClient, cmd *SaveRedisE
 	return nil
 }
 
-func getZSetMembers(ctx context.Context, client redis.UniversalClient, query *MembersQuery) (*MembersQueryResult, error) {
-	keys, cur, err := client.ZScan(ctx, query.Key, query.Cursor, query.Match, query.Count).Result()
+func getZSetMembers(ctx context.Context, client redis.UniversalClient, query *ScanQuerySet) (*MemberQueryResult, error) {
+	keys, cur, err := client.ZScan(ctx, query.Key, query.Query.Cursor, query.Query.Keyword, query.Query.Count).Result()
 	if err != nil {
 		return nil, serr.WithStack(err)
 	}
-	if len(keys) < int(query.Count) && cur > 0 {
-		// if return keys is less than count limit, but has cursor
-		var leftKeys []string
-		// then keep read left keys
-		keys, cur, err = client.ZScan(ctx, query.Key, query.Cursor, query.Match, query.Count).Result()
-		// and append it to results
-		keys = append(keys, leftKeys...)
-	}
+	// if len(keys) < int(query.Count) && cur > 0 {
+	// 	// if return keys is less than count limit, but has cursor
+	// 	var leftKeys []string
+	// 	// then keep read left keys
+	// 	keys, cur, err = client.ZScan(ctx, query.Key, query.Cursor, query.Match, query.Count).Result()
+	// 	// and append it to results
+	// 	keys = append(keys, leftKeys...)
+	// }
 
-	r := new(MembersQueryResult)
-	r.Members = make([]*MemberResult, 0, query.Count)
+	r := new(MemberQueryResult)
+	r.Members = make([]*MemberResult, 0, query.Query.Count)
 	r.Cursor = cur
 	for i := range keys {
 		if i%2 == 0 {
 			r.Members = append(r.Members, &MemberResult{
-				Field: keys[i],
-				Value: sconv.ToFloat64(keys[i+1]), // score
+				Value: keys[i],
+				Score: sconv.ToFloat64(keys[i+1]), // score
 			})
 		}
 	}

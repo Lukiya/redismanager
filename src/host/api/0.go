@@ -9,24 +9,24 @@ import (
 	"github.com/syncfuture/host"
 )
 
-func getDB(ctx host.IHttpContext) (*rmr.RedisDB, error) {
+func getDB(ctx host.IHttpContext) (rmr.IRedisDB, error) {
 	serverID := ctx.GetParamString("serverID")
-	nodeID := ctx.GetParamString("nodeID")
+	// nodeID := ctx.GetParamString("nodeID")
 	db := ctx.GetParamInt("db")
 
 	var err error
 
-	Server := core.Manager.GetServer(serverID)
-	if Server == nil {
+	server := core.Manager.GetServer(serverID)
+	if server == nil {
 		return nil, serr.Errorf("cannot find Server '%s'", serverID)
 	}
 
-	node := Server.GetNode(nodeID)
-	if node == nil {
-		return nil, serr.Errorf("cannot find node '%s/%s'", serverID, nodeID)
-	}
+	// node := Server.GetNode(nodeID)
+	// if node == nil {
+	// 	return nil, serr.Errorf("cannot find node '%s/%s'", serverID, nodeID)
+	// }
 
-	dB, err := node.GetDB(db)
+	dB, err := server.GetDB(db)
 	if host.HandleErr(err, ctx) {
 		return nil, err
 	}

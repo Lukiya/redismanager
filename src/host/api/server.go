@@ -7,7 +7,6 @@ import (
 	"github.com/Lukiya/redismanager/src/go/rmr"
 	"github.com/syncfuture/go/serr"
 	log "github.com/syncfuture/go/slog"
-	"github.com/syncfuture/go/u"
 	"github.com/syncfuture/host"
 )
 
@@ -53,7 +52,7 @@ func GetServer(ctx host.IHttpContext) {
 	if serverID == "selected" {
 		server = core.Manager.GetSelectedServer()
 	} else {
-		server = core.Manager.Servers[serverID]
+		server = core.Manager.GetServer(serverID)
 	}
 	// if helpers.CheckServer(server, ctx) {
 	// 	return
@@ -64,13 +63,10 @@ func GetServer(ctx host.IHttpContext) {
 		return
 	}
 
-	// load all dbs before return
-	for _, v := range server.Nodes {
-		err := v.LoadDBs()
-		if err != nil {
-			u.LogError(serr.Cause(err))
-			return
-		}
+	// connect before return
+	err := server.Connect()
+	if host.HandleErr(err, ctx) {
+		return
 	}
 
 	data, err := json.Marshal(server)

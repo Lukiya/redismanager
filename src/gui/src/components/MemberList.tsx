@@ -110,6 +110,10 @@ const buildForm = (props: any) => {
         const form = <Form
             form={formRef}
             initialValues={redisKey}
+            onFinish={(values) => {
+                values.Type = redisKey.Type;
+                dispatch({ type: "memberListVM/save", values });
+            }}
         >
             <DrawerActionBar redisKey={redisKey} formRef={formRef}></DrawerActionBar>
         </Form>;

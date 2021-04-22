@@ -1,5 +1,6 @@
 import { GetKey, GetValue, SaveEntry } from "@/services/dbAPI";
 import u from "@/u";
+import { message } from 'antd';
 const _defaultTitle = "Editor";
 
 export default {
@@ -62,6 +63,9 @@ export default {
             }
 
             const resp = yield SaveEntry(state, data);
+            if (resp?.err) {
+                message.error(resp.err);
+            }
         },
     },
     reducers: {

@@ -21,6 +21,8 @@ func main() {
 		api.DBGroup,
 	)
 
+	core.Host.ServeFiles("/{filepath:*}", "./wwwroot")
+
 	fmt.Println("------------------------------------------------")
 	fmt.Println("-             Redis Manager " + common.Version + "             -")
 	fmt.Println("------------------------------------------------")
