@@ -133,7 +133,7 @@ const KeyListPage = (props: any) => {
     let table: any = null;
     let actionBar: any = null;
     // let memberEditor: any = null;
-    const inited = true;
+    const inited = server.ID != undefined && server.ID != "";
     if (inited) {
         ////////// breadcrumb
         breadcrumbRoutes = [

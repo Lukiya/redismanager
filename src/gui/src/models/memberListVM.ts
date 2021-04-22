@@ -16,14 +16,14 @@ export default {
             const state = yield select((x: any) => x["memberListVM"]);
             const kResp = yield GetKey(state);
             if (kResp?.Key) {
-                const mResp = yield Scan(state);
-                if (mResp?.Members) {
+                const resp = yield Scan(state);
+                if (resp?.Elements) {
                     yield put({
                         type: "setState", payload: {
                             redisKey: kResp,
-                            dataSource: mResp.Members,
-                            cursor: mResp.Cursor,
-                            hasMore: mResp.Cursor != 0,
+                            dataSource: resp.Elements,
+                            cursor: resp.Cursor,
+                            hasMore: resp.Cursor != 0,
                         }
                     });
                 }
@@ -38,7 +38,7 @@ export default {
             }
 
             const resp = yield Scan(state);
-            if (resp?.Members) {
+            if (resp?.Elements) {
                 yield put({ type: 'appendMembers', resp });
             } else {
                 console.log("no json in response body");
@@ -64,7 +64,7 @@ export default {
             return {
                 ...state,
                 // loading: false,
-                dataSource: state.dataSource.concat(resp.Members),
+                dataSource: state.dataSource.concat(resp.Elements),
                 cursor: resp.Cursor,
                 hasMore: resp.Cursor != 0,
             };
