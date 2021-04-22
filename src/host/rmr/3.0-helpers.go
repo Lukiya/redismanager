@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"runtime"
 	"sync"
-	"time"
 
 	"github.com/Lukiya/redismanager/src/go/io"
 	"github.com/go-redis/redis/v8"
@@ -13,97 +12,6 @@ import (
 	"github.com/syncfuture/go/stask"
 	"github.com/syncfuture/go/u"
 )
-
-const (
-	_clusterDisabedError = "ERR This instance has cluster support disabled"
-)
-
-type IRedisDB interface {
-	ScanKeys(query *ScanQuery) (map[string]*KeyQueryResult, error)
-	ScanMoreKeys(queries map[string]*ScanQuery) (map[string]*KeyQueryResult, error)
-	GetAllKeys(query *ScanQuery) ([]*RedisKey, error)
-	GetKey(key string) (*RedisKey, error)
-	GetMembers(query *ScanQuerySet) (*MemberQueryResult, error)
-	KeyExists(key string) (bool, error)
-	SaveValue(cmd *SaveRedisEntryCommand) error
-}
-
-type ServerConfig struct {
-	ID       string   `json:"ID,omitempty"`
-	Name     string   `json:"Name,omitempty"`
-	Addrs    []string `json:"Addrs,omitempty"`
-	Password string   `json:"Password,omitempty"`
-	Selected bool     `json:"Selected,omitempty"`
-}
-
-type ScanQuerySet struct {
-	Key     string
-	Type    string
-	Query   *ScanQuery
-	Queries map[string]*ScanQuery
-}
-
-type ScanQuery struct {
-	Cursor  uint64
-	Count   int64
-	Keyword string
-}
-
-type KeyQueryResult struct {
-	Cursor uint64
-	Keys   []*RedisKey
-}
-
-type MemberResult struct {
-	Field string
-	Value string
-	Index uint64
-	Score float64
-}
-
-type MemberQueryResult struct {
-	Cursor  uint64
-	Members []*MemberResult
-}
-
-type SaveRedisEntryCommand struct {
-	New   *RedisEntry `json:"new"`
-	Old   *RedisEntry `json:"old"`
-	IsNew bool        `json:"isNew"`
-}
-type RedisEntry struct {
-	Key   string
-	Type  string
-	Field string
-	Value string
-	TTL   int64
-}
-
-func saveTTL(ctx context.Context, client redis.UniversalClient, clusterClient *redis.ClusterClient, cmd *SaveRedisEntryCommand) (err error) {
-	if clusterClient != nil {
-		var err error
-		client, err = clusterClient.MasterForKey(ctx, cmd.New.Key)
-		if err != nil {
-			return serr.WithStack(err)
-		}
-	}
-
-	if cmd.New.TTL != cmd.Old.TTL {
-		// Need update ttl
-		if cmd.New.TTL > 0 {
-			err = client.Expire(ctx, cmd.New.Key, time.Duration(cmd.New.TTL)*time.Second).Err()
-			if err != nil {
-				return serr.WithStack(err)
-			}
-		} else {
-			err = client.Persist(ctx, cmd.New.Key).Err()
-			if err != nil {
-				return serr.WithStack(err)
-			}
-		}
-	}
-	return
-}
 
 func scanKeys(ctx context.Context, locker *sync.Mutex, wg *sync.WaitGroup, results *map[string]*KeyQueryResult, id string, client *redis.Client, query *ScanQuery) {
 	if wg != nil {
