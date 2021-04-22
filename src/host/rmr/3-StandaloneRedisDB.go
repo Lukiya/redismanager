@@ -50,6 +50,7 @@ func (x *StandaloneRedisDB) ScanMoreKeys(querySet *ScanQuerySet) (*ScanKeyResult
 	}
 
 	err := scanKeys(ctx, locker, nil, result, x.id, x.client, &ScanQuery{
+		Count:   querySet.Query.Count,
 		Keyword: querySet.Query.Keyword,
 		Cursor:  querySet.Cursors[x.id],
 	})

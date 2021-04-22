@@ -38,7 +38,9 @@ func ScanKeysOrElements(ctx host.IHttpContext) {
 	if scanQuerySet.Key == "" {
 		// Scan keys
 		var rs *rmr.ScanKeyResult
-		if scanQuerySet.Cursors == nil {
+		if scanQuerySet.All {
+			rs, err = dB.GetAllKeys(scanQuerySet)
+		} else if scanQuerySet.Cursors == nil {
 			rs, err = dB.ScanKeys(scanQuerySet)
 		} else {
 			rs, err = dB.ScanMoreKeys(scanQuerySet)

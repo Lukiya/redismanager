@@ -20,7 +20,7 @@ const Dashboard = (props: any) => {
             sorter: (a: any, b: any) => a.ID.localeCompare(b.ID),
         },
         {
-            title: 'Nodes',
+            title: 'Node',
             dataIndex: 'Addrs',
             render: (_: any, x: any) => {
                 return x.Addrs?.join(", ")
@@ -30,7 +30,7 @@ const Dashboard = (props: any) => {
             title: 'Actions',
             align: "right",
             width: 240,
-            render: (_: any, record: any, index: number) => {
+            render: (_: any, record: any) => {
                 const btnSelect = record.Selected ? null : <Button type="primary" size="small" icon={<SelectOutlined />} onClick={() => dispatch({ type: "serverListVM/selectServer", payload: record })}>Select</Button>;
 
                 return (
@@ -87,18 +87,18 @@ const Dashboard = (props: any) => {
             <ProFormSwitch name="Selected" hidden={true} />
         </ProForm.Group>
         <ProForm.Group>
-            <ProFormTextArea width="md" name="Addrs" label="Node Address(es)&nbsp;" tooltip="Each node take one line" rules={[
-                { required: true, message: 'node host address(es) are required.' },
+            <ProFormText width="md" name="Addrs" label="Node Address&nbsp;" placeholder="host:port" tooltip="Clsuter nodes will be detected automatically" rules={[
+                { required: true, message: 'Node address are required' },
                 () => ({
                     validator(_, value: string) {
-                        const regex = /^[a-zA-Z0-9\.]+:\d+?$/gm;
+                        const regex = /^[a-zA-Z0-9\.\:]+\:\d+?$|^$/gm;
                         const array = value.split("\n");
                         const matches = value.match(regex);
 
                         if (array.length == matches?.length) {
                             return Promise.resolve();
                         }
-                        return Promise.reject('Invalid host address(es) format.');
+                        return Promise.reject('Invalid node address format');
                     },
                 }),
             ]} />

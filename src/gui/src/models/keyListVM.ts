@@ -1,4 +1,4 @@
-import { GetMembers } from "@/services/dbAPI";
+import { Scan } from "@/services/dbAPI";
 import u from "@/u";
 
 export default {
@@ -15,7 +15,7 @@ export default {
                 ...u.DefaultQuery,
                 ...query,
             };
-            const resp = yield GetMembers(query);
+            const resp = yield Scan(query);
 
             if (resp?.Keys && resp?.Cursors) {
                 query.cursors = resp.Cursors;
@@ -38,12 +38,34 @@ export default {
             }
 
             const { query } = state;
-            // const resp = yield call(GetKeys, query);
-            const resp = yield GetMembers(query);
+            const resp = yield Scan(query);
 
             if (resp?.Keys && resp?.Cursors) {
                 query.cursors = resp.Cursors;
                 yield put({ type: 'appendKeys', payload: { resp, query } });
+            } else {
+                console.log("no json in response body");
+            }
+        },
+        *loadAll(_: any, { put, select }: any): any {
+            const state = yield select((x: any) => x["keyListVM"]);
+            if (!state.hasMore) {
+                return;
+            }
+
+            const { query } = state;
+            query.all = true;
+            const resp = yield Scan(query);
+
+            if (resp?.Keys && resp?.Cursors) {
+                query.cursors = resp.Cursors;
+                yield put({
+                    type: 'setState', payload: {
+                        keys: resp.Keys,
+                        query,
+                        hasMore: false,
+                    }
+                });
             } else {
                 console.log("no json in response body");
             }

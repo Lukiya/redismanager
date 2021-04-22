@@ -1,7 +1,7 @@
 import { PageContainer } from '@ant-design/pro-layout';
-import { Table, Button, Input, Menu, Card, FormInstance, Row, Col, Dropdown } from 'antd';
-import { connect, history } from 'umi'
-import { MoreOutlined, PlusOutlined, EditOutlined } from '@ant-design/icons'
+import { Table, Button, Input, Menu, Card, Space, Row, Col, Dropdown, Divider } from 'antd';
+import { connect } from 'umi'
+import { PlusOutlined } from '@ant-design/icons'
 import MemberEditor from '@/components/memberEditor'
 import u from '@/u';
 import MemberList from '@/components/MemberList';
@@ -100,6 +100,23 @@ const buildColumns = (dispatch: any, params: any) => {
     return columns;
 };
 
+const buildFooter = (props: any) => {
+    const { keyListState, keyListLoading, dispatch } = props;
+
+    return <div style={{ textAlign: "center" }}>
+        {
+            keyListState.hasMore ?
+                <Space>
+                    <Button type="link" loading={keyListLoading} onClick={() => dispatch({ type: "keyListVM/loadMore" })}>Load more...</Button>
+                    <Divider type="vertical" />
+                    <Button type="link" loading={keyListLoading} onClick={() => dispatch({ type: "keyListVM/loadAll" })}>Load all...</Button>
+                </Space>
+                :
+                <Button type="link" disabled>All keys loaded</Button>
+        }
+    </div>;
+}
+
 const KeyListPage = (props: any) => {
     const { menuState: { server }, keyListState, keyListLoading, match: { params }, dispatch } = props;
 
@@ -121,8 +138,7 @@ const KeyListPage = (props: any) => {
         ////////// breadcrumb
         breadcrumbRoutes = [
             { path: '', breadcrumbName: server.Name, },
-            // { path: '', breadcrumbName: node.Addr, },
-            { path: '', breadcrumbName: params.db, },
+            { path: '', breadcrumbName: "db" + params.db, },
         ];
 
         ////////// action bar
@@ -160,14 +176,6 @@ const KeyListPage = (props: any) => {
 
         ////////// table
         const columns = buildColumns(dispatch, params);
-        const footer = () => <div style={{ textAlign: "center" }}>
-            {
-                keyListState.hasMore ?
-                    <Button type="link" icon={<MoreOutlined />} loading={keyListLoading} onClick={() => dispatch({ type: "keyListVM/loadMore" })}>Load more...</Button>
-                    :
-                    <Button type="link" disabled>All keys loaded</Button>
-            }
-        </div>
 
         table = <Table
             dataSource={keyListState.keys}
@@ -177,7 +185,7 @@ const KeyListPage = (props: any) => {
             loading={keyListLoading}
             size="small"
             bordered
-            footer={footer}
+            footer={() => buildFooter(props)}
         >
         </Table>;
 

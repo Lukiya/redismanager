@@ -6,7 +6,7 @@ const request = extend({
     prefix: u.LocalRootURL() + "api",
 });
 
-export async function GetMembers(query: any) {
+export async function Scan(query: any) {
     const key = query.redisKey?.Key ?? "";
     const type = query.redisKey?.Type ?? "";
 
@@ -20,6 +20,7 @@ export async function GetMembers(query: any) {
         data: {
             Key: key,
             Type: type,
+            All: query.all,
             Query: {
                 Count: query.count,
                 Keyword: query.keyword,

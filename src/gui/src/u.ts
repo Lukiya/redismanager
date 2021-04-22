@@ -43,6 +43,7 @@ const u = {
         cursor: 0,
         count: 50,
         keyword: '',
+        all: false,
     },
     LocalRootURL: () => {
         const r = process.env.NODE_ENV === "production" ? "/" : "http://localhost:16379/";

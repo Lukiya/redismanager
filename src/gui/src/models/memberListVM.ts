@@ -1,4 +1,4 @@
-import { GetKey, GetMembers, SaveEntry } from "@/services/dbAPI";
+import { GetKey, Scan, SaveEntry } from "@/services/dbAPI";
 import u from "@/u";
 import { message } from 'antd';
 
@@ -16,7 +16,7 @@ export default {
             const state = yield select((x: any) => x["memberListVM"]);
             const kResp = yield GetKey(state);
             if (kResp?.Key) {
-                const mResp = yield GetMembers(state);
+                const mResp = yield Scan(state);
                 if (mResp?.Members) {
                     yield put({
                         type: "setState", payload: {
@@ -37,7 +37,7 @@ export default {
                 return;
             }
 
-            const resp = yield GetMembers(state);
+            const resp = yield Scan(state);
             if (resp?.Members) {
                 yield put({ type: 'appendMembers', resp });
             } else {

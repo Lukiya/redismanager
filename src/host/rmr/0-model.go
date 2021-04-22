@@ -27,6 +27,7 @@ type ServerConfig struct {
 type ScanQuerySet struct {
 	Key     string
 	Type    string
+	All     bool
 	Query   *ScanQuery
 	Cursors map[string]uint64
 }

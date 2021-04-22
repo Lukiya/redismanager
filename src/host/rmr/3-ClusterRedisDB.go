@@ -86,6 +86,7 @@ func (x *ClusterRedisDB) ScanMoreKeys(querySet *ScanQuerySet) (*ScanKeyResult, e
 					}
 				}
 			}(i, c, &ScanQuery{
+				Count:   querySet.Query.Count,
 				Keyword: querySet.Query.Keyword,
 				Cursor:  cur,
 			})
