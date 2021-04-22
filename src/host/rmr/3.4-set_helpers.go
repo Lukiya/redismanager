@@ -42,7 +42,7 @@ func saveSet(ctx context.Context, client redis.UniversalClient, clusterClient *r
 	return err
 }
 
-func getSetElements(ctx context.Context, client redis.UniversalClient, query *ScanQuerySet) (*ElementQueryResult, error) {
+func getSetElements(ctx context.Context, client redis.UniversalClient, query *ScanQuerySet) (*ScanElementResult, error) {
 	keys, cur, err := client.SScan(ctx, query.Key, query.Query.Cursor, query.Query.Keyword, query.Query.Count).Result()
 	if err != nil {
 		return nil, serr.WithStack(err)
@@ -56,7 +56,7 @@ func getSetElements(ctx context.Context, client redis.UniversalClient, query *Sc
 	// 	keys = append(keys, leftKeys...)
 	// }
 
-	r := new(ElementQueryResult)
+	r := new(ScanElementResult)
 	r.Elements = make([]*ElementResult, 0, len(keys))
 	r.Cursor = cur
 	for _, value := range keys {

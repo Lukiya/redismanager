@@ -51,16 +51,16 @@ func GetServer(ctx host.IHttpContext) {
 	var server *rmr.RedisServer
 	var err error
 	if serverID == "selected" {
-		server = core.Manager.GetSelectedServer()
+		server, err = core.Manager.GetSelectedServer()
+		if host.HandleErr(err, ctx) {
+			return
+		}
 	} else {
 		server, err = core.Manager.GetServer(serverID)
 		if host.HandleErr(err, ctx) {
 			return
 		}
 	}
-	// if helpers.CheckServer(server, ctx) {
-	// 	return
-	// }
 
 	if server == nil {
 		log.Warnf("server '%s' is nil", serverID)

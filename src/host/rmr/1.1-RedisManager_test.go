@@ -23,7 +23,8 @@ func TestNewRedisManager(t *testing.T) {
 	err = m.Select(newConfig.ID)
 	assert.NoError(t, err)
 
-	a = m.GetSelectedServer()
+	a, err = m.GetSelectedServer()
+	assert.NoError(t, err)
 	assert.NotNil(t, a)
 
 	err = m.Remove(newConfig.ID)

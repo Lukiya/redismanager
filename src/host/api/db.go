@@ -14,7 +14,7 @@ import (
 var DBGroup = host.NewActionGroup(
 	nil,
 	[]*host.Action{
-		host.NewAction("POST/api/servers/{serverID}/{db}/scan", "key__", GetKeysOrElements),
+		host.NewAction("POST/api/servers/{serverID}/{db}/scan", "key__", ScanKeysOrElements),
 		host.NewAction("GET/api/servers/{serverID}/{db}/{key}", "key__", GetKey),
 		host.NewAction("POST/api/servers/{serverID}/{db}/{key}", "key__", GetValue),
 		host.NewAction("POST/api/servers/{serverID}/{db}/save", "key__", SaveEntry),
@@ -23,7 +23,7 @@ var DBGroup = host.NewActionGroup(
 	nil,
 )
 
-func GetKeysOrElements(ctx host.IHttpContext) {
+func ScanKeysOrElements(ctx host.IHttpContext) {
 	dB, err := getDB(ctx)
 	if host.HandleErr(err, ctx) {
 		return
@@ -38,7 +38,7 @@ func GetKeysOrElements(ctx host.IHttpContext) {
 	if scanQuerySet.Key == "" {
 		// Scan keys
 		var rs *rmr.ScanKeyResult
-		if scanQuerySet.Queries == nil {
+		if scanQuerySet.Cursors == nil {
 			rs, err = dB.ScanKeys(scanQuerySet)
 		} else {
 			rs, err = dB.ScanMoreKeys(scanQuerySet)

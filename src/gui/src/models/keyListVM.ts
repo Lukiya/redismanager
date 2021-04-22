@@ -6,6 +6,7 @@ export default {
         keys: [],
         query: u.DefaultQuery,
         hasMore: false,
+        cursors: {},
     },
     effects: {
         *load({ query }: any, { put }: any): any {
@@ -17,7 +18,7 @@ export default {
             const resp = yield GetMembers(query);
 
             if (resp?.Keys) {
-                query.cursor = resp.Cursor;
+                query.cursors = resp.Cursor;
                 yield put({
                     type: 'setState', payload: {
                         keys: resp.Keys,
@@ -40,7 +41,7 @@ export default {
             const resp = yield GetMembers(query);
 
             if (resp?.Keys) {
-                query.cursor = resp.Cursor;
+                query.cursors = resp.Cursors;
                 yield put({ type: 'appendKeys', payload: { resp, query } });
             } else {
                 console.log("no json in response body");

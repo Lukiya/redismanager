@@ -67,13 +67,13 @@ func (x *ClusterRedisDB) ScanMoreKeys(querySet *ScanQuerySet) (*ScanKeyResult, e
 
 	locker := new(sync.Mutex)
 	result := &ScanKeyResult{
-		Cursors: make(map[string]uint64, len(querySet.Queries)),
+		Cursors: make(map[string]uint64, len(querySet.Cursors)),
 	}
 	wg := new(sync.WaitGroup)
 	errCh := make(chan error, 1)
 
 	for i, c := range x.masterClients {
-		if q, ok := querySet.Queries[i]; ok {
+		if cur, ok := querySet.Cursors[i]; ok {
 			wg.Add(1)
 			go func(id string, client *redis.Client, query *ScanQuery) {
 				err := scanKeys(ctx, locker, wg, result, id, client, query)
@@ -83,7 +83,10 @@ func (x *ClusterRedisDB) ScanMoreKeys(querySet *ScanQuerySet) (*ScanKeyResult, e
 					default:
 					}
 				}
-			}(i, c, q)
+			}(i, c, &ScanQuery{
+				Keyword: querySet.Query.Keyword,
+				Cursor:  cur,
+			})
 		}
 	}
 
@@ -107,22 +110,15 @@ func (x *ClusterRedisDB) GetAllKeys(querySet *ScanQuerySet) ([]*RedisKey, error)
 	keys = append(keys, scanResult.Keys...)
 
 	for len(scanResult.Cursors) > 0 {
-		querySet.Queries = make(map[string]*ScanQuery, len(scanResult.Cursors))
-		for i, cur := range scanResult.Cursors {
-			if cur > 0 {
-				querySet.Queries[i] = &ScanQuery{
-					Cursor:  uint64(cur),
-					Keyword: querySet.Query.Keyword,
-				}
-			}
-		}
-		if len(querySet.Queries) > 0 {
+		querySet.Cursors = scanResult.Cursors
+		if len(querySet.Cursors) > 0 {
 			scanResult, err = x.ScanMoreKeys(querySet)
 			if err != nil {
 				return nil, err
 			}
 			keys = append(keys, scanResult.Keys...)
 		} else {
+			// empty map, stop loop
 			for k := range scanResult.Cursors {
 				delete(scanResult.Cursors, k)
 			}
@@ -142,7 +138,7 @@ func (x *ClusterRedisDB) GetKey(key string) (*RedisKey, error) {
 	return newRedisKey(ctx, client, key)
 }
 
-func (x *ClusterRedisDB) GetElements(query *ScanQuerySet) (*ElementQueryResult, error) {
+func (x *ClusterRedisDB) GetElements(query *ScanQuerySet) (*ScanElementResult, error) {
 	if query.Type == "" {
 		return nil, serr.New("type is missing")
 	}

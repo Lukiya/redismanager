@@ -35,7 +35,7 @@ func TestClusterRedisServer(t *testing.T) {
 	keys, err := db.GetAllKeys(&ScanQuerySet{
 		// Keyword: "STR*",
 		Query: &ScanQuery{
-			Count: 100,
+			Count: 800,
 		},
 	})
 	assert.NoError(t, err)

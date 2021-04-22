@@ -45,13 +45,13 @@ func saveList(ctx context.Context, client redis.UniversalClient, clusterClient *
 	return
 }
 
-func getListElements(ctx context.Context, client redis.UniversalClient, query *ScanQuerySet) (*ElementQueryResult, error) {
+func getListElements(ctx context.Context, client redis.UniversalClient, query *ScanQuerySet) (*ScanElementResult, error) {
 	keys, err := client.LRange(ctx, query.Key, int64(query.Query.Cursor), int64(query.Query.Cursor)+query.Query.Count).Result()
 	if err != nil {
 		return nil, serr.WithStack(err)
 	}
 
-	r := new(ElementQueryResult)
+	r := new(ScanElementResult)
 	r.Elements = make([]*ElementResult, 0, query.Query.Count)
 
 	if len(keys) == 0 {

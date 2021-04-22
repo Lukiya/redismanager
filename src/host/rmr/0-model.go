@@ -9,7 +9,7 @@ type IRedisDB interface {
 	ScanMoreKeys(query *ScanQuerySet) (*ScanKeyResult, error)
 	GetAllKeys(query *ScanQuerySet) ([]*RedisKey, error)
 	GetKey(key string) (*RedisKey, error)
-	GetElements(query *ScanQuerySet) (*ElementQueryResult, error)
+	GetElements(query *ScanQuerySet) (*ScanElementResult, error)
 	KeyExists(key string) (bool, error)
 	SaveValue(cmd *SaveRedisEntryCommand) error
 	DeleteKey(key string) error
@@ -28,7 +28,7 @@ type ScanQuerySet struct {
 	Key     string
 	Type    string
 	Query   *ScanQuery
-	Queries map[string]*ScanQuery
+	Cursors map[string]uint64
 }
 
 type ScanQuery struct {
@@ -49,7 +49,7 @@ type ElementResult struct {
 	Score float64
 }
 
-type ElementQueryResult struct {
+type ScanElementResult struct {
 	Cursor   uint64
 	Elements []*ElementResult
 }

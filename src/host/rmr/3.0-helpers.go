@@ -34,8 +34,12 @@ func scanKeys(ctx context.Context, locker *sync.Mutex, wg *sync.WaitGroup, scanK
 
 	locker.Lock()
 	defer func() { locker.Unlock() }()
-	scanKeyResult.Cursors[id] = cur
 	scanKeyResult.Keys = append(scanKeyResult.Keys, redisKeys...)
+
+	if cur > 0 {
+		scanKeyResult.Cursors[id] = cur
+	}
+
 	return nil
 }
 

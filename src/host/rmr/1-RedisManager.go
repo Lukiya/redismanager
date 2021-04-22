@@ -25,14 +25,15 @@ func NewRedisManager() *RedisManager {
 	return r
 }
 
-func (x *RedisManager) GetSelectedServer() *RedisServer {
+func (x *RedisManager) GetSelectedServer() (*RedisServer, error) {
 	for _, v := range x.Servers {
 		if v.config.Selected {
-			return v
+			err := v.Connect()
+			return v, err
 		}
 	}
 
-	return nil
+	return nil, nil
 }
 
 func (x *RedisManager) GetServer(serverID string) (*RedisServer, error) {

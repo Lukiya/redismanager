@@ -60,7 +60,7 @@ func renameHashField(ctx context.Context, client redis.UniversalClient, key, old
 	return serr.WithStack(err)
 }
 
-func getHashElements(ctx context.Context, client redis.UniversalClient, query *ScanQuerySet) (*ElementQueryResult, error) {
+func getHashElements(ctx context.Context, client redis.UniversalClient, query *ScanQuerySet) (*ScanElementResult, error) {
 	keys, cur, err := client.HScan(ctx, query.Key, query.Query.Cursor, query.Query.Keyword, query.Query.Count).Result()
 	if err != nil {
 		return nil, serr.WithStack(err)
@@ -74,7 +74,7 @@ func getHashElements(ctx context.Context, client redis.UniversalClient, query *S
 	// 	keys = append(keys, leftKeys...)
 	// }
 
-	r := new(ElementQueryResult)
+	r := new(ScanElementResult)
 	r.Elements = make([]*ElementResult, 0, query.Query.Count)
 	r.Cursor = cur
 	for i := range keys {
