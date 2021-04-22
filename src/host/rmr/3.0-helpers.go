@@ -13,20 +13,20 @@ import (
 	"github.com/syncfuture/go/u"
 )
 
-func scanKeys(ctx context.Context, locker *sync.Mutex, wg *sync.WaitGroup, results *map[string]*KeyQueryResult, id string, client *redis.Client, query *ScanQuery) {
+func scanKeys(ctx context.Context, locker *sync.Mutex, wg *sync.WaitGroup, results *map[string]*KeyQueryResult, id string, client *redis.Client, query *ScanQuery) error {
 	if wg != nil {
 		defer func() { wg.Done() }()
 	}
 
 	keys, cur, err := client.Scan(ctx, query.Cursor, query.Keyword, query.Count).Result()
-	if u.LogError(err) { // todo
-		return
+	if err != nil {
+		return serr.WithStack(err)
 	}
 
 	for cur > 0 && len(keys) == 0 {
 		keys, cur, err = client.Scan(ctx, cur, query.Keyword, query.Count).Result()
-		if u.LogError(err) { // todo
-			return
+		if err != nil {
+			return serr.WithStack(err)
 		}
 	}
 
@@ -38,6 +38,7 @@ func scanKeys(ctx context.Context, locker *sync.Mutex, wg *sync.WaitGroup, resul
 		Cursor: cur,
 		Keys:   redisKeys,
 	}
+	return nil
 }
 
 func stringKeysToRedisKeys(client *redis.Client, keys []string) []*RedisKey {

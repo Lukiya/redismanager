@@ -55,7 +55,7 @@ func GetKeysOrMembers(ctx host.IHttpContext) {
 		ctx.WriteJsonBytes(data)
 	} else {
 		// scan members
-		rs, err := dB.GetMembers(scanQuery)
+		rs, err := dB.GetElements(scanQuery)
 		if host.HandleErr(err, ctx) {
 			return
 		}

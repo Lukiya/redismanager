@@ -28,8 +28,10 @@ func (x *ClusterRedisDB) ScanKeys(query *ScanQuery) (map[string]*KeyQueryResult,
 
 	locker := new(sync.Mutex)
 	queries := make(map[string]*ScanQuery, len(x.masterClients))
-	restuls := make(map[string]*KeyQueryResult, len(x.masterClients))
+	results := make(map[string]*KeyQueryResult, len(x.masterClients))
 	wg := new(sync.WaitGroup)
+	errCh := make(chan error, 1)
+
 	for i, c := range x.masterClients {
 		wg.Add(1)
 		queries[i] = &ScanQuery{
@@ -37,12 +39,25 @@ func (x *ClusterRedisDB) ScanKeys(query *ScanQuery) (map[string]*KeyQueryResult,
 			Count:   query.Count,
 		}
 
-		go scanKeys(ctx, locker, wg, &restuls, i, c, queries[i])
+		go func(id string, client *redis.Client, query *ScanQuery) {
+			err := scanKeys(ctx, locker, wg, &results, id, client, query)
+			if err != nil {
+				select {
+				case errCh <- err:
+				default:
+				}
+			}
+		}(i, c, queries[i])
 	}
 
 	wg.Wait()
 
-	return restuls, nil
+	select {
+	case err := <-errCh:
+		return nil, err
+	default:
+		return results, nil
+	}
 }
 
 func (x *ClusterRedisDB) ScanMoreKeys(queries map[string]*ScanQuery) (map[string]*KeyQueryResult, error) {
@@ -51,17 +66,30 @@ func (x *ClusterRedisDB) ScanMoreKeys(queries map[string]*ScanQuery) (map[string
 	locker := new(sync.Mutex)
 	results := make(map[string]*KeyQueryResult, len(queries))
 	wg := new(sync.WaitGroup)
+	errCh := make(chan error, 1)
 
 	for i, c := range x.masterClients {
 		if q, ok := queries[i]; ok {
 			wg.Add(1)
-			go scanKeys(ctx, locker, wg, &results, i, c, q)
+			go func(id string, client *redis.Client, query *ScanQuery) {
+				err := scanKeys(ctx, locker, wg, &results, id, client, query)
+				if err != nil {
+					select {
+					case errCh <- err:
+					default:
+					}
+				}
+			}(i, c, q)
 		}
 	}
 
 	wg.Wait()
-
-	return results, nil
+	select {
+	case err := <-errCh:
+		return nil, err
+	default:
+		return results, nil
+	}
 }
 
 func (x *ClusterRedisDB) GetAllKeys(query *ScanQuery) ([]*RedisKey, error) {
@@ -114,7 +142,7 @@ func (x *ClusterRedisDB) GetKey(key string) (*RedisKey, error) {
 	return newRedisKey(ctx, client, key)
 }
 
-func (x *ClusterRedisDB) GetMembers(query *ScanQuerySet) (*MemberQueryResult, error) {
+func (x *ClusterRedisDB) GetElements(query *ScanQuerySet) (*ElementQueryResult, error) {
 	if query.Type == "" {
 		return nil, serr.New("type is missing")
 	}
@@ -127,16 +155,16 @@ func (x *ClusterRedisDB) GetMembers(query *ScanQuerySet) (*MemberQueryResult, er
 
 	switch query.Type {
 	case common.RedisType_Hash:
-		r, err := getHashMembers(ctx, client, query)
+		r, err := getHashElements(ctx, client, query)
 		return r, err
 	case common.RedisType_List:
-		r, err := getListMembers(ctx, client, query)
+		r, err := getListElements(ctx, client, query)
 		return r, err
 	case common.RedisType_Set:
-		r, err := getSetMembers(ctx, client, query)
+		r, err := getSetElements(ctx, client, query)
 		return r, err
 	case common.RedisType_ZSet:
-		r, err := getZSetMembers(ctx, client, query)
+		r, err := getZSetElements(ctx, client, query)
 		return r, err
 	default:
 		return nil, serr.Errorf("key type '%s' is not supported", query.Type)
@@ -174,12 +202,9 @@ func (x *ClusterRedisDB) SaveValue(cmd *SaveRedisEntryCommand) error {
 		}
 	}
 
-	redisKey, err := x.GetKey(cmd.Old.Key)
-	if err != nil {
-		return err
-	}
+	var err error
 
-	switch redisKey.Type {
+	switch cmd.New.Type {
 	case common.RedisType_String:
 		err = saveString(ctx, x.clusterClient, x.clusterClient, cmd)
 		break
@@ -196,7 +221,7 @@ func (x *ClusterRedisDB) SaveValue(cmd *SaveRedisEntryCommand) error {
 		err = saveZSet(ctx, x.clusterClient, x.clusterClient, cmd)
 		break
 	default:
-		err = serr.Errorf("key type '%s' is not supported", redisKey.Type)
+		err = serr.Errorf("key type '%s' is not supported", cmd.New.Type)
 		break
 	}
 
@@ -205,10 +230,40 @@ func (x *ClusterRedisDB) SaveValue(cmd *SaveRedisEntryCommand) error {
 	}
 
 	////////// save TTL
-	err = saveTTL(ctx, x.clusterClient, x.clusterClient, cmd)
+	return saveTTL(ctx, x.clusterClient, x.clusterClient, cmd)
+}
+
+func (x *ClusterRedisDB) DeleteKey(key string) error {
+	ctx := context.Background()
+	client, err := x.clusterClient.MasterForKey(ctx, key)
 	if err != nil {
-		return err
+		return serr.WithStack(err)
 	}
 
-	return nil
+	return client.Del(ctx, key).Err()
+}
+
+func (x *ClusterRedisDB) DeleteElement(key, typ, element string) error {
+	ctx := context.Background()
+
+	var err error
+	switch typ {
+	case common.RedisType_Hash:
+		err = delHash(ctx, x.clusterClient, x.clusterClient, key, element)
+		break
+	case common.RedisType_List:
+		err = delList(ctx, x.clusterClient, x.clusterClient, key, element)
+		break
+	case common.RedisType_Set:
+		err = delSet(ctx, x.clusterClient, x.clusterClient, key, element)
+		break
+	case common.RedisType_ZSet:
+		err = delZSet(ctx, x.clusterClient, x.clusterClient, key, element)
+		break
+	default:
+		err = serr.Errorf("key type '%s' is not supported", typ)
+		break
+	}
+
+	return err
 }

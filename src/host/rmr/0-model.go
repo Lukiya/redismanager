@@ -9,9 +9,11 @@ type IRedisDB interface {
 	ScanMoreKeys(queries map[string]*ScanQuery) (map[string]*KeyQueryResult, error)
 	GetAllKeys(query *ScanQuery) ([]*RedisKey, error)
 	GetKey(key string) (*RedisKey, error)
-	GetMembers(query *ScanQuerySet) (*MemberQueryResult, error)
+	GetElements(query *ScanQuerySet) (*ElementQueryResult, error)
 	KeyExists(key string) (bool, error)
 	SaveValue(cmd *SaveRedisEntryCommand) error
+	DeleteKey(key string) error
+	DeleteElement(key, typ, element string) error
 }
 
 type ServerConfig struct {
@@ -40,16 +42,16 @@ type KeyQueryResult struct {
 	Keys   []*RedisKey
 }
 
-type MemberResult struct {
+type ElementResult struct {
 	Field string
 	Value string
 	Index uint64
 	Score float64
 }
 
-type MemberQueryResult struct {
-	Cursor  uint64
-	Members []*MemberResult
+type ElementQueryResult struct {
+	Cursor   uint64
+	Elements []*ElementResult
 }
 
 type SaveRedisEntryCommand struct {

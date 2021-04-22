@@ -42,7 +42,7 @@ func saveSet(ctx context.Context, client redis.UniversalClient, clusterClient *r
 	return err
 }
 
-func getSetMembers(ctx context.Context, client redis.UniversalClient, query *ScanQuerySet) (*MemberQueryResult, error) {
+func getSetElements(ctx context.Context, client redis.UniversalClient, query *ScanQuerySet) (*ElementQueryResult, error) {
 	keys, cur, err := client.SScan(ctx, query.Key, query.Query.Cursor, query.Query.Keyword, query.Query.Count).Result()
 	if err != nil {
 		return nil, serr.WithStack(err)
@@ -56,14 +56,26 @@ func getSetMembers(ctx context.Context, client redis.UniversalClient, query *Sca
 	// 	keys = append(keys, leftKeys...)
 	// }
 
-	r := new(MemberQueryResult)
-	r.Members = make([]*MemberResult, 0, len(keys))
+	r := new(ElementQueryResult)
+	r.Elements = make([]*ElementResult, 0, len(keys))
 	r.Cursor = cur
 	for _, value := range keys {
-		r.Members = append(r.Members, &MemberResult{
+		r.Elements = append(r.Elements, &ElementResult{
 			// Field: value,
 			Value: value,
 		})
 	}
 	return r, nil
+}
+
+func delSet(ctx context.Context, client redis.UniversalClient, clusterClient *redis.ClusterClient, key, element string) error {
+	if clusterClient != nil {
+		var err error
+		client, err = clusterClient.MasterForKey(ctx, key)
+		if err != nil {
+			return serr.WithStack(err)
+		}
+	}
+
+	return client.SRem(ctx, key, element).Err()
 }

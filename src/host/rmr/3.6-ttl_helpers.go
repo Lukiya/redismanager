@@ -17,19 +17,20 @@ func saveTTL(ctx context.Context, client redis.UniversalClient, clusterClient *r
 		}
 	}
 
-	if cmd.New.TTL != cmd.Old.TTL {
-		// Need update ttl
-		if cmd.New.TTL > 0 {
-			err = client.Expire(ctx, cmd.New.Key, time.Duration(cmd.New.TTL)*time.Second).Err()
-			if err != nil {
-				return serr.WithStack(err)
-			}
-		} else {
-			err = client.Persist(ctx, cmd.New.Key).Err()
-			if err != nil {
-				return serr.WithStack(err)
-			}
+	// if cmd.New.TTL != cmd.Old.TTL {
+	// Need update ttl
+	if cmd.New.TTL > 0 {
+		err = client.Expire(ctx, cmd.New.Key, time.Duration(cmd.New.TTL)*time.Second).Err()
+		if err != nil {
+			return serr.WithStack(err)
+		}
+	} else {
+		err = client.Persist(ctx, cmd.New.Key).Err()
+		if err != nil {
+			return serr.WithStack(err)
 		}
 	}
+
+	// }
 	return
 }

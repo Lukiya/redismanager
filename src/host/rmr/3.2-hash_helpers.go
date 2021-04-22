@@ -60,7 +60,7 @@ func renameHashField(ctx context.Context, client redis.UniversalClient, key, old
 	return serr.WithStack(err)
 }
 
-func getHashMembers(ctx context.Context, client redis.UniversalClient, query *ScanQuerySet) (*MemberQueryResult, error) {
+func getHashElements(ctx context.Context, client redis.UniversalClient, query *ScanQuerySet) (*ElementQueryResult, error) {
 	keys, cur, err := client.HScan(ctx, query.Key, query.Query.Cursor, query.Query.Keyword, query.Query.Count).Result()
 	if err != nil {
 		return nil, serr.WithStack(err)
@@ -74,16 +74,28 @@ func getHashMembers(ctx context.Context, client redis.UniversalClient, query *Sc
 	// 	keys = append(keys, leftKeys...)
 	// }
 
-	r := new(MemberQueryResult)
-	r.Members = make([]*MemberResult, 0, query.Query.Count)
+	r := new(ElementQueryResult)
+	r.Elements = make([]*ElementResult, 0, query.Query.Count)
 	r.Cursor = cur
 	for i := range keys {
 		if i%2 == 0 {
-			r.Members = append(r.Members, &MemberResult{
+			r.Elements = append(r.Elements, &ElementResult{
 				Field: keys[i],
 				Value: keys[i+1],
 			})
 		}
 	}
 	return r, nil
+}
+
+func delHash(ctx context.Context, client redis.UniversalClient, clusterClient *redis.ClusterClient, key, field string) error {
+	if clusterClient != nil {
+		var err error
+		client, err = clusterClient.MasterForKey(ctx, key)
+		if err != nil {
+			return serr.WithStack(err)
+		}
+	}
+
+	return client.HDel(ctx, key, field).Err()
 }

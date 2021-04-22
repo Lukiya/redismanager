@@ -29,7 +29,10 @@ func (x *StandaloneRedisDB) ScanKeys(query *ScanQuery) (map[string]*KeyQueryResu
 	locker := new(sync.Mutex)
 	restuls := make(map[string]*KeyQueryResult, 1)
 
-	scanKeys(ctx, locker, nil, &restuls, x.id, x.client, query)
+	err := scanKeys(ctx, locker, nil, &restuls, x.id, x.client, query)
+	if err != nil {
+		return nil, err
+	}
 
 	return restuls, nil
 }
@@ -40,7 +43,10 @@ func (x *StandaloneRedisDB) ScanMoreKeys(queries map[string]*ScanQuery) (map[str
 	locker := new(sync.Mutex)
 	results := make(map[string]*KeyQueryResult, len(queries))
 
-	scanKeys(ctx, locker, nil, &results, x.id, x.client, queries[x.id])
+	err := scanKeys(ctx, locker, nil, &results, x.id, x.client, queries[x.id])
+	if err != nil {
+		return nil, err
+	}
 
 	return results, nil
 }
@@ -89,7 +95,7 @@ func (x *StandaloneRedisDB) GetKey(key string) (*RedisKey, error) {
 	return newRedisKey(context.Background(), x.client, key)
 }
 
-func (x *StandaloneRedisDB) GetMembers(query *ScanQuerySet) (*MemberQueryResult, error) {
+func (x *StandaloneRedisDB) GetElements(query *ScanQuerySet) (*ElementQueryResult, error) {
 	if query.Type == "" {
 		return nil, serr.New("type is missing")
 	}
@@ -97,16 +103,16 @@ func (x *StandaloneRedisDB) GetMembers(query *ScanQuerySet) (*MemberQueryResult,
 	ctx := context.Background()
 	switch query.Type {
 	case common.RedisType_Hash:
-		r, err := getHashMembers(ctx, x.client, query)
+		r, err := getHashElements(ctx, x.client, query)
 		return r, err
 	case common.RedisType_List:
-		r, err := getListMembers(ctx, x.client, query)
+		r, err := getListElements(ctx, x.client, query)
 		return r, err
 	case common.RedisType_Set:
-		r, err := getSetMembers(ctx, x.client, query)
+		r, err := getSetElements(ctx, x.client, query)
 		return r, err
 	case common.RedisType_ZSet:
-		r, err := getZSetMembers(ctx, x.client, query)
+		r, err := getZSetElements(ctx, x.client, query)
 		return r, err
 	default:
 		return nil, serr.Errorf("key type '%s' is not supported", query.Type)
@@ -138,12 +144,13 @@ func (x *StandaloneRedisDB) SaveValue(cmd *SaveRedisEntryCommand) error {
 		}
 	}
 
-	redisKey, err := x.GetKey(cmd.Old.Key)
-	if err != nil {
-		return err
-	}
+	// redisKey, err := x.GetKey(cmd.Old.Key)
+	// if err != nil {
+	// 	return err
+	// }
 
-	switch redisKey.Type {
+	var err error
+	switch cmd.New.Type {
 	case common.RedisType_String:
 		err = saveString(ctx, x.client, nil, cmd)
 		break
@@ -160,7 +167,7 @@ func (x *StandaloneRedisDB) SaveValue(cmd *SaveRedisEntryCommand) error {
 		err = saveZSet(ctx, x.client, nil, cmd)
 		break
 	default:
-		err = serr.Errorf("key type '%s' is not supported", redisKey.Type)
+		err = serr.Errorf("key type '%s' is not supported", cmd.New.Type)
 		break
 	}
 
@@ -169,10 +176,35 @@ func (x *StandaloneRedisDB) SaveValue(cmd *SaveRedisEntryCommand) error {
 	}
 
 	////////// save TTL
-	err = saveTTL(ctx, x.client, nil, cmd)
-	if err != nil {
-		return err
+	return saveTTL(ctx, x.client, nil, cmd)
+}
+
+func (x *StandaloneRedisDB) DeleteKey(key string) error {
+	ctx := context.Background()
+	return x.client.Del(ctx, key).Err()
+}
+
+func (x *StandaloneRedisDB) DeleteElement(key, typ, element string) error {
+	ctx := context.Background()
+
+	var err error
+	switch typ {
+	case common.RedisType_Hash:
+		err = delHash(ctx, x.client, nil, key, element)
+		break
+	case common.RedisType_List:
+		err = delList(ctx, x.client, nil, key, element)
+		break
+	case common.RedisType_Set:
+		err = delSet(ctx, x.client, nil, key, element)
+		break
+	case common.RedisType_ZSet:
+		err = delZSet(ctx, x.client, nil, key, element)
+		break
+	default:
+		err = serr.Errorf("key type '%s' is not supported", typ)
+		break
 	}
 
-	return nil
+	return err
 }
