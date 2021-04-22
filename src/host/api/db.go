@@ -52,7 +52,6 @@ func GetKeysOrElements(ctx host.IHttpContext) {
 			return
 		}
 
-		print(u.BytesToStr(data))
 		ctx.WriteJsonBytes(data)
 	} else {
 		// scan members
