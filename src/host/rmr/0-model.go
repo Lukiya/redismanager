@@ -13,7 +13,7 @@ type IRedisDB interface {
 	KeyExists(key string) (bool, error)
 	SaveValue(cmd *SaveRedisEntryCommand) error
 	DeleteKey(key string) error
-	DeleteElement(key, typ, element string) error
+	DeleteElement(key, element string) error
 }
 
 type ServerConfig struct {
@@ -58,6 +58,10 @@ type SaveRedisEntryCommand struct {
 	New   *RedisEntry `json:"new"`
 	Old   *RedisEntry `json:"old"`
 	IsNew bool        `json:"isNew"`
+}
+type DeleteRedisEntryCommand struct {
+	Key     string
+	Element string
 }
 type RedisEntry struct {
 	Key   string

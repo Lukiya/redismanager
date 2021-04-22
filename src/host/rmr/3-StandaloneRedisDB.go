@@ -184,11 +184,15 @@ func (x *StandaloneRedisDB) DeleteKey(key string) error {
 	return x.client.Del(ctx, key).Err()
 }
 
-func (x *StandaloneRedisDB) DeleteElement(key, typ, element string) error {
+func (x *StandaloneRedisDB) DeleteElement(key, element string) error {
 	ctx := context.Background()
 
-	var err error
-	switch typ {
+	redisKey, err := x.GetKey(key)
+	if err != nil {
+		return err
+	}
+
+	switch redisKey.Type {
 	case common.RedisType_Hash:
 		err = delHash(ctx, x.client, nil, key, element)
 		break
@@ -202,7 +206,7 @@ func (x *StandaloneRedisDB) DeleteElement(key, typ, element string) error {
 		err = delZSet(ctx, x.client, nil, key, element)
 		break
 	default:
-		err = serr.Errorf("key type '%s' is not supported", typ)
+		err = serr.Errorf("key type '%s' is not supported", redisKey.Type)
 		break
 	}
 

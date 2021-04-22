@@ -3,7 +3,6 @@ package api
 import (
 	"encoding/json"
 	"errors"
-	"net/url"
 
 	"github.com/Lukiya/redismanager/src/go/common"
 	"github.com/Lukiya/redismanager/src/go/rmr"
@@ -15,15 +14,16 @@ import (
 var DBGroup = host.NewActionGroup(
 	nil,
 	[]*host.Action{
-		host.NewAction("POST/api/servers/{serverID}/{db}", "key__", GetKeysOrMembers),
+		host.NewAction("POST/api/servers/{serverID}/{db}", "key__", GetKeysOrElements),
 		host.NewAction("GET/api/servers/{serverID}/{db}/{key}", "key__", GetKey),
 		host.NewAction("POST/api/servers/{serverID}/{db}/{key}", "key__", GetValue),
 		host.NewAction("POST/api/servers/{serverID}/{db}", "key__", SaveEntry),
+		host.NewAction("DELETE/api/servers/{serverID}/{db}/{key}", "key__", DeleteEntry),
 	},
 	nil,
 )
 
-func GetKeysOrMembers(ctx host.IHttpContext) {
+func GetKeysOrElements(ctx host.IHttpContext) {
 	dB, err := getDB(ctx)
 	if host.HandleErr(err, ctx) {
 		return
@@ -89,13 +89,12 @@ func GetValue(ctx host.IHttpContext) {
 		return
 	}
 
-	field := ctx.GetFormString("field")
-	field, err = url.PathUnescape(field)
+	element := ctx.GetFormString("Element")
 	if host.HandleErr(err, ctx) {
 		return
 	}
 
-	v, err := redisKey.GetValue(field)
+	v, err := redisKey.GetValue(element)
 	if host.HandleErr(err, ctx) {
 		return
 	}
@@ -122,4 +121,20 @@ func SaveEntry(ctx host.IHttpContext) {
 	}
 
 	ctx.WriteJsonBytes(u.StrToBytes(`{"err":""}`))
+}
+func DeleteEntry(ctx host.IHttpContext) {
+	db, err := getDB(ctx)
+	if host.HandleErr(err, ctx) {
+		return
+	}
+
+	cmd := new(rmr.DeleteRedisEntryCommand)
+	cmd.Key = ctx.GetParamString("key")
+	cmd.Element = ctx.GetFormString("Element")
+
+	if cmd.Element == "" {
+		err = db.DeleteKey(cmd.Key)
+	} else {
+		err = db.DeleteElement(cmd.Key, cmd.Element)
+	}
 }
