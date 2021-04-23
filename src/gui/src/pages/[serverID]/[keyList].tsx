@@ -155,7 +155,7 @@ const KeyListPage = (props: any) => {
         actionBar = <Card>
             <Row gutter={8}>
                 <Col>
-                    <Search placeholder="key name (support *)" allowClear enterButton="Search" onSearch={v => {
+                    <Search loading={keyListLoading} placeholder="key name (support *)" allowClear enterButton="Search" onSearch={v => {
                         dispatch({
                             type: "keyListVM/load", query: {
                                 serverID: params.serverID,
