@@ -15,6 +15,7 @@ const onCelClick = (record: any, props: any) => {
                     ...params,
                     Key: redisKey.Key,
                     ElemKey: record.Key,
+                    keyEditorEnabled: false,
                 }
             });
         },
@@ -106,7 +107,7 @@ const buildForm = (props: any) => {
                 dispatch({ type: "memberListVM/save", values });
             }}
         >
-            <DrawerActionBar redisKey={redisKey} formRef={formRef}></DrawerActionBar>
+            <DrawerActionBar keyEditorEnabled={true} redisKey={redisKey} formRef={formRef}></DrawerActionBar>
         </Form>;
         useEffect(() => formRef?.resetFields(), [form.props.initialValues]);
 

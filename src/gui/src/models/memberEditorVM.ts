@@ -9,6 +9,7 @@ export default {
         visible: false,
         isNew: false,
         loading: true,
+        keyEditorEnabled: false,
         fieldEditorEnabled: false,
         scoreEditorEnabled: false,
         indexEditorEnabled: false,

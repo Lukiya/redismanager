@@ -19,7 +19,7 @@ const buildValueEditor = () => {
 };
 
 const buildForm = (memberEditorState: any, dispatch: any) => {
-    let { redisEntry, loading, fieldEditorEnabled, indexEditorEnabled, scoreEditorEnabled } = memberEditorState;
+    let { redisEntry, loading, keyEditorEnabled, fieldEditorEnabled, indexEditorEnabled, scoreEditorEnabled } = memberEditorState;
 
     if (loading) {
         return <div style={{ textAlign: "center", marginTop: 20 }}><Spin /></div>
@@ -71,7 +71,7 @@ const buildForm = (memberEditorState: any, dispatch: any) => {
             }}
             initialValues={initialValues}
         >
-            <DrawerActionBar formRef={formRef} indexEditorEnabled={indexEditorEnabled} scoreEditorEnabled={scoreEditorEnabled} fieldEditorEnabled={fieldEditorEnabled}></DrawerActionBar>
+            <DrawerActionBar formRef={formRef} keyEditorEnabled={keyEditorEnabled} indexEditorEnabled={indexEditorEnabled} scoreEditorEnabled={scoreEditorEnabled} fieldEditorEnabled={fieldEditorEnabled}></DrawerActionBar>
             {valueEditor}
         </Form>;
         useEffect(() => formRef?.resetFields(), [form.props.initialValues]);

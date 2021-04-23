@@ -36,7 +36,7 @@ const buildIndexEditor = (props: any) => {
     if (indexEditorEnabled) {
         return <Col>
             <Form.Item label="Index" labelAlign="right" name="Index">
-                <InputNumber precision={0} placeholder="Index" min={0} readOnly={true} style={{ backgroundColor: "#f0f0f0" }} />
+                <InputNumber precision={0} placeholder="Index" min={0} readOnly={true} />
             </Form.Item>
         </Col>;
     }
@@ -45,7 +45,7 @@ const buildIndexEditor = (props: any) => {
 };
 
 const DrawerActionBar = (props: any) => {
-    const { formRef } = props;
+    const { formRef, keyEditorEnabled } = props;
     const fieldEditor = buildFieldEditor(props);
     const scoreEditor = buildScoreEditor(props);
     const indexEditor = buildIndexEditor(props);
@@ -53,7 +53,7 @@ const DrawerActionBar = (props: any) => {
     const form = <Row gutter={8}>
         <Col lg={6} xl={6} xxl={6}>
             <Form.Item label="Key" name="Key">
-                <Input width="xl" placeholder="Key" />
+                <Input width="xl" placeholder="Key" readOnly={!keyEditorEnabled} />
             </Form.Item>
         </Col>
         {fieldEditor}
@@ -61,7 +61,7 @@ const DrawerActionBar = (props: any) => {
         {indexEditor}
         <Col>
             <Form.Item label="TTL" labelAlign="right" name="TTL">
-                <InputNumber placeholder="TTL" min={-1} precision={0} />
+                <InputNumber placeholder="TTL" min={-1} precision={0} readOnly={!keyEditorEnabled} />
             </Form.Item>
         </Col>
         <Col>

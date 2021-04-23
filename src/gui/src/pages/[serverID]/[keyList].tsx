@@ -64,7 +64,7 @@ const buildColumns = (dispatch: any, params: any) => {
                 return {
                     onClick: () => {
                         if (record.Type == u.STRING) {
-                            dispatch({ type: "memberEditorVM/show", payload: { ...params, Key: record.Key, ElemKey: "", } });
+                            dispatch({ type: "memberEditorVM/show", payload: { ...params, Key: record.Key, ElemKey: "", keyEditorEnabled: true } });
                         } else {
                             dispatch({ type: "memberListVM/show", payload: { ...params, redisKey: record } });
                         }
