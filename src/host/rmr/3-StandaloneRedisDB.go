@@ -239,3 +239,7 @@ func (x *StandaloneRedisDB) DeleteElement(key, element string) error {
 
 	return err
 }
+
+func (x *StandaloneRedisDB) GetRedisEntry(key, elementKey string) (*RedisEntry, error) {
+	return NewRedisEntry(key, elementKey, x.client)
+}

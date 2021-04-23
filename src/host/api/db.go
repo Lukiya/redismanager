@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"errors"
+	"net/url"
 
 	"github.com/Lukiya/redismanager/src/go/common"
 	"github.com/Lukiya/redismanager/src/go/rmr"
@@ -16,16 +17,16 @@ var DBGroup = host.NewActionGroup(
 	[]*host.Action{
 		host.NewAction("POST/api/servers/{serverID}/{db}/scan", "key__", ScanKeysOrElements),
 		host.NewAction("GET/api/servers/{serverID}/{db}/{key}", "key__", GetKey),
-		host.NewAction("POST/api/servers/{serverID}/{db}/{key}", "key__", GetValue),
-		host.NewAction("POST/api/servers/{serverID}/{db}/save", "key__", SaveEntry),
+		host.NewAction("POST/api/servers/{serverID}/{db}/{key}", "key__", GetRedisEntry),
+		host.NewAction("POST/api/servers/{serverID}/{db}/save", "key__", SaveRedisEntry),
 		host.NewAction("DELETE/api/servers/{serverID}/{db}/{key}", "key__", DeleteEntry),
 	},
 	nil,
 )
 
 func ScanKeysOrElements(ctx host.IHttpContext) {
-	dB, err := getDB(ctx)
-	if host.HandleErr(err, ctx) {
+	db, err := getDB(ctx)
+	if err != nil {
 		return
 	}
 
@@ -39,11 +40,11 @@ func ScanKeysOrElements(ctx host.IHttpContext) {
 		// Scan keys
 		var rs *rmr.ScanKeyResult
 		if querySet.All {
-			rs, err = dB.GetAllKeys(querySet)
+			rs, err = db.GetAllKeys(querySet)
 		} else if querySet.Cursors == nil {
-			rs, err = dB.ScanKeys(querySet)
+			rs, err = db.ScanKeys(querySet)
 		} else {
-			rs, err = dB.ScanMoreKeys(querySet)
+			rs, err = db.ScanMoreKeys(querySet)
 		}
 		if host.HandleErr(err, ctx) {
 			return
@@ -59,12 +60,12 @@ func ScanKeysOrElements(ctx host.IHttpContext) {
 		// scan members
 		var rs *rmr.ScanElementResult
 		if querySet.All {
-			rs, err = dB.GetAllElements(querySet)
+			rs, err = db.GetAllElements(querySet)
 			if host.HandleErr(err, ctx) {
 				return
 			}
 		} else {
-			rs, err = dB.ScanElements(querySet)
+			rs, err = db.ScanElements(querySet)
 			if host.HandleErr(err, ctx) {
 				return
 			}
@@ -112,9 +113,39 @@ func GetValue(ctx host.IHttpContext) {
 	ctx.WriteString(v)
 }
 
-func SaveEntry(ctx host.IHttpContext) {
+func GetRedisEntry(ctx host.IHttpContext) {
 	db, err := getDB(ctx)
+	if err != nil {
+		return
+	}
+
+	key := ctx.GetParamString("key")
+	key, err = url.PathUnescape(key)
 	if host.HandleErr(err, ctx) {
+		return
+	}
+
+	elementKey := ctx.GetFormString("ElementKey")
+	if host.HandleErr(err, ctx) {
+		return
+	}
+
+	r, err := db.GetRedisEntry(key, elementKey)
+	if host.HandleErr(err, ctx) {
+		return
+	}
+
+	data, err := json.Marshal(r)
+	if host.HandleErr(err, ctx) {
+		return
+	}
+
+	ctx.WriteJsonBytes(data)
+}
+
+func SaveRedisEntry(ctx host.IHttpContext) {
+	db, err := getDB(ctx)
+	if err != nil {
 		return
 	}
 
@@ -134,7 +165,7 @@ func SaveEntry(ctx host.IHttpContext) {
 }
 func DeleteEntry(ctx host.IHttpContext) {
 	db, err := getDB(ctx)
-	if host.HandleErr(err, ctx) {
+	if err != nil {
 		return
 	}
 

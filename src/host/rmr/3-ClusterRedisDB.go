@@ -301,3 +301,7 @@ func (x *ClusterRedisDB) DeleteElement(key, element string) error {
 
 	return err
 }
+
+func (x *ClusterRedisDB) GetRedisEntry(key, elementKey string) (*RedisEntry, error) {
+	return NewRedisEntry(key, elementKey, x.clusterClient)
+}

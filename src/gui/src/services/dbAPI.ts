@@ -35,12 +35,23 @@ export async function GetKey(query: any) {
     return r;
 }
 
-export async function GetValue(query: any) {
-    const url = '/servers/' + query.serverID + '/' + query.db + "/" + encodeURIComponent(query.redisKey.Key);
+// export async function GetValue(query: any) {
+//     const url = '/servers/' + query.serverID + '/' + query.db + "/" + encodeURIComponent(query.redisKey.Key);
+//     const r = await request.post(url, {
+//         requestType: "form",
+//         data: { ElementKey: query.ElementKey },
+//         responseType: "text",
+//     });
+
+//     return r;
+// }
+
+export async function GetRedisEntry(query: any) {
+    const url = '/servers/' + query.serverID + '/' + query.db + "/" + encodeURIComponent(query.Key);
     const r = await request.post(url, {
         requestType: "form",
-        data: { ElementKey: query.ElementKey },
-        responseType: "text",
+        data: { ElementKey: query.ElemKey },
+        // responseType: "text",
     });
 
     return r;

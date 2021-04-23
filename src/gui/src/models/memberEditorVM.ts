@@ -1,54 +1,54 @@
-import { GetKey, GetValue, SaveEntry } from "@/services/dbAPI";
+import { GetKey, GetRedisEntry, SaveEntry } from "@/services/dbAPI";
 import u from "@/u";
 import { message } from 'antd';
 const _defaultTitle = "Editor";
 
 export default {
     state: {
-        redisKey: {},
+        redisEntry: {},
         visible: false,
         isNew: false,
         loading: true,
+        fieldEditorEnabled: false,
+        scoreEditorEnabled: false,
+        indexEditorEnabled: false,
         title: _defaultTitle,
     },
     effects: {
         *load(_: any, { put, select }: any): any {
             const state = yield select((x: any) => x["memberEditorVM"]);
+            if (!state.Key) {
+                return;
+            }
             // console.log(state);
 
             if (state.isNew) {
-                let redisKey: any;
-                if (state.type == u.STRING) {
-                    redisKey = { Key: "", Type: state.type, TTL: -1, };
-                } else {
-                    redisKey = { Key: "", Field: "", Type: state.type, TTL: -1, };
-                }
+                // let redisKey: any;
+                // if (state.type == u.STRING) {
+                //     redisKey = { Key: "", Type: state.type, TTL: -1, };
+                // } else {
+                //     redisKey = { Key: "", Field: "", Type: state.type, TTL: -1, };
+                // }
 
+                // yield put({
+                //     type: 'setState', payload: {
+                //         loading: false,
+                //         redisKey,
+                //         value: "",
+                //         title: 'new ' + state.type
+                //     }
+                // });
+            } else {
+                const redisEntry = yield GetRedisEntry(state);
                 yield put({
                     type: 'setState', payload: {
+                        redisEntry,
                         loading: false,
-                        redisKey,
-                        value: "",
-                        title: 'new ' + state.type
-                    }
+                        fieldEditorEnabled: redisEntry.Type == u.HASH,
+                        scoreEditorEnabled: redisEntry.Type == u.ZSET,
+                        indexEditorEnabled: redisEntry.Type == u.LIST,
+                    },
                 });
-            } else {
-                const redisKey = yield GetKey(state);
-                if (redisKey?.Key) {
-                    const valueResp = yield GetValue(state);
-                    yield put({
-                        type: 'setState', payload: {
-                            redisKey: redisKey,
-                            // visible: true,
-                            value: valueResp,
-                            isNew: false,
-                            loading: false,
-                        },
-                    });
-                } else {
-                    console.warn(redisKey);
-                    yield put({ type: 'setState', payload: { loading: false }, });
-                }
             }
         },
         *save({ values }: any, { put, select }: any): any {

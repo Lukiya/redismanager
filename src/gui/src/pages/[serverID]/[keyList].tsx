@@ -9,29 +9,29 @@ import MemberList from '@/components/MemberList';
 const { Search } = Input;
 
 const newClicked = (type: string, params: any, dispatch: any) => {
-    switch (type) {
-        case u.STRING:
-            dispatch({
-                type: "memberEditorVM/show", payload: {
-                    ...params,
-                    key: "",
-                    type: u.STRING,
-                    isNew: true,
-                }
-            });
-            break;
-        default:
-            dispatch({
-                type: "memberEditorVM/show", payload: {
-                    ...params,
-                    key: "",
-                    field: "",
-                    type: type,
-                    isNew: true,
-                }
-            });
-            break;
-    }
+    // switch (type) {
+    //     case u.STRING:
+    //         dispatch({
+    //             type: "memberEditorVM/show", payload: {
+    //                 ...params,
+    //                 key: "",
+    //                 type: u.STRING,
+    //                 isNew: true,
+    //             }
+    //         });
+    //         break;
+    //     default:
+    //         dispatch({
+    //             type: "memberEditorVM/show", payload: {
+    //                 ...params,
+    //                 key: "",
+    //                 elKey: "",
+    //                 type: type,
+    //                 isNew: true,
+    //             }
+    //         });
+    //         break;
+    // }
 };
 
 const buildColumns = (dispatch: any, params: any) => {
@@ -64,7 +64,7 @@ const buildColumns = (dispatch: any, params: any) => {
                 return {
                     onClick: () => {
                         if (record.Type == u.STRING) {
-                            dispatch({ type: "memberEditorVM/show", payload: { ...params, redisKey: record, ElementKey: "", } });
+                            dispatch({ type: "memberEditorVM/show", payload: { ...params, Key: record.Key, ElemKey: "", } });
                         } else {
                             dispatch({ type: "memberListVM/show", payload: { ...params, redisKey: record } });
                         }

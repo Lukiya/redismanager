@@ -10,14 +10,13 @@ const onCelClick = (record: any, props: any) => {
 
     return {
         onClick: () => {
-            const payload = {
-                ...params,
-                redisKey,
-            };
-
-            // payload.ElementKey = redisKey.Type != u.SET ? record.Key : undefined; // set to undefined to clear vm cache
-            payload.ElementKey = record.Key;
-            dispatch({ type: "memberEditorVM/show", payload });
+            dispatch({
+                type: "memberEditorVM/show", payload: {
+                    ...params,
+                    Key: redisKey.Key,
+                    ElemKey: record.Key,
+                }
+            });
         },
     };
 };
@@ -25,18 +24,18 @@ const onCelClick = (record: any, props: any) => {
 const buildColums = (props: any) => {
     const { memberListState: { redisKey }, loading } = props;
 
-    let keyTitle = "Key";
+    let elKeyTitle = "Field";
     let valueTitle = "Value";
     switch (redisKey.Type) {
         case u.LIST:
-            keyTitle = "Index";
+            elKeyTitle = "Index";
             valueTitle = "Element";
             break;
         case u.SET:
-            keyTitle = "Element";
+            elKeyTitle = "Element";
             break;
         case u.ZSET:
-            keyTitle = "Element";
+            elKeyTitle = "Element";
             valueTitle = "Score";
             break;
     }
@@ -44,7 +43,7 @@ const buildColums = (props: any) => {
     if (redisKey.Type == u.SET) {
         const columns: any[] = [
             {
-                title: keyTitle,
+                title: elKeyTitle,
                 dataIndex: 'Key',
                 defaultSortOrder: "ascend",
                 className: "pointer",
@@ -56,7 +55,7 @@ const buildColums = (props: any) => {
     } else {
         const columns: any[] = [
             {
-                title: keyTitle,
+                title: elKeyTitle,
                 dataIndex: "Key",
                 defaultSortOrder: "ascend",
                 className: "pointer",

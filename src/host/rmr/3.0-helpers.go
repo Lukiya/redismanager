@@ -108,3 +108,33 @@ func renameKey(ctx context.Context, client redis.UniversalClient, clusterClient 
 
 	return nil
 }
+
+// func getRedisEntry(key, elementKey string, client redis.UniversalClient) (*RedisEntry, error) {
+// 	r := &RedisEntry{
+// 		Key: key,
+// 	}
+// 	ctx := context.Background()
+// 	var err error
+
+// 	r.Type, err = client.Type(ctx, key).Result()
+
+// 	switch r.Type {
+// 	case common.RedisType_Hash:
+// 		r.Field = elementKey
+// 		r.Value, err = client.HGet(ctx, key, elementKey).Result()
+// 		break
+// 	case common.RedisType_List:
+// 		r.Index = sconv.ToInt64(elementKey)
+// 		r.Value, err = client.LIndex(ctx, key, r.Index).Result()
+// 		break
+// 	case common.RedisType_Set:
+// 		r.Value = elementKey
+// 		break
+// 	case common.RedisType_ZSet:
+// 		r.Score, err = client.ZScore(ctx, key, elementKey).Result()
+// 		r.Value = elementKey
+// 		break
+// 	}
+
+// 	return r, err
+// }

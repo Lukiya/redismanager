@@ -15,6 +15,7 @@ type IRedisDB interface {
 	SaveValue(cmd *SaveRedisEntryCommand) error
 	DeleteKey(key string) error
 	DeleteElement(key, element string) error
+	GetRedisEntry(key, elementKey string) (*RedisEntry, error)
 }
 
 type ServerConfig struct {
@@ -66,11 +67,4 @@ type SaveRedisEntryCommand struct {
 type DeleteRedisEntryCommand struct {
 	Key     string
 	Element string
-}
-type RedisEntry struct {
-	Key   string
-	Type  string
-	Field string
-	Value string
-	TTL   int64
 }
