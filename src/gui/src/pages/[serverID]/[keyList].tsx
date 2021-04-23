@@ -118,7 +118,7 @@ const buildFooter = (props: any) => {
 }
 
 const KeyListPage = (props: any) => {
-    const { menuState: { server }, keyListState, keyListLoading, match: { params }, dispatch } = props;
+    const { menuState: { server }, keyListState: { keys, hasMore, pageSize, suggestedPageSize }, keyListLoading, match: { params }, dispatch } = props;
 
     // let node: any;
     // for (let i = 0; i < server.Nodes.length; i++) {
@@ -180,16 +180,16 @@ const KeyListPage = (props: any) => {
         const footer = buildFooter(props);
 
         table = <Table
-            dataSource={keyListState.keys}
+            dataSource={keys}
             rowKey="Key"
             columns={columns}
             pagination={{
                 pageSizeOptions: ["10", "20", "30", "100"],
-                pageSize: keyListState.pageSize > 0 ? keyListState.pageSize : keyListState.suggestedPageSize,
+                pageSize: pageSize > 0 ? pageSize : suggestedPageSize,
                 onShowSizeChange: (_, newSize) => {
                     dispatch({ type: "keyListVM/setPageSize", pageSize: newSize })
                 },
-                showTotal: (total) => <label>{keyListState.hasMore ? "Loaded" : "Total"}: {total}</label>,
+                showTotal: (total) => <label>{hasMore ? "Loaded" : "Total"}: {total}</label>,
             }}
             loading={keyListLoading}
             size="small"

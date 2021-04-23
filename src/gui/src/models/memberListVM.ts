@@ -130,5 +130,11 @@ export default {
                 visible: false,
             };
         },
+        setPageSize(state: any, { pageSize }: any) {
+            return {
+                ...state,
+                pageSize,
+            };
+        },
     },
 };

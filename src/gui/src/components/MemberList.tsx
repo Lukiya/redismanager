@@ -47,7 +47,7 @@ const buildColums = (props: any) => {
                 dataIndex: 'Key',
                 defaultSortOrder: "ascend",
                 className: "pointer",
-                sorter: (a: any, b: any) => a.Value.localeCompare(b.Value),
+                sorter: (a: any, b: any) => a.Key.localeCompare(b.Key),
                 onCell: (r: any) => onCelClick(r, props),
             },
         ];
@@ -100,7 +100,7 @@ const buildFooter = (props: any) => {
                     <Button type="link" loading={loading} onClick={() => dispatch({ type: "memberListVM/loadAll" })}>Load all...</Button>
                 </Space>
                 :
-                <Button type="link" disabled>All keys loaded</Button>
+                <Button type="link" disabled>All elements loaded</Button>
         }
     </div>;
     return footer;
@@ -130,7 +130,7 @@ const buildForm = (props: any) => {
 
 const MemberList = (props: any) => {
     // const { memberListState: { loading, dataSource, hasMore } } = props;
-    const { memberListState: { dataSource, hasMore, title, visible, redisKey }, params, loading, dispatch } = props;
+    const { memberListState: { dataSource, hasMore, pageSize, suggestedPageSize, title, visible, redisKey }, params, loading, dispatch } = props;
 
     const columns = buildColums(props);
     const footer = buildFooter(props);
@@ -146,7 +146,15 @@ const MemberList = (props: any) => {
             dataSource={dataSource}
             columns={columns}
             loading={loading}
-            pagination={{ pageSize: 20, showTotal: (total) => <label>{hasMore ? "Loaded" : "Total"}: {total}</label> }}
+            // pagination={{ pageSize: 20, showTotal: (total) => <label>{hasMore ? "Loaded" : "Total"}: {total}</label> }}
+            pagination={{
+                pageSizeOptions: ["10", "20", "30", "100"],
+                pageSize: pageSize > 0 ? pageSize : suggestedPageSize,
+                onShowSizeChange: (_, newSize) => {
+                    dispatch({ type: "memberListVM/setPageSize", pageSize: newSize })
+                },
+                showTotal: (total) => <label>{hasMore ? "Loaded" : "Total"}: {total}</label>,
+            }}
             footer={footer}
             className="sublist"
             size="small"

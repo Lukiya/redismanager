@@ -64,7 +64,11 @@ func scanListElements(ctx context.Context, client redis.UniversalClient, query *
 				Value: elements[i],
 			})
 		}
-		r.Cursor = query.Query.Cursor + uint64(query.Query.Count) + 1
+		if len(elements) < int(query.Query.Count) {
+			r.Cursor = 0
+		} else {
+			r.Cursor = query.Query.Cursor + uint64(query.Query.Count) + 1
+		}
 	}
 
 	return r, nil
