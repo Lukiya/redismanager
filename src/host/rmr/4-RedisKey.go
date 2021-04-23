@@ -45,7 +45,7 @@ func newRedisKey(ctx context.Context, client redis.UniversalClient, key string) 
 	return r, nil
 }
 
-func (x *RedisKey) GetValue(element string) (string, error) {
+func (x *RedisKey) GetValue(elementKey string) (string, error) {
 	ctx := context.Background()
 
 	switch x.Type {
@@ -53,22 +53,22 @@ func (x *RedisKey) GetValue(element string) (string, error) {
 		v, err := x.client.Get(ctx, x.Key).Result()
 		return v, serr.WithStack(err)
 	case common.RedisType_Hash:
-		v, err := x.client.HGet(ctx, x.Key, element).Result()
+		v, err := x.client.HGet(ctx, x.Key, elementKey).Result()
 		return v, serr.WithStack(err)
 	case common.RedisType_List:
-		index, err := strconv.ParseInt(element, 10, 64)
+		index, err := strconv.ParseInt(elementKey, 10, 64)
 		if err != nil {
 			return "", serr.WithStack(err)
 		}
 		v, err := x.client.LIndex(ctx, x.Key, index).Result()
 		return v, serr.WithStack(err)
 	case common.RedisType_Set:
-		return element, nil
+		return elementKey, nil
 	case common.RedisType_ZSet:
-		v, err := x.client.ZScore(ctx, x.Key, element).Result()
+		v, err := x.client.ZScore(ctx, x.Key, elementKey).Result()
 		return sconv.ToString(v), serr.WithStack(err)
 	default:
-		return "", serr.Errorf("'%s' with field '%s' is not supported", x.Type, element)
+		return "", serr.Errorf("'%s' with field '%s' is not supported", x.Type, elementKey)
 	}
 }
 

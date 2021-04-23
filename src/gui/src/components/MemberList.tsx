@@ -15,7 +15,8 @@ const onCelClick = (record: any, props: any) => {
                 redisKey,
             };
 
-            payload.field = redisKey.Type != u.SET ? record.Field : undefined; // set to undefined to clear vm cache
+            // payload.ElementKey = redisKey.Type != u.SET ? record.Key : undefined; // set to undefined to clear vm cache
+            payload.ElementKey = record.Key;
             dispatch({ type: "memberEditorVM/show", payload });
         },
     };
@@ -24,7 +25,7 @@ const onCelClick = (record: any, props: any) => {
 const buildColums = (props: any) => {
     const { memberListState: { redisKey }, loading } = props;
 
-    let keyTitle = "Field";
+    let keyTitle = "Key";
     let valueTitle = "Value";
     switch (redisKey.Type) {
         case u.LIST:

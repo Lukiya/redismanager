@@ -99,12 +99,12 @@ func GetValue(ctx host.IHttpContext) {
 		return
 	}
 
-	element := ctx.GetFormString("Element")
+	elementKey := ctx.GetFormString("ElementKey")
 	if host.HandleErr(err, ctx) {
 		return
 	}
 
-	v, err := redisKey.GetValue(element)
+	v, err := redisKey.GetValue(elementKey)
 	if host.HandleErr(err, ctx) {
 		return
 	}

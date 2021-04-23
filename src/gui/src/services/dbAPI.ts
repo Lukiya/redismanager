@@ -11,11 +11,6 @@ export async function Scan(query: any) {
     const type = query.redisKey?.Type ?? "";
 
     const url = '/servers/' + query.serverID + '/' + query.db + "/scan";
-    // + '?Cursor=' + query.cursor
-    // + "&Count=" + query.count
-    // + '&Key=' + encodeURIComponent(key)
-    // + '&Type=' + type
-    // + "&Match=" + encodeURIComponent(query.keyword);
     const r = await request.post(url, {
         data: {
             Key: key,
@@ -44,7 +39,7 @@ export async function GetValue(query: any) {
     const url = '/servers/' + query.serverID + '/' + query.db + "/" + encodeURIComponent(query.redisKey.Key);
     const r = await request.post(url, {
         requestType: "form",
-        data: { Element: query.field },
+        data: { ElementKey: query.ElementKey },
         responseType: "text",
     });
 
