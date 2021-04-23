@@ -181,5 +181,21 @@ const u = {
 
         return pageSize;
     },
+    KeySorter: (a: any, b: any) => {
+        const aType = typeof (a.Key);
+        if (aType == "string") {
+            return a.Key.localeCompare(b.Key);
+        } else {
+            return a.Key - b.Key;
+        }
+    },
+    ValueSorter: (a: any, b: any) => {
+        const aType = typeof (a.Value);
+        if (aType == "string") {
+            return a.Value.localeCompare(b.Value);
+        } else {
+            return a.Value - b.Value;
+        }
+    },
 }
 export default u

@@ -47,7 +47,7 @@ const buildColums = (props: any) => {
                 dataIndex: 'Key',
                 defaultSortOrder: "ascend",
                 className: "pointer",
-                sorter: (a: any, b: any) => a.Key.localeCompare(b.Key),
+                sorter: u.KeySorter,
                 onCell: (r: any) => onCelClick(r, props),
             },
         ];
@@ -59,28 +59,14 @@ const buildColums = (props: any) => {
                 dataIndex: "Key",
                 defaultSortOrder: "ascend",
                 className: "pointer",
-                sorter: (a: any, b: any) => {
-                    const aType = typeof (a.Key);
-                    if (aType == "string") {
-                        return a.Key.localeCompare(b.Key);
-                    } else {
-                        return a.Key - b.Key;
-                    }
-                },
+                sorter: u.KeySorter,
                 onCell: (r: any) => onCelClick(r, props),
             },
             {
                 title: valueTitle,
                 dataIndex: "Value",
                 className: "pointer",
-                sorter: (a: any, b: any) => {
-                    const aType = typeof (a.Value);
-                    if (aType == "string") {
-                        return a.Value.localeCompare(b.Value);
-                    } else {
-                        return a.Value - b.Value;
-                    }
-                },
+                sorter: u.ValueSorter,
                 onCell: (r: any) => onCelClick(r, props),
             },
         ];
