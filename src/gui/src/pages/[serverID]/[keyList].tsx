@@ -103,7 +103,7 @@ const buildColumns = (dispatch: any, params: any) => {
 const buildFooter = (props: any) => {
     const { keyListState, keyListLoading, dispatch } = props;
 
-    return <div style={{ textAlign: "center" }}>
+    return () => <div style={{ textAlign: "center" }}>
         {
             keyListState.hasMore ?
                 <Space>
@@ -177,15 +177,24 @@ const KeyListPage = (props: any) => {
         ////////// table
         const columns = buildColumns(dispatch, params);
 
+        const footer = buildFooter(props);
+
         table = <Table
             dataSource={keyListState.keys}
             rowKey="Key"
             columns={columns}
-            pagination={{ pageSize: 20, showTotal: (total) => <label>{keyListState.hasMore ? "Loaded" : "Total"}: {total}</label> }}
+            pagination={{
+                pageSizeOptions: ["10", "20", "30", "100"],
+                pageSize: keyListState.pageSize > 0 ? keyListState.pageSize : keyListState.suggestedPageSize,
+                onShowSizeChange: (_, newSize) => {
+                    dispatch({ type: "keyListVM/setPageSize", pageSize: newSize })
+                },
+                showTotal: (total) => <label>{keyListState.hasMore ? "Loaded" : "Total"}: {total}</label>,
+            }}
             loading={keyListLoading}
             size="small"
             bordered
-            footer={() => buildFooter(props)}
+            footer={footer}
         >
         </Table>;
 

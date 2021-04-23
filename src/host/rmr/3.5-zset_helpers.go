@@ -60,8 +60,8 @@ func saveZSet(ctx context.Context, client redis.UniversalClient, clusterClient *
 	return nil
 }
 
-func getZSetElements(ctx context.Context, client redis.UniversalClient, query *ScanQuerySet) (*ScanElementResult, error) {
-	keys, cur, err := client.ZScan(ctx, query.Key, query.Query.Cursor, query.Query.Keyword, query.Query.Count).Result()
+func scanZSetElements(ctx context.Context, client redis.UniversalClient, query *ScanQuerySet) (*ScanElementResult, error) {
+	elements, cur, err := client.ZScan(ctx, query.Key, query.Query.Cursor, query.Query.Keyword, query.Query.Count).Result()
 	if err != nil {
 		return nil, serr.WithStack(err)
 	}
@@ -75,16 +75,40 @@ func getZSetElements(ctx context.Context, client redis.UniversalClient, query *S
 	// }
 
 	r := new(ScanElementResult)
-	r.Elements = make([]*ElementResult, 0, query.Query.Count)
+	r.Elements = make([]*ElementResult, 0, len(elements)/2)
 	r.Cursor = cur
-	for i := range keys {
+	for i := range elements {
 		if i%2 == 0 {
 			r.Elements = append(r.Elements, &ElementResult{
-				Value: keys[i],
-				Score: sconv.ToFloat64(keys[i+1]), // score
+				Key:   elements[i],                    // element
+				Value: sconv.ToFloat64(elements[i+1]), // score
 			})
 		}
 	}
+	return r, nil
+}
+func getAllZSetElements(ctx context.Context, client redis.UniversalClient, query *ScanQuerySet) (*ScanElementResult, error) {
+	elements, err := client.ZRangeByScoreWithScores(ctx, query.Key, &redis.ZRangeBy{
+		Min: "-inf",
+		Max: "+inf",
+		// Offset: 0,
+		// Count:  2,
+	}).Result()
+
+	if err != nil {
+		return nil, serr.WithStack(err)
+	}
+
+	r := new(ScanElementResult)
+	r.Elements = make([]*ElementResult, 0, len(elements))
+
+	for _, v := range elements {
+		r.Elements = append(r.Elements, &ElementResult{
+			Key:   v.Member, // element
+			Value: v.Score,  // score
+		})
+	}
+
 	return r, nil
 }
 

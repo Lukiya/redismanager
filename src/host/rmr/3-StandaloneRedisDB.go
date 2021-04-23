@@ -98,27 +98,51 @@ func (x *StandaloneRedisDB) GetKey(key string) (*RedisKey, error) {
 	return newRedisKey(context.Background(), x.client, key)
 }
 
-func (x *StandaloneRedisDB) GetElements(query *ScanQuerySet) (*ScanElementResult, error) {
-	if query.Type == "" {
+func (x *StandaloneRedisDB) ScanElements(querySet *ScanQuerySet) (*ScanElementResult, error) {
+	if querySet.Type == "" {
 		return nil, serr.New("type is missing")
 	}
 
 	ctx := context.Background()
-	switch query.Type {
+	switch querySet.Type {
 	case common.RedisType_Hash:
-		r, err := getHashElements(ctx, x.client, query)
+		r, err := scanHashElements(ctx, x.client, querySet)
 		return r, err
 	case common.RedisType_List:
-		r, err := getListElements(ctx, x.client, query)
+		r, err := scanListElements(ctx, x.client, querySet)
 		return r, err
 	case common.RedisType_Set:
-		r, err := getSetElements(ctx, x.client, query)
+		r, err := scanSetElements(ctx, x.client, querySet)
 		return r, err
 	case common.RedisType_ZSet:
-		r, err := getZSetElements(ctx, x.client, query)
+		r, err := scanZSetElements(ctx, x.client, querySet)
 		return r, err
 	default:
-		return nil, serr.Errorf("key type '%s' is not supported", query.Type)
+		return nil, serr.Errorf("key type '%s' is not supported", querySet.Type)
+	}
+}
+
+func (x *StandaloneRedisDB) GetAllElements(querySet *ScanQuerySet) (*ScanElementResult, error) {
+	if querySet.Type == "" {
+		return nil, serr.New("type is missing")
+	}
+
+	ctx := context.Background()
+	switch querySet.Type {
+	case common.RedisType_Hash:
+		r, err := getAllHashElements(ctx, x.client, querySet)
+		return r, err
+	case common.RedisType_List:
+		r, err := getAllListElements(ctx, x.client, querySet)
+		return r, err
+	case common.RedisType_Set:
+		r, err := getAllSetElements(ctx, x.client, querySet)
+		return r, err
+	case common.RedisType_ZSet:
+		r, err := getAllZSetElements(ctx, x.client, querySet)
+		return r, err
+	default:
+		return nil, serr.Errorf("key type '%s' is not supported", querySet.Type)
 	}
 }
 

@@ -1,5 +1,5 @@
 import { connect } from "umi";
-import { Button, Table, Drawer, Form, Spin } from "antd";
+import { Button, Table, Drawer, Form, Space, Divider } from "antd";
 import { MoreOutlined } from '@ant-design/icons';
 import u from "@/u";
 import DrawerActionBar from "./DrawerActionBar";
@@ -24,17 +24,18 @@ const onCelClick = (record: any, props: any) => {
 const buildColums = (props: any) => {
     const { memberListState: { redisKey }, loading } = props;
 
-    let fieldTitle = "Field";
+    let keyTitle = "Field";
     let valueTitle = "Value";
     switch (redisKey.Type) {
         case u.LIST:
-            fieldTitle = "Index";
+            keyTitle = "Index";
+            valueTitle = "Element";
             break;
         case u.SET:
-            fieldTitle = "Value";
+            keyTitle = "Element";
             break;
         case u.ZSET:
-            fieldTitle = "Value";
+            keyTitle = "Element";
             valueTitle = "Score";
             break;
     }
@@ -42,8 +43,8 @@ const buildColums = (props: any) => {
     if (redisKey.Type == u.SET) {
         const columns: any[] = [
             {
-                title: fieldTitle,
-                dataIndex: 'Value',
+                title: keyTitle,
+                dataIndex: 'Key',
                 defaultSortOrder: "ascend",
                 className: "pointer",
                 sorter: (a: any, b: any) => a.Value.localeCompare(b.Value),
@@ -54,23 +55,23 @@ const buildColums = (props: any) => {
     } else {
         const columns: any[] = [
             {
-                title: fieldTitle,
-                dataIndex: 'Field',
+                title: keyTitle,
+                dataIndex: "Key",
                 defaultSortOrder: "ascend",
                 className: "pointer",
                 sorter: (a: any, b: any) => {
-                    const aType = typeof (a.Field);
+                    const aType = typeof (a.Key);
                     if (aType == "string") {
-                        return a.Field.localeCompare(b.Field);
+                        return a.Key.localeCompare(b.Key);
                     } else {
-                        return a.Field - b.Field;
+                        return a.Key - b.Key;
                     }
                 },
                 onCell: (r: any) => onCelClick(r, props),
             },
             {
                 title: valueTitle,
-                dataIndex: 'Value',
+                dataIndex: "Value",
                 className: "pointer",
                 sorter: (a: any, b: any) => {
                     const aType = typeof (a.Value);
@@ -88,12 +89,16 @@ const buildColums = (props: any) => {
 };
 
 const buildFooter = (props: any) => {
-    const { dispatch, memberListState: { hasMore }, loading } = props;
+    const { memberListState, loading, dispatch } = props;
 
     const footer = () => <div style={{ textAlign: "center" }}>
         {
-            hasMore ?
-                <Button type="link" icon={<MoreOutlined />} loading={loading} onClick={() => dispatch({ type: "memberListVM/loadMore" })}>Load more...</Button>
+            memberListState.hasMore ?
+                <Space>
+                    <Button type="link" loading={loading} onClick={() => dispatch({ type: "memberListVM/loadMore" })}>Load more...</Button>
+                    <Divider type="vertical" />
+                    <Button type="link" loading={loading} onClick={() => dispatch({ type: "memberListVM/loadAll" })}>Load all...</Button>
+                </Space>
                 :
                 <Button type="link" disabled>All keys loaded</Button>
         }
@@ -137,7 +142,7 @@ const MemberList = (props: any) => {
 
         //////////// table
         table = <Table
-            rowKey="Field"
+            rowKey="Key"
             dataSource={dataSource}
             columns={columns}
             loading={loading}
@@ -156,12 +161,12 @@ const MemberList = (props: any) => {
         afterVisibleChange={(v: boolean) => {
             if (v) {
                 dispatch({
-                    type: "memberListVM/load", payload: {
+                    type: "memberListVM/load", query: {
                         serverID: params.serverID,
-                        nodeID: params.nodeID,
                         db: params.db,
-                        key: redisKey.Key,
-                        type: redisKey.Type,
+                        redisKey,
+                        // key: redisKey.Key,
+                        // type: redisKey.Type,
                     }
                 });
             }

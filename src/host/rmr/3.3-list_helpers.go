@@ -45,25 +45,45 @@ func saveList(ctx context.Context, client redis.UniversalClient, clusterClient *
 	return
 }
 
-func getListElements(ctx context.Context, client redis.UniversalClient, query *ScanQuerySet) (*ScanElementResult, error) {
-	keys, err := client.LRange(ctx, query.Key, int64(query.Query.Cursor), int64(query.Query.Cursor)+query.Query.Count).Result()
+func scanListElements(ctx context.Context, client redis.UniversalClient, query *ScanQuerySet) (*ScanElementResult, error) {
+	elements, err := client.LRange(ctx, query.Key, int64(query.Query.Cursor), int64(query.Query.Cursor)+query.Query.Count).Result()
 	if err != nil {
 		return nil, serr.WithStack(err)
 	}
 
 	r := new(ScanElementResult)
-	r.Elements = make([]*ElementResult, 0, query.Query.Count)
+	r.Elements = make([]*ElementResult, 0, len(elements))
 
-	if len(keys) == 0 {
-		query.Query.Cursor = 0
+	if len(elements) == 0 {
+		// query.Query.Cursor = 0
+		r.Cursor = 0
 	} else {
-		for i := range keys {
+		for i := range elements {
 			r.Elements = append(r.Elements, &ElementResult{
-				Index: query.Query.Cursor + uint64(i),
-				Value: keys[i],
+				Key:   query.Query.Cursor + uint64(i),
+				Value: elements[i],
 			})
 		}
 		r.Cursor = query.Query.Cursor + uint64(query.Query.Count) + 1
+	}
+
+	return r, nil
+}
+
+func getAllListElements(ctx context.Context, client redis.UniversalClient, querySet *ScanQuerySet) (*ScanElementResult, error) {
+	elements, err := client.LRange(ctx, querySet.Key, 0, -1).Result()
+	if err != nil {
+		return nil, serr.WithStack(err)
+	}
+
+	r := new(ScanElementResult)
+	r.Elements = make([]*ElementResult, 0, len(elements))
+
+	for i := range elements {
+		r.Elements = append(r.Elements, &ElementResult{
+			Key:   i,
+			Value: elements[i],
+		})
 	}
 
 	return r, nil

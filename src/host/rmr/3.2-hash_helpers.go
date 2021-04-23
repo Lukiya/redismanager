@@ -60,8 +60,8 @@ func renameHashField(ctx context.Context, client redis.UniversalClient, key, old
 	return serr.WithStack(err)
 }
 
-func getHashElements(ctx context.Context, client redis.UniversalClient, query *ScanQuerySet) (*ScanElementResult, error) {
-	keys, cur, err := client.HScan(ctx, query.Key, query.Query.Cursor, query.Query.Keyword, query.Query.Count).Result()
+func scanHashElements(ctx context.Context, client redis.UniversalClient, querySet *ScanQuerySet) (*ScanElementResult, error) {
+	elements, cur, err := client.HScan(ctx, querySet.Key, querySet.Query.Cursor, querySet.Query.Keyword, querySet.Query.Count).Result()
 	if err != nil {
 		return nil, serr.WithStack(err)
 	}
@@ -75,16 +75,48 @@ func getHashElements(ctx context.Context, client redis.UniversalClient, query *S
 	// }
 
 	r := new(ScanElementResult)
-	r.Elements = make([]*ElementResult, 0, query.Query.Count)
+	r.Elements = make([]*ElementResult, 0, len(elements)/2)
 	r.Cursor = cur
-	for i := range keys {
+	for i := range elements {
 		if i%2 == 0 {
 			r.Elements = append(r.Elements, &ElementResult{
-				Field: keys[i],
-				Value: keys[i+1],
+				Key:   elements[i],
+				Value: elements[i+1],
 			})
 		}
 	}
+	return r, nil
+}
+
+func getAllHashElements(ctx context.Context, client redis.UniversalClient, querySet *ScanQuerySet) (*ScanElementResult, error) {
+
+	// scanResult, err := scanHashElements(ctx, client, querySet)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// r.Elements = append(r.Elements, scanResult.Elements...)
+
+	// for scanResult.Cursor > 0 {
+	// 	scanResult, err = scanHashElements(ctx, client, querySet)
+	// 	if err != nil {
+	// 		return nil, err
+	// 	}
+	// 	r.Elements = append(r.Elements, scanResult.Elements...)
+	// }
+
+	// return r, nil
+
+	m, err := client.HGetAll(ctx, querySet.Key).Result()
+	if err != nil {
+		return nil, serr.WithStack(err)
+	}
+	r := new(ScanElementResult)
+	r.Elements = make([]*ElementResult, 0, len(m))
+
+	for k, v := range m {
+		r.Elements = append(r.Elements, &ElementResult{Key: k, Value: v})
+	}
+
 	return r, nil
 }
 

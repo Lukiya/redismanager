@@ -22,6 +22,7 @@ export async function Scan(query: any) {
             Type: type,
             All: query.all,
             Query: {
+                Cursor: query.cursor,
                 Count: query.count,
                 Keyword: query.keyword,
             },

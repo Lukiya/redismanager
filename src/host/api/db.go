@@ -29,21 +29,21 @@ func ScanKeysOrElements(ctx host.IHttpContext) {
 		return
 	}
 
-	scanQuerySet := new(rmr.ScanQuerySet)
-	err = ctx.ReadJSON(scanQuerySet)
+	querySet := new(rmr.ScanQuerySet)
+	err = ctx.ReadJSON(querySet)
 	if host.HandleErr(err, ctx) {
 		return
 	}
 
-	if scanQuerySet.Key == "" {
+	if querySet.Key == "" {
 		// Scan keys
 		var rs *rmr.ScanKeyResult
-		if scanQuerySet.All {
-			rs, err = dB.GetAllKeys(scanQuerySet)
-		} else if scanQuerySet.Cursors == nil {
-			rs, err = dB.ScanKeys(scanQuerySet)
+		if querySet.All {
+			rs, err = dB.GetAllKeys(querySet)
+		} else if querySet.Cursors == nil {
+			rs, err = dB.ScanKeys(querySet)
 		} else {
-			rs, err = dB.ScanMoreKeys(scanQuerySet)
+			rs, err = dB.ScanMoreKeys(querySet)
 		}
 		if host.HandleErr(err, ctx) {
 			return
@@ -57,9 +57,17 @@ func ScanKeysOrElements(ctx host.IHttpContext) {
 		ctx.WriteJsonBytes(data)
 	} else {
 		// scan members
-		rs, err := dB.GetElements(scanQuerySet)
-		if host.HandleErr(err, ctx) {
-			return
+		var rs *rmr.ScanElementResult
+		if querySet.All {
+			rs, err = dB.GetAllElements(querySet)
+			if host.HandleErr(err, ctx) {
+				return
+			}
+		} else {
+			rs, err = dB.ScanElements(querySet)
+			if host.HandleErr(err, ctx) {
+				return
+			}
 		}
 
 		data, err := json.Marshal(rs)

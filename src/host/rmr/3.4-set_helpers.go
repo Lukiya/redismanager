@@ -42,8 +42,8 @@ func saveSet(ctx context.Context, client redis.UniversalClient, clusterClient *r
 	return err
 }
 
-func getSetElements(ctx context.Context, client redis.UniversalClient, query *ScanQuerySet) (*ScanElementResult, error) {
-	keys, cur, err := client.SScan(ctx, query.Key, query.Query.Cursor, query.Query.Keyword, query.Query.Count).Result()
+func scanSetElements(ctx context.Context, client redis.UniversalClient, query *ScanQuerySet) (*ScanElementResult, error) {
+	elements, cur, err := client.SScan(ctx, query.Key, query.Query.Cursor, query.Query.Keyword, query.Query.Count).Result()
 	if err != nil {
 		return nil, serr.WithStack(err)
 	}
@@ -57,14 +57,33 @@ func getSetElements(ctx context.Context, client redis.UniversalClient, query *Sc
 	// }
 
 	r := new(ScanElementResult)
-	r.Elements = make([]*ElementResult, 0, len(keys))
+	r.Elements = make([]*ElementResult, 0, len(elements))
 	r.Cursor = cur
-	for _, value := range keys {
+	for _, value := range elements {
 		r.Elements = append(r.Elements, &ElementResult{
 			// Field: value,
-			Value: value,
+			Key: value,
+			// Value: value,
 		})
 	}
+	return r, nil
+}
+
+func getAllSetElements(ctx context.Context, client redis.UniversalClient, querySet *ScanQuerySet) (*ScanElementResult, error) {
+	elements, err := client.SMembers(ctx, querySet.Key).Result()
+	if err != nil {
+		return nil, serr.WithStack(err)
+	}
+
+	r := new(ScanElementResult)
+	r.Elements = make([]*ElementResult, 0, len(elements))
+
+	for _, v := range elements {
+		r.Elements = append(r.Elements, &ElementResult{
+			Key: v,
+		})
+	}
+
 	return r, nil
 }
 

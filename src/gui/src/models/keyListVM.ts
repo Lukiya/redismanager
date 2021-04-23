@@ -7,6 +7,8 @@ export default {
         query: u.DefaultQuery,
         hasMore: false,
         cursors: {},
+        pageSize: -1,
+        suggestedPageSize: 10,
     },
     effects: {
         *load({ query }: any, { put }: any): any {
@@ -25,6 +27,7 @@ export default {
                         keys: resp.Keys,
                         query,
                         hasMore: curs.length > 0,
+                        suggestedPageSize: u.GetPageSize(),
                     }
                 });
             } else {
@@ -42,7 +45,13 @@ export default {
 
             if (resp?.Keys && resp?.Cursors) {
                 query.cursors = resp.Cursors;
-                yield put({ type: 'appendKeys', payload: { resp, query } });
+                yield put({
+                    type: 'appendKeys', payload: {
+                        resp,
+                        query,
+                        suggestedPageSize: u.GetPageSize(),
+                    }
+                });
             } else {
                 console.log("no json in response body");
             }
@@ -64,6 +73,7 @@ export default {
                         keys: resp.Keys,
                         query,
                         hasMore: false,
+                        suggestedPageSize: u.GetPageSize(),
                     }
                 });
             } else {
@@ -74,13 +84,20 @@ export default {
     reducers: {
         setState(state: any, { payload }: any) { return { ...state, ...payload }; },
         appendKeys(state: any, { payload }: any) {
-            const { resp, query } = payload;
+            const { resp, query, suggestedPageSize } = payload;
             const curs = Object.keys(resp.Cursors);
             return {
                 ...state,
                 keys: state.keys.concat(resp.Keys),
                 hasMore: curs.length > 0,
+                suggestedPageSize,
                 query,
+            };
+        },
+        setPageSize(state: any, { pageSize }: any) {
+            return {
+                ...state,
+                pageSize,
             };
         },
     },
@@ -95,6 +112,7 @@ export default {
                         serverID: array[1],
                         db: array[2],
                     };
+
                     const menuKey = query.db.toString();
                     dispatch({
                         type: "menuVM/setState", payload: {

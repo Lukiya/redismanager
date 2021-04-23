@@ -168,5 +168,18 @@ const u = {
                 .replace(/[ \r\n\t]{1,}xmlns/g, ' xmlns');
         return str.replace(/>\s{0,}</g, "><");
     },
+    GetPageSize: () => {
+        let pageSize;
+        const docHeight = document?.body?.clientHeight ?? 640;
+        if (docHeight < 920) {
+            pageSize = 10;
+        } else if (docHeight < 1210) {
+            pageSize = 20;
+        } else {
+            pageSize = 30;
+        }
+
+        return pageSize;
+    },
 }
 export default u

@@ -46,7 +46,7 @@ func TestClusterRedisServer(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, key)
 
-	members, err := db.GetElements(&ScanQuerySet{
+	members, err := db.ScanElements(&ScanQuerySet{
 		Key:  "HASH_00001",
 		Type: common.RedisType_Hash,
 		Query: &ScanQuery{

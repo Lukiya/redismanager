@@ -4,26 +4,36 @@ import { message } from 'antd';
 
 export default {
     state: {
-        ...u.DefaultQuery,
+        // ...u.DefaultQuery,
         redisKey: {},
+        query: u.DefaultQuery,
         dataSource: [],
         // loading: true,
         hasMore: false,
         visible: false,
+        pageSize: -1,
+        suggestedPageSize: 10,
     },
     effects: {
-        *load(_: any, { put, select }: any): any {
-            const state = yield select((x: any) => x["memberListVM"]);
-            const kResp = yield GetKey(state);
+        *load({ query }: any, { put }: any): any {
+            query = {
+                ...u.DefaultQuery,
+                ...query,
+            };
+            // const state = yield select((x: any) => x["memberListVM"]);
+            const kResp = yield GetKey(query);
             if (kResp?.Key) {
-                const resp = yield Scan(state);
-                if (resp?.Elements) {
+                query.redisKey = kResp;
+                const eResp = yield Scan(query);
+                if (eResp?.Elements) {
+                    query.cursor = eResp.Cursor;
                     yield put({
                         type: "setState", payload: {
-                            redisKey: kResp,
-                            dataSource: resp.Elements,
-                            cursor: resp.Cursor,
-                            hasMore: resp.Cursor != 0,
+                            query,
+                            redisKey: query.redisKey,
+                            dataSource: eResp.Elements,
+                            hasMore: query.cursor != 0,
+                            suggestedPageSize: u.GetPageSize(),
                         }
                     });
                 }
@@ -36,15 +46,50 @@ export default {
             if (!state.hasMore) {
                 return;
             }
+            const { query } = state;
 
-            const resp = yield Scan(state);
+            const resp = yield Scan(query);
             if (resp?.Elements) {
-                yield put({ type: 'appendMembers', resp });
+                query.cursor = resp.Cursor;
+                yield put({
+                    type: 'appendElements',
+                    payload: {
+                        query,
+                        elements: resp.Elements,
+                        hasMore: query.cursor != 0,
+                        suggestedPageSize: u.GetPageSize(),
+                    },
+                });
             } else {
                 console.log("no json in response body");
             }
         },
-        *save({ values }: any, { put, select }: any): any {
+        *loadAll(_: any, { put, select }: any): any {
+            const state = yield select((x: any) => x["memberListVM"]);
+            if (!state.hasMore) {
+                return;
+            }
+
+            const { query } = state;
+            query.all = true;
+
+            const resp = yield Scan(query);
+            query.cursor = 0;
+            if (resp?.Elements) {
+                yield put({
+                    type: 'setState',
+                    payload: {
+                        dataSource: resp.Elements,
+                        query,
+                        hasMore: false,
+                        suggestedPageSize: u.GetPageSize(),
+                    },
+                });
+            } else {
+                console.log("no json in response body");
+            }
+        },
+        *save({ values }: any, { select }: any): any {
             const state = yield select((x: any) => x["memberListVM"]);
             const data = {
                 new: values,
@@ -60,13 +105,15 @@ export default {
     },
     reducers: {
         setState(state: any, { payload }: any) { return { ...state, ...payload }; },
-        appendMembers(state: any, { resp }: any) {
+        appendElements(state: any, { payload }: any) {
+            const { elements, suggestedPageSize, query, hasMore } = payload;
             return {
                 ...state,
+                query,
+                hasMore,
                 // loading: false,
-                dataSource: state.dataSource.concat(resp.Elements),
-                cursor: resp.Cursor,
-                hasMore: resp.Cursor != 0,
+                dataSource: state.dataSource.concat(elements),
+                suggestedPageSize,
             };
         },
         show(state: any, { payload }: any,) {
