@@ -19,7 +19,7 @@ const buildValueEditor = () => {
 };
 
 const buildForm = (memberEditorState: any, dispatch: any) => {
-    let { redisEntry, loading, keyEditorEnabled, fieldEditorEnabled, indexEditorEnabled, scoreEditorEnabled } = memberEditorState;
+    let { redisEntry, loading, keyEditorEnabled, fieldEditorEnabled, indexEditorEnabled, scoreEditorEnabled, valueEditorEnabled } = memberEditorState;
 
     if (loading) {
         return <div style={{ textAlign: "center", marginTop: 20 }}><Spin /></div>
@@ -28,14 +28,7 @@ const buildForm = (memberEditorState: any, dispatch: any) => {
         const [formRef] = Form.useForm();
 
         let valueEditor: any = undefined;
-
-        // if (redisEntry.Type == u.ZSET) {
-        //     const t = value;
-        //     value = field;
-        //     field = t;
-        // }
-
-        if (redisEntry.Value != undefined) {
+        if (valueEditorEnabled) {
             valueEditor = buildValueEditor();
 
             // btnReset = <Button icon={<UndoOutlined />} className="btn1" onClick={() => formRef.resetFields()}>Reset</Button>;
@@ -71,7 +64,7 @@ const buildForm = (memberEditorState: any, dispatch: any) => {
             }}
             initialValues={initialValues}
         >
-            <DrawerActionBar formRef={formRef} keyEditorEnabled={keyEditorEnabled} indexEditorEnabled={indexEditorEnabled} scoreEditorEnabled={scoreEditorEnabled} fieldEditorEnabled={fieldEditorEnabled}></DrawerActionBar>
+            <DrawerActionBar formRef={formRef} keyEditorEnabled={keyEditorEnabled} indexEditorEnabled={indexEditorEnabled} scoreEditorEnabled={scoreEditorEnabled} fieldEditorEnabled={fieldEditorEnabled} valueEditorEnabled={valueEditorEnabled}></DrawerActionBar>
             {valueEditor}
         </Form>;
         useEffect(() => formRef?.resetFields(), [form.props.initialValues]);

@@ -13,6 +13,7 @@ export default {
         fieldEditorEnabled: false,
         scoreEditorEnabled: false,
         indexEditorEnabled: false,
+        valueEditorEnabled: false,
         title: _defaultTitle,
     },
     effects: {
@@ -48,6 +49,7 @@ export default {
                         fieldEditorEnabled: redisEntry.Type == u.HASH,
                         scoreEditorEnabled: redisEntry.Type == u.ZSET,
                         indexEditorEnabled: redisEntry.Type == u.LIST,
+                        valueEditorEnabled: true,
                     },
                 });
             }

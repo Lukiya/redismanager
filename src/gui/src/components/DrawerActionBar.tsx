@@ -43,12 +43,47 @@ const buildIndexEditor = (props: any) => {
 
     return undefined;
 };
+const buildBeautifyButton = (props: any) => {
+    const { valueEditorEnabled, formRef } = props;
+    if (!valueEditorEnabled)
+        return undefined;
+
+    return <Button type="dashed" icon={<CodeOutlined />} className="btn1" onClick={() => {
+        let value = formRef.getFieldValue("Value");
+        if (u.IsJson(value)) {
+            value = u.FormatJson(value);
+            formRef.setFieldsValue({ "Value": value });
+        } else if (u.IsXml(value)) {
+            value = u.FormatXml(value);
+            formRef.setFieldsValue({ "Value": value });
+        }
+    }}>Beautify</Button>;
+}
+const buildMinifyButton = (props: any) => {
+    const { valueEditorEnabled, formRef } = props;
+    if (!valueEditorEnabled)
+        return undefined;
+
+    return <Button type="dashed" icon={<BoxPlotOutlined />} className="btn1" onClick={() => {
+        let value = formRef.getFieldValue("Value");
+        if (u.IsJson(value)) {
+            value = u.MinifyJson(value);
+            formRef.setFieldsValue({ "Value": value });
+        } else if (u.IsXml(value)) {
+            value = u.MinifyXml(value, false);
+            formRef.setFieldsValue({ "Value": value });
+        }
+    }}>Minify</Button>;
+}
 
 const DrawerActionBar = (props: any) => {
-    const { formRef, keyEditorEnabled } = props;
+    const { formRef, keyEditorEnabled, valueEditorEnabled } = props;
     const fieldEditor = buildFieldEditor(props);
     const scoreEditor = buildScoreEditor(props);
     const indexEditor = buildIndexEditor(props);
+    const btnBeautify = buildBeautifyButton(props);
+    const btnMinify = buildMinifyButton(props);
+
 
     const form = <Row gutter={8}>
         <Col lg={6} xl={6} xxl={6}>
@@ -70,12 +105,14 @@ const DrawerActionBar = (props: any) => {
                 <Button icon={<UndoOutlined />} className="btn1" onClick={() => formRef.resetFields()}>Reset</Button>
             </Space>
         </Col>
-        {/* <Col>
-            <Space>
-                {btnBeautify}
-                {btnMinify}
-            </Space>
-        </Col> */}
+        {
+            valueEditorEnabled ? <Col>
+                <Space>
+                    {btnBeautify}
+                    {btnMinify}
+                </Space>
+            </Col> : undefined
+        }
     </Row>;
 
     return form;
