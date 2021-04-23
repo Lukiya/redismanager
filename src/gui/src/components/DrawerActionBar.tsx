@@ -66,8 +66,8 @@ const DrawerActionBar = (props: any) => {
         </Col>
         <Col>
             <Space>
-                <Button type="primary" htmlType="submit" icon={<SaveOutlined />} style={{ width: 93 }}>Save</Button>
-                <Button icon={<UndoOutlined />} style={{ width: 93 }} onClick={() => formRef.resetFields()}>Reset</Button>
+                <Button type="primary" htmlType="submit" icon={<SaveOutlined />} className="btn1">Save</Button>
+                <Button icon={<UndoOutlined />} className="btn1" onClick={() => formRef.resetFields()}>Reset</Button>
             </Space>
         </Col>
         {/* <Col>

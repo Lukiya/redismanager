@@ -7,11 +7,14 @@ import DrawerActionBar from "./DrawerActionBar";
 
 const { TextArea } = Input;
 
-const buildValueEditor = (value: string) => {
-    let valueLines = value.match(/\n/ig)?.length;
-    valueLines = valueLines! <= 30 ? valueLines : 30;
+const buildValueEditor = () => {
+    const container: any = document.getElementsByClassName('ant-drawer-body');
+    let height = 300;
+    if (container.length > 0) {
+        height = container[0].offsetHeight - 140;
+    }
     return <Form.Item name="Value">
-        <TextArea rows={(valueLines)}></TextArea>
+        <TextArea style={{ height: height }}></TextArea>
     </Form.Item>;
 };
 
@@ -33,10 +36,10 @@ const buildForm = (memberEditorState: any, dispatch: any) => {
         // }
 
         if (redisEntry.Value != undefined) {
-            valueEditor = buildValueEditor(redisEntry.Value);
+            valueEditor = buildValueEditor();
 
-            // btnReset = <Button icon={<UndoOutlined />} style={{ width: 93 }} onClick={() => formRef.resetFields()}>Reset</Button>;
-            // btnBeautify = <Button type="dashed" icon={<CodeOutlined />} style={{ width: 93 }} onClick={() => {
+            // btnReset = <Button icon={<UndoOutlined />} className="btn1" onClick={() => formRef.resetFields()}>Reset</Button>;
+            // btnBeautify = <Button type="dashed" icon={<CodeOutlined />} className="btn1" onClick={() => {
             //     let value = formRef.getFieldValue("Value");
             //     if (u.IsJson(value)) {
             //         value = u.FormatJson(value);
@@ -46,7 +49,7 @@ const buildForm = (memberEditorState: any, dispatch: any) => {
             //         formRef.setFieldsValue({ "Value": value });
             //     }
             // }}>Beautify</Button>;
-            // btnMinify = <Button type="dashed" icon={<BoxPlotOutlined />} style={{ width: 93 }} onClick={() => {
+            // btnMinify = <Button type="dashed" icon={<BoxPlotOutlined />} className="btn1" onClick={() => {
             //     let value = formRef.getFieldValue("Value");
             //     if (u.IsJson(value)) {
             //         value = u.MinifyJson(value);

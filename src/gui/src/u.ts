@@ -169,17 +169,17 @@ const u = {
         return str.replace(/>\s{0,}</g, "><");
     },
     GetPageSize: () => {
-        let pageSize;
+        let r;
         const docHeight = document?.body?.clientHeight ?? 640;
         if (docHeight < 920) {
-            pageSize = 10;
+            r = 10;
         } else if (docHeight < 1210) {
-            pageSize = 20;
+            r = 20;
         } else {
-            pageSize = 30;
+            r = 30;
         }
 
-        return pageSize;
+        return r;
     },
     KeySorter: (a: any, b: any) => {
         const aType = typeof (a.Key);
