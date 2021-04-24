@@ -86,6 +86,7 @@ const MemberEditor = (props: any) => {
     return <Drawer
         title={title}
         width="90vw"
+        zIndex={1100}
         afterVisibleChange={visible => {
             if (visible && !isNew) {
                 dispatch({ type: "memberEditorVM/load" });

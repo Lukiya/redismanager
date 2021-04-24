@@ -24,6 +24,12 @@ const onCelClick = (record: any, props: any) => {
     };
 };
 
+const onNewClick = (props: any) => {
+    const { memberListState: { redisKey }, dispatch, params } = props;
+
+    u.NewEntryEditor(redisKey.Type, params, dispatch);
+};
+
 const buildColums = (props: any) => {
     const { memberListState: { redisKey }, loading } = props;
 
@@ -96,7 +102,7 @@ const buildFooter = (props: any) => {
 };
 
 const buildForm = (props: any) => {
-    const { memberListState: { redisKey }, loading, dispatch } = props;
+    const { memberListState: { redisKey }, dispatch } = props;
 
     if (redisKey?.Key != undefined) {
         const [formRef] = Form.useForm();
@@ -109,7 +115,7 @@ const buildForm = (props: any) => {
                 dispatch({ type: "memberListVM/save", values });
             }}
         >
-            <DrawerActionBar newButtonEnabled={true} keyEditorEnabled={true} redisKey={redisKey} formRef={formRef}></DrawerActionBar>
+            <DrawerActionBar newButtonEnabled={true} keyEditorEnabled={true} redisKey={redisKey} formRef={formRef} newClicked={() => onNewClick(props)}></DrawerActionBar>
         </Form>;
         useEffect(() => formRef?.resetFields(), [form.props.initialValues]);
 
@@ -152,6 +158,7 @@ const MemberList = (props: any) => {
     }
 
     const drawer = <Drawer
+        zIndex={1000}
         title={title}
         visible={visible}
         width="95vw"
@@ -177,7 +184,6 @@ const MemberList = (props: any) => {
     return drawer;
 };
 
-// export default EntryEditor
 export default connect(({ memberListVM, loading }: any) => ({
     memberListState: memberListVM,
     loading: loading.models.memberListVM,

@@ -206,5 +206,39 @@ const u = {
             return a.Value - b.Value;
         }
     },
+    NewEntryEditor: (type: string, params: any, dispatch: any) => {
+        const payload = {
+            ...params,
+            entry: u.DefaultEntry,
+            isNew: true,
+            keyEditorEnabled: true,
+            valueEditorEnabled: true,
+            fieldEditorEnabled: false,
+            scoreEditorEnabled: false,
+            indexEditorEnabled: false,
+        };
+        switch (type) {
+            case u.STRING:
+                payload.entry.Type = u.STRING;
+                break;
+            case u.HASH:
+                payload.fieldEditorEnabled = true;
+                payload.entry.Type = u.HASH;
+                break;
+            case u.LIST:
+                payload.indexEditorEnabled = true;
+                payload.entry.Type = u.LIST;
+                break;
+            case u.SET:
+                payload.entry.Type = u.SET;
+                break;
+            case u.ZSET:
+                payload.scoreEditorEnabled = true;
+                payload.entry.Type = u.ZSET;
+                break;
+        }
+
+        dispatch({ type: "memberEditorVM/show", payload });
+    },
 }
 export default u

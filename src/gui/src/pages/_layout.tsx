@@ -50,7 +50,7 @@ const LayoutPage = (props: any) => {
     return (
         <Layout style={{ minHeight: '100vh' }}>
             <Sider breakpoint="lg" collapsedWidth="0">
-                <div style={{ paddingTop: "17px", paddingBottom: "17px", textAlign: "center" }}><Link to="/" style={{ color: "#fff", }}><img src={logo} style={{ width: "30px" }} /> Redis Manager</Link></div>
+                <div style={{ paddingTop: "17px", paddingBottom: "17px", textAlign: "center" }}><Link to="/" style={{ color: "#fff", }}><img src={logo} alt="logo" style={{ width: "30px" }} /> Redis Manager</Link></div>
                 {menu}
             </Sider>
             <Layout className="site-layout">

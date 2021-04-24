@@ -43,6 +43,7 @@ const buildIndexEditor = (props: any) => {
 
     return undefined;
 };
+
 const buildBeautifyButton = (props: any) => {
     const { valueEditorEnabled, formRef } = props;
     if (!valueEditorEnabled)
@@ -59,6 +60,7 @@ const buildBeautifyButton = (props: any) => {
         }
     }}>Beautify</Button>;
 }
+
 const buildMinifyButton = (props: any) => {
     const { valueEditorEnabled, formRef } = props;
     if (!valueEditorEnabled)
@@ -119,7 +121,7 @@ const DrawerActionBar = (props: any) => {
         </Col>
         {
             newButtonEnabled ? <Col>
-                <Button icon={<PlusOutlined />} className="btn1" onClick={() => formRef.resetFields()}>New</Button>
+                <Button icon={<PlusOutlined />} className="btn1" onClick={props.newClicked}>New</Button>
             </Col> : undefined
         }
         {
