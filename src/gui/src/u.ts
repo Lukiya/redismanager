@@ -211,6 +211,7 @@ const u = {
             ...params,
             entry: u.DefaultEntry,
             isNew: true,
+            loading: false,
             keyEditorEnabled: true,
             valueEditorEnabled: true,
             fieldEditorEnabled: false,

@@ -60,7 +60,7 @@ export default {
     reducers: {
         setState(state: any, { payload }: any) { return { ...state, ...payload }; },
         show(state: any, { payload }: any,) {
-            let title = "";
+            let title = "Loading...";
 
             if (payload.isNew) {
                 title = "New " + payload.entry.Type;

@@ -79,7 +79,7 @@ const buildMinifyButton = (props: any) => {
 }
 
 const DrawerActionBar = (props: any) => {
-    const { formRef, newButtonEnabled, keyEditorEnabled, valueEditorEnabled } = props;
+    const { formRef, newButtonEnabled, keyEditorEnabled, valueEditorEnabled, loading } = props;
     const fieldEditor = buildFieldEditor(props);
     const scoreEditor = buildScoreEditor(props);
     const indexEditor = buildIndexEditor(props);
@@ -115,7 +115,7 @@ const DrawerActionBar = (props: any) => {
         </Col>
         <Col>
             <Space>
-                <Button type="primary" htmlType="submit" icon={<SaveOutlined />} className="btn1">Save</Button>
+                <Button type="primary" loading={loading} htmlType="submit" icon={<SaveOutlined />} className="btn1">Save</Button>
                 <Button icon={<UndoOutlined />} className="btn1" onClick={() => formRef.resetFields()}>Reset</Button>
             </Space>
         </Col>

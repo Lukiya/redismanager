@@ -17,7 +17,7 @@ const buildValueEditor = () => {
 };
 
 const buildForm = (props: any) => {
-    const { memberEditorState: { entry, loading, keyEditorEnabled, fieldEditorEnabled, indexEditorEnabled, scoreEditorEnabled, valueEditorEnabled }, dispatch } = props;
+    const { memberEditorState: { entry, keyEditorEnabled, fieldEditorEnabled, indexEditorEnabled, scoreEditorEnabled, valueEditorEnabled, loading }, dispatch, isBusy } = props;
 
     if (loading) {
         return <div style={{ textAlign: "center", marginTop: 20 }}><Spin /></div>
@@ -38,7 +38,13 @@ const buildForm = (props: any) => {
             onFinish={(values) => dispatch({ type: "memberEditorVM/save", values })}
             initialValues={initialValues}
         >
-            <DrawerActionBar formRef={formRef} keyEditorEnabled={keyEditorEnabled} indexEditorEnabled={indexEditorEnabled} scoreEditorEnabled={scoreEditorEnabled} fieldEditorEnabled={fieldEditorEnabled} valueEditorEnabled={valueEditorEnabled}>
+            <DrawerActionBar formRef={formRef}
+                loading={isBusy}
+                keyEditorEnabled={keyEditorEnabled}
+                indexEditorEnabled={indexEditorEnabled}
+                scoreEditorEnabled={scoreEditorEnabled}
+                fieldEditorEnabled={fieldEditorEnabled}
+                valueEditorEnabled={valueEditorEnabled}>
             </DrawerActionBar>
             <Divider orientation="left" plain={true} style={{ margin: "0 0 5px" }}>Value</Divider>
             {valueEditor}
@@ -75,6 +81,7 @@ const MemberEditor = (props: any) => {
 };
 
 // export default EntryEditor
-export default connect(({ memberEditorVM }: any) => ({
+export default connect(({ memberEditorVM, loading }: any) => ({
     memberEditorState: memberEditorVM,
+    isBusy: loading.models.memberEditorVM,
 }))(MemberEditor);
