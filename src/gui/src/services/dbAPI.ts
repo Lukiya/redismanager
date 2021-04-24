@@ -47,7 +47,7 @@ export async function GetKey(query: any) {
 // }
 
 export async function GetRedisEntry(query: any) {
-    const url = '/servers/' + query.serverID + '/' + query.db + "/" + encodeURIComponent(query.Key);
+    const url = '/servers/' + query.ServerID + '/' + query.DB + "/" + encodeURIComponent(query.Key);
     const r = await request.post(url, {
         requestType: "form",
         data: { ElementKey: query.ElemKey },

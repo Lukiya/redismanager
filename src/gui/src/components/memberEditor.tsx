@@ -1,8 +1,6 @@
 import { connect } from "umi";
-import { Drawer, Space, Form, Input, InputNumber, Button, Row, Col, Spin } from "antd";
-import { SaveOutlined, CodeOutlined, BoxPlotOutlined, UndoOutlined } from '@ant-design/icons';
+import { Drawer, Form, Input, Spin, Divider } from "antd";
 import { useEffect } from "react";
-import u from "@/u";
 import DrawerActionBar from "./DrawerActionBar";
 
 const { TextArea } = Input;
@@ -11,7 +9,7 @@ const buildValueEditor = () => {
     const container: any = document.getElementsByClassName('ant-drawer-body');
     let height = 300;
     if (container.length > 0) {
-        height = container[0].offsetHeight - 140;
+        height = container[0].offsetHeight - 200;
     }
     return <Form.Item name="Value">
         <TextArea style={{ height: height }}></TextArea>
@@ -19,11 +17,11 @@ const buildValueEditor = () => {
 };
 
 const buildForm = (memberEditorState: any, dispatch: any) => {
-    let { redisEntry, loading, keyEditorEnabled, fieldEditorEnabled, indexEditorEnabled, scoreEditorEnabled, valueEditorEnabled } = memberEditorState;
+    let { entry, loading, keyEditorEnabled, fieldEditorEnabled, indexEditorEnabled, scoreEditorEnabled, valueEditorEnabled } = memberEditorState;
 
     if (loading) {
         return <div style={{ textAlign: "center", marginTop: 20 }}><Spin /></div>
-    } else if (redisEntry?.Key != undefined) {
+    } else if (entry?.Key != undefined) {
 
         const [formRef] = Form.useForm();
 
@@ -55,16 +53,18 @@ const buildForm = (memberEditorState: any, dispatch: any) => {
         }
 
         const initialValues = {
-            ...redisEntry
+            ...entry
         };
         const form = <Form
             form={formRef}
-            onFinish={(values) => {
-                dispatch({ type: "memberEditorVM/save", values });
-            }}
+            onFinish={(values) => dispatch({ type: "memberEditorVM/save", values })}
             initialValues={initialValues}
         >
             <DrawerActionBar formRef={formRef} keyEditorEnabled={keyEditorEnabled} indexEditorEnabled={indexEditorEnabled} scoreEditorEnabled={scoreEditorEnabled} fieldEditorEnabled={fieldEditorEnabled} valueEditorEnabled={valueEditorEnabled}></DrawerActionBar>
+            {/* <Form.Item name="Type" hidden={true}>
+                <Input />
+            </Form.Item> */}
+            <Divider orientation="left" plain={true} style={{ margin: "0 0 5px" }}>Value</Divider>
             {valueEditor}
         </Form>;
         useEffect(() => formRef?.resetFields(), [form.props.initialValues]);
@@ -75,7 +75,7 @@ const buildForm = (memberEditorState: any, dispatch: any) => {
 
 const MemberEditor = (props: any) => {
     const { memberEditorState, memberEditorState: { visible }, dispatch } = props;
-    const { title } = memberEditorState;
+    const { title, isNew } = memberEditorState;
     let form: any = undefined;
 
     if (visible) {
@@ -87,7 +87,7 @@ const MemberEditor = (props: any) => {
         title={title}
         width="90vw"
         afterVisibleChange={visible => {
-            if (visible) {
+            if (visible && !isNew) {
                 dispatch({ type: "memberEditorVM/load" });
             }
         }}

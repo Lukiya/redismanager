@@ -45,6 +45,15 @@ const u = {
         keyword: '',
         all: false,
     },
+    DefaultEntry: {
+        Key: '',
+        Type: '',
+        Field: '',
+        Index: 0,
+        Score: 0,
+        TTL: -1,
+        Value: '',
+    },
     LocalRootURL: () => {
         const r = process.env.NODE_ENV === "production" ? "/" : "http://localhost:16379/";
         return r;

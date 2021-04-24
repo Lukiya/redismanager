@@ -1,6 +1,6 @@
 import u from '@/u';
-import { Space, Form, Input, InputNumber, Row, Col, Button } from 'antd';
-import { SaveOutlined, CodeOutlined, BoxPlotOutlined, UndoOutlined } from '@ant-design/icons';
+import { Space, Form, Input, InputNumber, Row, Col, Button, Select } from 'antd';
+import { SaveOutlined, CodeOutlined, BoxPlotOutlined, UndoOutlined, PlusOutlined } from '@ant-design/icons';
 
 const buildFieldEditor = (props: any) => {
     const { fieldEditorEnabled } = props;
@@ -77,7 +77,7 @@ const buildMinifyButton = (props: any) => {
 }
 
 const DrawerActionBar = (props: any) => {
-    const { formRef, keyEditorEnabled, valueEditorEnabled } = props;
+    const { formRef, newButtonEnabled, keyEditorEnabled, valueEditorEnabled } = props;
     const fieldEditor = buildFieldEditor(props);
     const scoreEditor = buildScoreEditor(props);
     const indexEditor = buildIndexEditor(props);
@@ -86,6 +86,18 @@ const DrawerActionBar = (props: any) => {
 
 
     const form = <Row gutter={8}>
+        <Col>
+            <Form.Item label="Type" name="Type">
+                <Select disabled={true}>
+                    <Select.Option value="">{ }</Select.Option>
+                    <Select.Option value={u.STRING}>{u.STRING}</Select.Option>
+                    <Select.Option value={u.HASH}>{u.HASH}</Select.Option>
+                    <Select.Option value={u.LIST}>{u.LIST}</Select.Option>
+                    <Select.Option value={u.SET}>{u.SET}</Select.Option>
+                    <Select.Option value={u.ZSET}>{u.ZSET}</Select.Option>
+                </Select>
+            </Form.Item>
+        </Col>
         <Col lg={6} xl={6} xxl={6}>
             <Form.Item label="Key" name="Key">
                 <Input width="xl" placeholder="Key" readOnly={!keyEditorEnabled} />
@@ -105,6 +117,11 @@ const DrawerActionBar = (props: any) => {
                 <Button icon={<UndoOutlined />} className="btn1" onClick={() => formRef.resetFields()}>Reset</Button>
             </Space>
         </Col>
+        {
+            newButtonEnabled ? <Col>
+                <Button icon={<PlusOutlined />} className="btn1" onClick={() => formRef.resetFields()}>New</Button>
+            </Col> : undefined
+        }
         {
             valueEditorEnabled ? <Col>
                 <Space>
