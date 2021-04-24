@@ -16,8 +16,8 @@ const buildValueEditor = () => {
     </Form.Item>;
 };
 
-const buildForm = (memberEditorState: any, dispatch: any) => {
-    let { entry, loading, keyEditorEnabled, fieldEditorEnabled, indexEditorEnabled, scoreEditorEnabled, valueEditorEnabled } = memberEditorState;
+const buildForm = (props: any) => {
+    const { memberEditorState: { entry, loading, keyEditorEnabled, fieldEditorEnabled, indexEditorEnabled, scoreEditorEnabled, valueEditorEnabled }, dispatch } = props;
 
     if (loading) {
         return <div style={{ textAlign: "center", marginTop: 20 }}><Spin /></div>
@@ -28,28 +28,6 @@ const buildForm = (memberEditorState: any, dispatch: any) => {
         let valueEditor: any = undefined;
         if (valueEditorEnabled) {
             valueEditor = buildValueEditor();
-
-            // btnReset = <Button icon={<UndoOutlined />} className="btn1" onClick={() => formRef.resetFields()}>Reset</Button>;
-            // btnBeautify = <Button type="dashed" icon={<CodeOutlined />} className="btn1" onClick={() => {
-            //     let value = formRef.getFieldValue("Value");
-            //     if (u.IsJson(value)) {
-            //         value = u.FormatJson(value);
-            //         formRef.setFieldsValue({ "Value": value });
-            //     } else if (u.IsXml(value)) {
-            //         value = u.FormatXml(value);
-            //         formRef.setFieldsValue({ "Value": value });
-            //     }
-            // }}>Beautify</Button>;
-            // btnMinify = <Button type="dashed" icon={<BoxPlotOutlined />} className="btn1" onClick={() => {
-            //     let value = formRef.getFieldValue("Value");
-            //     if (u.IsJson(value)) {
-            //         value = u.MinifyJson(value);
-            //         formRef.setFieldsValue({ "Value": value });
-            //     } else if (u.IsXml(value)) {
-            //         value = u.MinifyXml(value, false);
-            //         formRef.setFieldsValue({ "Value": value });
-            //     }
-            // }}>Minify</Button>;
         }
 
         const initialValues = {
@@ -60,10 +38,8 @@ const buildForm = (memberEditorState: any, dispatch: any) => {
             onFinish={(values) => dispatch({ type: "memberEditorVM/save", values })}
             initialValues={initialValues}
         >
-            <DrawerActionBar formRef={formRef} keyEditorEnabled={keyEditorEnabled} indexEditorEnabled={indexEditorEnabled} scoreEditorEnabled={scoreEditorEnabled} fieldEditorEnabled={fieldEditorEnabled} valueEditorEnabled={valueEditorEnabled}></DrawerActionBar>
-            {/* <Form.Item name="Type" hidden={true}>
-                <Input />
-            </Form.Item> */}
+            <DrawerActionBar formRef={formRef} keyEditorEnabled={keyEditorEnabled} indexEditorEnabled={indexEditorEnabled} scoreEditorEnabled={scoreEditorEnabled} fieldEditorEnabled={fieldEditorEnabled} valueEditorEnabled={valueEditorEnabled}>
+            </DrawerActionBar>
             <Divider orientation="left" plain={true} style={{ margin: "0 0 5px" }}>Value</Divider>
             {valueEditor}
         </Form>;
@@ -74,13 +50,12 @@ const buildForm = (memberEditorState: any, dispatch: any) => {
 };
 
 const MemberEditor = (props: any) => {
-    const { memberEditorState, memberEditorState: { visible }, dispatch } = props;
-    const { title, isNew } = memberEditorState;
+    const { memberEditorState: { title, isNew, visible }, dispatch } = props;
     let form: any = undefined;
 
     if (visible) {
         //////////// form
-        form = buildForm(memberEditorState, dispatch);
+        form = buildForm(props);
     }
 
     return <Drawer

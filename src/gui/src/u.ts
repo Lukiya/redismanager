@@ -206,7 +206,7 @@ const u = {
             return a.Value - b.Value;
         }
     },
-    NewEntryEditor: (type: string, params: any, dispatch: any) => {
+    OpenEditorForCreate: (type: string, params: any, dispatch: any) => {
         const payload = {
             ...params,
             entry: u.DefaultEntry,

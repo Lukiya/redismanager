@@ -27,7 +27,7 @@ const onCelClick = (record: any, props: any) => {
 const onNewClick = (props: any) => {
     const { memberListState: { redisKey }, dispatch, params } = props;
 
-    u.NewEntryEditor(redisKey.Type, params, dispatch);
+    u.OpenEditorForCreate(redisKey.Type, params, dispatch);
 };
 
 const buildColums = (props: any) => {

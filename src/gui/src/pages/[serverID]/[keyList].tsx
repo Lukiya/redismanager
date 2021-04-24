@@ -10,7 +10,7 @@ const { Search } = Input;
 
 const newClicked = (type: string, params: any, dispatch: any) => {
 
-    u.NewEntryEditor(type, params, dispatch);
+    u.OpenEditorForCreate(type, params, dispatch);
 
     // const payload = {
     //     ...params,
@@ -76,7 +76,7 @@ const buildColumns = (dispatch: any, params: any) => {
                 return {
                     onClick: () => {
                         if (record.Type == u.STRING) {
-                            dispatch({ type: "memberEditorVM/show", payload: { ...params, Key: record.Key, ElemKey: "", keyEditorEnabled: true, newButtonEnabled: true } });
+                            dispatch({ type: "memberEditorVM/show", payload: { ...params, Key: record.Key, ElemKey: "", keyEditorEnabled: true, newButtonEnabled: true, isNew: false } });
                         } else {
                             dispatch({ type: "memberListVM/show", payload: { ...params, redisKey: record } });
                         }
