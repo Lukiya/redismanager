@@ -12,7 +12,7 @@ type IRedisDB interface {
 	ScanElements(query *ScanQuerySet) (*ScanElementResult, error)
 	GetAllElements(query *ScanQuerySet) (*ScanElementResult, error)
 	KeyExists(key string) (bool, error)
-	SaveValue(cmd *SaveRedisEntryCommand) error
+	SaveValue(cmd *SaveRedisEntryCommand) (*RedisEntry, error)
 	DeleteKey(key string) error
 	DeleteElement(key, element string) error
 	GetRedisEntry(key, elementKey string) (*RedisEntry, error)

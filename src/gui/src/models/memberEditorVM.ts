@@ -52,8 +52,14 @@ export default {
             }
 
             const resp = yield SaveEntry(state, data);
-            if (resp?.err) {
-                message.error(resp.err);
+            if (!resp?.err) {
+                yield put({ type: "hide" });
+                yield put({
+                    type: "keyListVM/updateKey", payload: {
+                        old: data.old,
+                        new: resp,
+                    }
+                });
             }
         },
     },

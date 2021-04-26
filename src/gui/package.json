@@ -20,21 +20,21 @@
     ]
   },
   "dependencies": {
-    "@ant-design/pro-form": "^1.20.0",
-    "@ant-design/pro-layout": "^6.16.1",
-    "@umijs/preset-react": "1.x",
-    "umi": "^3.4.8"
+    "@ant-design/pro-form": "^1.21.5",
+    "@ant-design/pro-layout": "^6.17.0",
+    "@umijs/preset-react": "1.8.6",
+    "umi": "^3.4.11"
   },
   "devDependencies": {
     "@ant-design/colors": "^6.0.0",
-    "@types/react": "^17.0.0",
+    "@types/react": "^17.0.4",
     "@types/react-dom": "^17.0.0",
-    "@umijs/test": "^3.4.7",
+    "@umijs/test": "^3.4.11",
     "lint-staged": "^10.0.7",
     "prettier": "^2.2.0",
     "react": "17.x",
     "react-dom": "17.x",
-    "typescript": "^4.1.2",
+    "typescript": "^4.2.4",
     "yorkie": "^2.0.0"
   }
 }

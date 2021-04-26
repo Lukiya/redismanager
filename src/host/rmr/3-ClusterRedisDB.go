@@ -217,18 +217,18 @@ func (x *ClusterRedisDB) KeyExists(key string) (bool, error) {
 	return count > 0, nil
 }
 
-func (x *ClusterRedisDB) SaveValue(cmd *SaveRedisEntryCommand) error {
+func (x *ClusterRedisDB) SaveValue(cmd *SaveRedisEntryCommand) (*RedisEntry, error) {
 	ctx := context.Background()
 
 	if cmd.IsNew {
 		// Check if new key is existing
 		exists, err := x.KeyExists(cmd.New.Key)
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		if exists {
-			return common.KeyExistError
+			return nil, common.KeyExistError
 		}
 	}
 
@@ -256,11 +256,16 @@ func (x *ClusterRedisDB) SaveValue(cmd *SaveRedisEntryCommand) error {
 	}
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	////////// save TTL
-	return saveTTL(ctx, x.clusterClient, x.clusterClient, cmd)
+	err = saveTTL(ctx, x.clusterClient, x.clusterClient, cmd)
+	if err != nil {
+		return nil, err
+	}
+
+	return x.GetRedisEntry(cmd.New.Key, cmd.New.Field)
 }
 
 func (x *ClusterRedisDB) DeleteKey(key string) error {

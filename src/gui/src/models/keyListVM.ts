@@ -100,6 +100,36 @@ export default {
                 pageSize,
             };
         },
+        removeKey(state: any) {
+            return state;
+        },
+        updateKey(state: any, { payload }: any) {
+            const n = payload.new;
+            const o = payload.old;
+
+            console.log(n);
+
+            let found = false;
+            for (const i in state.keys) {
+                const x = state.keys[i];
+                if (x.Key == o.Key) {
+                    found = true;
+                    state.keys.splice(i, 1, n);     // replace old entry with new entry
+                    return {
+                        ...state,
+                        keys: state.keys.concat(),  // use contact to clone a new array to foce table refresh
+                    };
+                }
+            }
+
+            if (!found) {
+                state.keys.push(n);                 // not exists in data source, add
+                return {
+                    ...state,
+                    keys: state.keys.concat(),      // use contact to clone a new array to foce table refresh
+                };
+            }
+        }
     },
     subscriptions: {
         setup({ dispatch, history }: any) {

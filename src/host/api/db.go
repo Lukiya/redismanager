@@ -152,8 +152,7 @@ func SaveRedisEntry(ctx host.IHttpContext) {
 	var cmd *rmr.SaveRedisEntryCommand
 	ctx.ReadJSON(&cmd)
 
-	err = db.SaveValue(cmd)
-
+	r, err := db.SaveValue(cmd)
 	if errors.Is(err, common.KeyExistError) {
 		ctx.WriteJsonBytes(u.StrToBytes(`{"err":"` + err.Error() + `"}`))
 		return
@@ -161,7 +160,12 @@ func SaveRedisEntry(ctx host.IHttpContext) {
 		return
 	}
 
-	ctx.WriteJsonBytes(u.StrToBytes(`{"err":""}`))
+	data, err := json.Marshal(r)
+	if host.HandleErr(err, ctx) {
+		return
+	}
+
+	ctx.WriteJsonBytes(data)
 }
 func DeleteEntry(ctx host.IHttpContext) {
 	db, err := getDB(ctx)

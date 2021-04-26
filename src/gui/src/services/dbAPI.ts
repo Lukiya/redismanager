@@ -63,7 +63,7 @@ export async function SaveEntry(query: any, data: any) {
         data: data,
     });
 
-    if (r.err != "") {
+    if (r?.err) {
         message.error(r.err);
     }
 
