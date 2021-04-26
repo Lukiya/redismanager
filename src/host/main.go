@@ -1,6 +1,7 @@
 package main
 
 import (
+	"embed"
 	"fmt"
 	"log"
 
@@ -11,8 +12,11 @@ import (
 	"github.com/syncfuture/host"
 )
 
+//go:embed wwwroot
+var staticFiles embed.FS
+
 func main() {
-	core.Host.GET("/", func(ctx host.IHttpContext) {
+	core.Host.GET("/api/info", func(ctx host.IHttpContext) {
 		ctx.WriteJsonBytes(u.StrToBytes(`{"version":"` + common.Version + `"}`))
 	})
 
@@ -21,7 +25,7 @@ func main() {
 		api.DBGroup,
 	)
 
-	core.Host.ServeFiles("/{filepath:*}", "./wwwroot")
+	core.Host.ServeEmbedFiles("/{filepath:*}", "wwwroot", staticFiles)
 
 	fmt.Println("------------------------------------------------")
 	fmt.Println("-             Redis Manager " + common.Version + "             -")

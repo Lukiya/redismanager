@@ -107,8 +107,6 @@ export default {
             const n = payload.new;
             const o = payload.old;
 
-            console.log(n);
-
             let found = false;
             for (const i in state.keys) {
                 const x = state.keys[i];

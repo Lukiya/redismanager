@@ -1,7 +1,17 @@
 package rmr
 
+import "sync"
+
 const (
 	_clusterDisabedError = "ERR This instance has cluster support disabled"
+)
+
+var (
+	_wgPool = &sync.Pool{
+		New: func() interface{} {
+			return new(sync.WaitGroup)
+		},
+	}
 )
 
 type IRedisDB interface {

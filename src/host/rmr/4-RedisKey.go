@@ -30,7 +30,10 @@ func newRedisKey(ctx context.Context, client redis.UniversalClient, key string) 
 		return nil, err
 	}
 
-	wg := sync.WaitGroup{}
+	wg := _wgPool.Get().(*sync.WaitGroup)
+	defer func() {
+		_wgPool.Put(wg)
+	}()
 	wg.Add(2)
 	go func() {
 		defer func() { wg.Done() }()

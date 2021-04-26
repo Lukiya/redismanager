@@ -77,16 +77,20 @@ func TestSaveString(t *testing.T) {
 
 	r, err := db.SaveValue(&SaveRedisEntryCommand{
 		New: &RedisEntry{
-			Key:   "AAA" + key + "1",
-			Type:  common.RedisType_String,
+			RedisKey: &RedisKey{
+				Key:  "AAA" + key + "1",
+				Type: common.RedisType_String,
+				TTL:  3600,
+			},
 			Value: key,
-			TTL:   3600,
 		},
 		Old: &RedisEntry{
-			Key:   key + "1",
-			Type:  common.RedisType_String,
+			RedisKey: &RedisKey{
+				Key:  key + "1",
+				Type: common.RedisType_String,
+				TTL:  3600,
+			},
 			Value: key,
-			TTL:   3600,
 		},
 		IsNew: false,
 	})

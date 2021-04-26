@@ -2,6 +2,7 @@ import { defineConfig } from 'umi';
 
 export default defineConfig({
   history: { type: 'hash' },
+  outputPath: "../../src/host/wwwroot",
   nodeModulesTransform: {
     type: 'none',
   },

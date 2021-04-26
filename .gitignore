@@ -8,6 +8,7 @@ package-lock.json
 # production
 __debug_bin
 dist
+wwwroot
 
 # misc
 .DS_Store
