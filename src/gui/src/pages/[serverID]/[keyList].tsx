@@ -1,10 +1,12 @@
 import { PageContainer } from '@ant-design/pro-layout';
-import { Table, Button, Input, Menu, Card, Space, Row, Col, Dropdown, Divider, Popconfirm } from 'antd';
+import { Table, Button, Input, Menu, Card, Space, Row, Col, Dropdown, Divider, Popconfirm, Modal } from 'antd';
 import { connect } from 'umi'
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons'
 import MemberEditor from '@/components/memberEditor'
 import u from '@/u';
 import MemberList from '@/components/MemberList';
+import Hotkeys from 'react-hot-keys';
+import { useEffect } from 'react';
 
 const { Search } = Input;
 
@@ -96,6 +98,21 @@ const buildFooter = (props: any) => {
     </div>;
 }
 
+const buildDelHotKey = (props: any) => {
+    const { keyListState: { selectedRowKeys }, dispatch } = props;
+    const hasSelection = selectedRowKeys.length > 0;
+
+    return hasSelection ? <Hotkeys keyName="del" onKeyUp={() => {
+        Modal.confirm({
+            title: 'Do you want to delete selected key(s)?',
+            content: 'This operation cannot be undone.',
+            onOk: () => dispatch({ type: 'keyListVM/deleteKeys' }),
+        });
+    }} filter={(e: any) => {
+        return !e.target.type || e.target.type === "checkbox";
+    }} /> : undefined;
+};
+
 const KeyListPage = (props: any) => {
     const { menuState: { server }, keyListState: { keys, hasMore, pageSize, suggestedPageSize, selectedRowKeys }, keyListLoading, match: { params }, dispatch } = props;
 
@@ -109,8 +126,7 @@ const KeyListPage = (props: any) => {
     // let inited = node != undefined;
 
     let breadcrumbRoutes: any[] = [];
-    let table: any = null;
-    let actionBar: any = null;
+    let table, actionBar, delHotKey;
     const hasSelection = selectedRowKeys.length > 0;
     // let memberEditor: any = null;
     const inited = server.ID != undefined && server.ID != "";
@@ -192,9 +208,35 @@ const KeyListPage = (props: any) => {
         >
         </Table>;
 
-        //////////// editor
-        // memberEditor = <MemberEditor />;
+        //////////// del hot key
+        delHotKey = buildDelHotKey(props);
     }
+
+    useEffect(() => {
+        // Copy
+        document.oncopy = () => dispatch({ type: 'keyListVM/copy', });
+        // Paste
+        document.onpaste = e => {
+            const clipboardData = e.clipboardData;
+            if (!clipboardData) return;
+
+            const clipboardText = clipboardData?.getData("text");
+            if (!clipboardText || clipboardText.indexOf(u.CLIPBOARD_REDIS) !== 0) {
+                return;
+            }
+
+            Modal.confirm({
+                title: 'Paste Confirm',
+                content: 'If key exists, it will be overrided, continue?',
+                onOk() {
+                    dispatch({
+                        type: 'keyListVM/paste',
+                        clipboardText: clipboardText,
+                    });
+                },
+            });
+        };
+    }, []);
 
     return (
         <PageContainer
@@ -206,9 +248,11 @@ const KeyListPage = (props: any) => {
             {table}
             <MemberList params={params}></MemberList>
             <MemberEditor params={params}></MemberEditor>
+            {delHotKey}
         </PageContainer>
     );
 };
+
 
 export default connect(({ menuVM, keyListVM, loading }: any) => ({
     menuState: menuVM,

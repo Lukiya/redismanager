@@ -1,9 +1,9 @@
 import { connect } from "umi";
-import { Button, Table, Drawer, Form, Space, Divider } from "antd";
-import { MoreOutlined } from '@ant-design/icons';
+import { Button, Table, Drawer, Form, Space, Divider, Modal } from "antd";
 import u from "@/u";
 import DrawerActionBar from "./DrawerActionBar";
 import { useEffect } from "react";
+// import Hotkeys from 'react-hot-keys';
 
 const onCelClick = (record: any, props: any) => {
     const { memberListState: { redisKey }, dispatch, params } = props;
@@ -133,13 +133,29 @@ const buildForm = (props: any) => {
     }
 };
 
+// const buildDelHotKey = (props: any) => {
+//     const { memberListState: { selectedRowKeys }, dispatch } = props;
+//     const hasSelection = selectedRowKeys.length > 0;
+
+//     return hasSelection ? <Hotkeys keyName="del" onKeyUp={() => {
+//         Modal.confirm({
+//             title: 'Do you want to delete selected element(s)?',
+//             content: 'This operation cannot be undone.',
+//             onOk: () => dispatch({ type: 'memberListVM/deleteElements' }),
+//         });
+//     }} filter={(e: any) => {
+//         return !e.target.type || e.target.type === "checkbox";
+//     }} /> : undefined;
+// };
+
 const MemberList = (props: any) => {
     // const { memberListState: { loading, dataSource, hasMore } } = props;
     const { memberListState: { dataSource, hasMore, pageSize, suggestedPageSize, title, visible, redisKey, selectedRowKeys }, params, loading, dispatch } = props;
 
     const columns = buildColums(props);
     const footer = buildFooter(props);
-    let form: any, table: any = undefined;
+    // let form, table, delHotKey;
+    let form, table;
 
     if (visible) {
         //////////// form
@@ -169,6 +185,8 @@ const MemberList = (props: any) => {
             size="small"
             bordered
         ></Table>;
+
+        // delHotKey = buildDelHotKey(props);
     }
 
     const drawer = <Drawer
@@ -193,6 +211,7 @@ const MemberList = (props: any) => {
     >
         {form}
         {table}
+        {/* {delHotKey} */}
     </Drawer>;
 
     return drawer;

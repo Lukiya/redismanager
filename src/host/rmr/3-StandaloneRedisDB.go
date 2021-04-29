@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"github.com/Lukiya/redismanager/src/go/common"
+	"github.com/Lukiya/redismanager/src/go/io"
 	"github.com/go-redis/redis/v8"
 	"github.com/syncfuture/go/serr"
 	"github.com/syncfuture/go/stask"
@@ -289,4 +290,16 @@ func (x *StandaloneRedisDB) DeleteElement(key, element string) error {
 
 func (x *StandaloneRedisDB) GetRedisEntry(key, elementKey string) (*RedisEntry, error) {
 	return NewRedisEntry(key, elementKey, x.client)
+}
+
+func (x *StandaloneRedisDB) ExportKeys(keys ...string) ([]byte, error) {
+	ctx := context.Background()
+	exporter := io.NewExporter(ctx, true, x.client, nil)
+	return exporter.ExportKeys(keys...)
+}
+
+func (x *StandaloneRedisDB) ImportKeys(data []byte) (int, error) {
+	ctx := context.Background()
+	importer := io.NewImporter(ctx, x.client, nil)
+	return importer.ImportKeys(data)
 }

@@ -20,6 +20,8 @@ var DBGroup = host.NewActionGroup(
 		host.NewAction("POST/api/servers/{serverID}/{db}/{key}", "key__", GetRedisEntry),
 		host.NewAction("POST/api/servers/{serverID}/{db}/save", "key__", SaveRedisEntry),
 		host.NewAction("DELETE/api/servers/{serverID}/{db}", "key__", DeleteRedisEntries),
+		host.NewAction("POST/api/servers/{serverID}/{db}/keys/export", "key__", exportKeys),
+		host.NewAction("POST/api/servers/{serverID}/{db}/keys/import", "key__", importKeys),
 	},
 	nil,
 )
@@ -174,4 +176,64 @@ func DeleteRedisEntries(ctx host.IHttpContext) {
 	if host.HandleErr(err, ctx) {
 		return
 	}
+}
+
+func exportKeys(ctx host.IHttpContext) {
+	var keys []string
+	ctx.ReadJSON(&keys)
+	mr := new(rmr.MsgResult)
+
+	if keys == nil || len(keys) == 0 {
+		writeMsgResult(ctx, mr, "keys are missing")
+		return
+	}
+
+	db, err := getDB(ctx)
+	if writeMsgResultError(ctx, mr, err) {
+		return
+	}
+
+	exportedData, err := db.ExportKeys(keys...)
+	if writeMsgResultError(ctx, mr, err) {
+		return
+	}
+
+	mr.Data = exportedData
+
+	jsonData, err := json.Marshal(mr)
+	if writeMsgResultError(ctx, mr, err) {
+		return
+	}
+
+	ctx.WriteJsonBytes(jsonData)
+}
+
+func importKeys(ctx host.IHttpContext) {
+	var data []byte
+	ctx.ReadJSON(&data)
+	mr := new(rmr.MsgResult)
+
+	if data == nil || len(data) < 3 {
+		writeMsgResult(ctx, mr, "import data missing")
+		return
+	}
+
+	db, err := getDB(ctx)
+	if writeMsgResultError(ctx, mr, err) {
+		return
+	}
+
+	imported, err := db.ImportKeys(data)
+	if writeMsgResultError(ctx, mr, err) {
+		return
+	}
+
+	mr.Data = imported
+
+	jsonData, err := json.Marshal(mr)
+	if writeMsgResultError(ctx, mr, err) {
+		return
+	}
+
+	ctx.WriteJsonBytes(jsonData)
 }

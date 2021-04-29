@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"github.com/Lukiya/redismanager/src/go/common"
+	"github.com/Lukiya/redismanager/src/go/io"
 	"github.com/go-redis/redis/v8"
 	"github.com/syncfuture/go/serr"
 	"github.com/syncfuture/go/stask"
@@ -317,4 +318,16 @@ func (x *ClusterRedisDB) deleteEntry(ctx context.Context, cmd *DeleteRedisEntryC
 
 func (x *ClusterRedisDB) GetRedisEntry(key, elementKey string) (*RedisEntry, error) {
 	return NewRedisEntry(key, elementKey, x.clusterClient)
+}
+
+func (x *ClusterRedisDB) ExportKeys(keys ...string) ([]byte, error) {
+	ctx := context.Background()
+	exporter := io.NewExporter(ctx, true, x.clusterClient, x.clusterClient)
+	return exporter.ExportKeys(keys...)
+}
+
+func (x *ClusterRedisDB) ImportKeys(data []byte) (int, error) {
+	ctx := context.Background()
+	importer := io.NewImporter(ctx, x.clusterClient, x.clusterClient)
+	return importer.ImportKeys(data)
 }

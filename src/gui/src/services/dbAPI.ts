@@ -82,3 +82,19 @@ export async function DeleteEntries(query: any, cmd: any) {
 
     return r;
 }
+
+export async function ExportKeys(query: any, keys: string[]) {
+    const url = '/servers/' + query.serverID + '/' + query.db + '/keys/export';
+
+    const r = await request.post(url, {
+        data: keys,
+    });
+}
+
+export async function ImportKeys(query: any, data: any) {
+    const url = '/servers/' + query.serverID + '/' + query.db + '/keys/import';
+
+    const r = await request.post(url, {
+        data: data,
+    });
+}

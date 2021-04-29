@@ -27,6 +27,8 @@ type IRedisDB interface {
 	// DeleteKey(key string) error
 	// DeleteElement(key, element string) error
 	GetRedisEntry(key, elementKey string) (*RedisEntry, error)
+	ExportKeys(keys ...string) ([]byte, error)
+	ImportKeys(data []byte) (int, error)
 }
 
 type ServerConfig struct {
@@ -83,4 +85,9 @@ type DeleteRedisEntryCommand struct {
 
 type DeleteRedisEntriesCommand struct {
 	Commands []*DeleteRedisEntryCommand
+}
+
+type MsgResult struct {
+	MsgCode string
+	Data    interface{}
 }

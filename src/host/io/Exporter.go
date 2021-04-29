@@ -4,22 +4,27 @@ import (
 	"archive/zip"
 	"context"
 	"encoding/json"
+	"runtime"
+	"sync"
 
 	"github.com/Lukiya/redismanager/src/go/common"
 	"github.com/go-redis/redis/v8"
 	"github.com/syncfuture/go/serr"
+	"github.com/syncfuture/go/stask"
 	"github.com/syncfuture/go/u"
 )
 
 type Exporter struct {
-	Zip    bool
-	client redis.UniversalClient
-	ctx    context.Context
+	Zip           bool
+	client        redis.UniversalClient
+	clusterClient *redis.ClusterClient
+	ctx           context.Context
 }
 
-func NewExporter(ctx context.Context, zip bool, client redis.UniversalClient) (r *Exporter) {
+func NewExporter(ctx context.Context, zip bool, client redis.UniversalClient, clusterClient *redis.ClusterClient) (r *Exporter) {
 	r = new(Exporter)
 	r.client = client
+	r.clusterClient = clusterClient
 	r.Zip = zip
 	r.ctx = ctx
 	return r
@@ -32,12 +37,25 @@ func (x *Exporter) ExportKeys(keys ...string) (r []byte, err error) {
 	}
 
 	entries := make([]*ExportFileEntry, 0, keyCount)
-	for i := 0; i < keyCount; i++ {
-		entry, err := x.ExportKey(keys[i])
+
+	locker := new(sync.Mutex)
+	scheduler := stask.NewFlowScheduler(runtime.NumCPU())
+	scheduler.SliceRun(&keys, func(_ int, v interface{}) {
+		key := v.(string)
+		entry, err := x.ExportKey(key)
 		if !u.LogError(err) && entry != nil {
+			locker.Lock()
 			entries = append(entries, entry)
+			locker.Unlock()
 		}
-	}
+	})
+
+	// for i := 0; i < keyCount; i++ {
+	// 	entry, err := x.ExportKey(keys[i])
+	// 	if !u.LogError(err) && entry != nil {
+	// 		entries = append(entries, entry)
+	// 	}
+	// }
 
 	r, err = json.Marshal(entries)
 	if err != nil {
@@ -62,7 +80,14 @@ func (x *Exporter) ExportKey(key string) (r *ExportFileEntry, err error) {
 		panic("key is missing")
 	}
 
-	redisType, err := x.client.Type(x.ctx, key).Result()
+	var client redis.UniversalClient
+	if x.clusterClient != nil {
+		client, err = x.clusterClient.MasterForKey(x.ctx, key)
+	} else {
+		client = x.client
+	}
+
+	redisType, err := client.Type(x.ctx, key).Result()
 	if err != nil {
 		return nil, serr.WithStack(err)
 	}
@@ -70,35 +95,35 @@ func (x *Exporter) ExportKey(key string) (r *ExportFileEntry, err error) {
 	// Export whole key
 	switch redisType {
 	case common.RedisType_String:
-		v, err := x.client.Get(x.ctx, key).Result()
+		v, err := client.Get(x.ctx, key).Result()
 		if err != nil {
 			return nil, serr.WithStack(err)
 		}
 		r, err = NewExportFileEntry(key, redisType, v)
 		break
 	case common.RedisType_Hash:
-		v, err := x.client.HGetAll(x.ctx, key).Result()
+		v, err := client.HGetAll(x.ctx, key).Result()
 		if err != nil {
 			return nil, serr.WithStack(err)
 		}
 		r, err = NewExportFileEntry(key, redisType, v)
 		break
 	case common.RedisType_List:
-		v, err := x.client.LRange(x.ctx, key, 0, -1).Result()
+		v, err := client.LRange(x.ctx, key, 0, -1).Result()
 		if err != nil {
 			return nil, serr.WithStack(err)
 		}
 		r, err = NewExportFileEntry(key, redisType, v)
 		break
 	case common.RedisType_Set:
-		v, err := x.client.SMembers(x.ctx, key).Result()
+		v, err := client.SMembers(x.ctx, key).Result()
 		if err != nil {
 			return nil, serr.WithStack(err)
 		}
 		r, err = NewExportFileEntry(key, redisType, v)
 		break
 	case common.RedisType_ZSet:
-		v, err := x.client.ZRangeByScoreWithScores(x.ctx, key, &redis.ZRangeBy{
+		v, err := client.ZRangeByScoreWithScores(x.ctx, key, &redis.ZRangeBy{
 			Min: "-inf",
 			Max: "+inf",
 		}).Result()

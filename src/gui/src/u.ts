@@ -1,3 +1,5 @@
+import copy from 'copy-to-clipboard';
+
 function createShiftArr(step: any) {
 
     var space = '    ';
@@ -35,6 +37,7 @@ const u = {
     SET: "set",
     ZSET: "zset",
     NONE: "none",
+    CLIPBOARD_REDIS: "REDIS:",
     DefaultQuery: {
         serverID: '',
         nodeID: '',
@@ -265,6 +268,18 @@ const u = {
                     Value: redisEntry.Score,
                 };
         }
+    },
+    CopyToClipboard: (content: any) => {
+        copy(u.CLIPBOARD_REDIS + content);
+    },
+    Base64ToBytes: (base64: any) => {
+        const binStr = window.atob(base64);
+        const len = binStr.length;
+        let bytes = new Array(len);
+        for (var i = 0; i < len; i++) {
+            bytes[i] = binStr.charCodeAt(i);
+        }
+        return bytes;
     },
 }
 export default u

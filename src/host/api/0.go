@@ -1,11 +1,13 @@
 package api
 
 import (
+	"encoding/json"
 	"net/url"
 
 	"github.com/Lukiya/redismanager/src/go/core"
 	"github.com/Lukiya/redismanager/src/go/rmr"
 	"github.com/syncfuture/go/serr"
+	"github.com/syncfuture/go/u"
 	"github.com/syncfuture/host"
 )
 
@@ -51,4 +53,21 @@ func getKey(ctx host.IHttpContext) (*rmr.RedisKey, error) {
 		return nil, err
 	}
 	return redisKey, nil
+}
+
+func writeMsgResultError(ctx host.IHttpContext, mr *rmr.MsgResult, err error) bool {
+	if err != nil {
+		// ctx.StatusCode(iris.StatusInternalServerError)
+		mr.MsgCode = err.Error()
+		ctx.WriteString(err.Error())
+		return true
+	}
+	return false
+}
+
+func writeMsgResult(ctx host.IHttpContext, mr *rmr.MsgResult, msg string) {
+	mr.MsgCode = msg
+	jsonBytes, err := json.Marshal(mr)
+	u.LogError(err)
+	ctx.WriteJsonBytes(jsonBytes)
 }

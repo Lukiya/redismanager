@@ -1,5 +1,6 @@
-import { DeleteEntries, GetKey, Scan } from "@/services/dbAPI";
+import { DeleteEntries, ExportKeys, GetKey, Scan, ImportKeys } from "@/services/dbAPI";
 import u from "@/u";
+import { message } from 'antd';
 
 export default {
     state: {
@@ -131,6 +132,39 @@ export default {
                     }
                 });
             }
+        },
+        *copy(_: any, { put, select }: any): any {
+            const state = yield select((x: any) => x["keyListVM"]);
+            if (state.selectedRowKeys.length === 0) {
+                return;
+            }
+
+            const resp = yield ExportKeys(state.query, state.selectedRowKeys);
+            if (!resp.MsgCode) {
+                u.CopyToClipboard(resp.Data);
+                message.info(state.SelectedRowKeys.length + " key(s) copied.");
+            } else {
+                message.error(resp.MsgCode);
+            }
+        },
+        *paste({ clipboardText }: any, { call, put, select }: any): any {
+            const base64Str = clipboardText.substring(u.CLIPBOARD_REDIS.length, clipboardText.length);
+            let bytes;
+            try {
+                bytes = u.Base64ToBytes(base64Str);
+            } catch (err) {
+                message.error(err);
+                return;
+            }
+
+            const state = yield select((x: any) => x["keyListVM"]);
+            const resp = yield ImportKeys(state.query, bytes);
+            if (!resp.MsgCode) {
+                message.success(resp.Data + " key(s) pasted.");
+            } else {
+                message.error(resp.MsgCode);
+            }
+            yield put({ type: 'load', query: state.query });   // Refresh
         },
     },
     reducers: {

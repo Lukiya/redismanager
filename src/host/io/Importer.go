@@ -15,14 +15,16 @@ import (
 )
 
 type Importer struct {
-	Zip    bool
-	client redis.UniversalClient
-	ctx    context.Context
+	Zip           bool
+	client        redis.UniversalClient
+	clusterClient *redis.ClusterClient
+	ctx           context.Context
 }
 
-func NewImporter(ctx context.Context, client redis.UniversalClient) (r *Importer) {
+func NewImporter(ctx context.Context, client redis.UniversalClient, clusterClient *redis.ClusterClient) (r *Importer) {
 	r = new(Importer)
 	r.client = client
+	r.clusterClient = clusterClient
 	r.ctx = ctx
 	return r
 }
@@ -83,8 +85,15 @@ func (x *Importer) ImportKeys(in []byte) (imported int, err error) {
 	scheduler.SliceRun(&entries, func(i int, v interface{}) {
 		entry := v.(*ExportFileEntry)
 
+		var client redis.UniversalClient
+		if x.clusterClient != nil {
+			client, err = x.clusterClient.MasterForKey(x.ctx, entry.Key)
+		} else {
+			client = x.client
+		}
+
 		// Remove old key
-		err = x.client.Del(x.ctx, entry.Key).Err()
+		err = client.Del(x.ctx, entry.Key).Err()
 		if err != nil {
 			err = serr.WithStack(err)
 			return
@@ -99,7 +108,7 @@ func (x *Importer) ImportKeys(in []byte) (imported int, err error) {
 				err = serr.WithStack(err)
 				return
 			}
-			err = x.client.Set(x.ctx, entry.Key, v, time.Duration(-1)).Err()
+			err = client.Set(x.ctx, entry.Key, v, time.Duration(-1)).Err()
 			if err != nil {
 				err = serr.WithStack(err)
 				return
@@ -112,7 +121,7 @@ func (x *Importer) ImportKeys(in []byte) (imported int, err error) {
 				err = serr.WithStack(err)
 				return
 			}
-			err = x.client.HMSet(x.ctx, entry.Key, v).Err()
+			err = client.HMSet(x.ctx, entry.Key, v).Err()
 			if err != nil {
 				err = serr.WithStack(err)
 				return
@@ -125,7 +134,7 @@ func (x *Importer) ImportKeys(in []byte) (imported int, err error) {
 				err = serr.WithStack(err)
 				return
 			}
-			err = x.client.RPush(x.ctx, entry.Key, v...).Err()
+			err = client.RPush(x.ctx, entry.Key, v...).Err()
 			if err != nil {
 				err = serr.WithStack(err)
 				return
@@ -138,7 +147,7 @@ func (x *Importer) ImportKeys(in []byte) (imported int, err error) {
 				err = serr.WithStack(err)
 				return
 			}
-			err = x.client.SAdd(x.ctx, entry.Key, v...).Err()
+			err = client.SAdd(x.ctx, entry.Key, v...).Err()
 			if err != nil {
 				err = serr.WithStack(err)
 				return
@@ -151,7 +160,7 @@ func (x *Importer) ImportKeys(in []byte) (imported int, err error) {
 				err = serr.WithStack(err)
 				return
 			}
-			err = x.client.ZAdd(x.ctx, entry.Key, v...).Err()
+			err = client.ZAdd(x.ctx, entry.Key, v...).Err()
 			if err != nil {
 				err = serr.WithStack(err)
 				return
