@@ -2,7 +2,6 @@ package rmr
 
 import (
 	"context"
-	"strconv"
 
 	"github.com/go-redis/redis/v8"
 	"github.com/syncfuture/go/sconv"
@@ -19,17 +18,17 @@ func saveZSet(ctx context.Context, client redis.UniversalClient, clusterClient *
 	}
 
 	var err error
-	var score float64
-	if cmd.New.Field != "" {
-		score, err = strconv.ParseFloat(cmd.New.Field, 64)
-		if err != nil {
-			return err
-		}
-	}
+	// var score float64
+	// if cmd.New.Field != "" {
+	// 	score, err = strconv.ParseFloat(cmd.New.Field, 64)
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// }
 
 	if cmd.IsNew {
 		err = client.ZAdd(ctx, cmd.New.Key, &redis.Z{
-			Score:  score,
+			Score:  cmd.New.Score,
 			Member: cmd.New.Value,
 		}).Err()
 		if err != nil {
@@ -43,18 +42,16 @@ func saveZSet(ctx context.Context, client redis.UniversalClient, clusterClient *
 		}
 	}
 
-	if cmd.New.Field != "" {
-		err = client.ZRem(ctx, cmd.New.Key, cmd.Old.Value).Err()
-		if err != nil {
-			return serr.WithStack(err)
-		}
-		err = client.ZAdd(ctx, cmd.New.Key, &redis.Z{
-			Score:  score,
-			Member: cmd.New.Value,
-		}).Err()
-		if err != nil {
-			return serr.WithStack(err)
-		}
+	err = client.ZRem(ctx, cmd.Old.Key, cmd.Old.Value).Err()
+	if err != nil {
+		return serr.WithStack(err)
+	}
+	err = client.ZAdd(ctx, cmd.New.Key, &redis.Z{
+		Score:  cmd.New.Score,
+		Member: cmd.New.Value,
+	}).Err()
+	if err != nil {
+		return serr.WithStack(err)
 	}
 
 	return nil

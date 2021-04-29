@@ -6,7 +6,6 @@ import (
 	"runtime"
 	"sync"
 
-	"github.com/Lukiya/redismanager/src/go/io"
 	"github.com/go-redis/redis/v8"
 	"github.com/syncfuture/go/serr"
 	"github.com/syncfuture/go/stask"
@@ -83,19 +82,20 @@ func renameKey(ctx context.Context, client redis.UniversalClient, clusterClient 
 			return serr.WithStack(err)
 		}
 
-		exporter := io.NewExporter(ctx, false, oldKeyClient)
-		keyData, err := exporter.ExportKeys(oldKey)
+		// dump old key data
+		dumpData, err := oldKeyClient.Dump(ctx, oldKey).Result()
 		if err != nil {
-			return err
+			return serr.WithStack(err)
 		}
 
+		// restore old key data to new key
+		err = newKeyClient.Restore(ctx, newKey, -1, dumpData).Err()
+		if err != nil {
+			return serr.WithStack(err)
+		}
+
+		// delete old key
 		err = oldKeyClient.Del(ctx, oldKey).Err()
-		if err != nil {
-			return err
-		}
-
-		importer := io.NewImporter(ctx, newKeyClient)
-		_, err = importer.ImportKeys(keyData)
 		if err != nil {
 			return err
 		}

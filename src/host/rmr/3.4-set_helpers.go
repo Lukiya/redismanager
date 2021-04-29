@@ -29,16 +29,15 @@ func saveSet(ctx context.Context, client redis.UniversalClient, clusterClient *r
 		}
 	}
 
-	if cmd.New.Field != "" {
-		err = client.SRem(ctx, cmd.New.Key, cmd.Old.Value).Err()
-		if err != nil {
-			return serr.WithStack(err)
-		}
-		err = client.SAdd(ctx, cmd.New.Key, cmd.New.Value).Err()
-		if err != nil {
-			return serr.WithStack(err)
-		}
+	err = client.SRem(ctx, cmd.Old.Key, cmd.Old.Value).Err()
+	if err != nil {
+		return serr.WithStack(err)
 	}
+	err = client.SAdd(ctx, cmd.New.Key, cmd.New.Value).Err()
+	if err != nil {
+		return serr.WithStack(err)
+	}
+
 	return err
 }
 

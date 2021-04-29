@@ -75,7 +75,7 @@ func TestSaveString(t *testing.T) {
 
 	key := "STRNEW"
 
-	r, err := db.SaveValue(&SaveRedisEntryCommand{
+	err = db.SaveEntry(&SaveRedisEntryCommand{
 		New: &RedisEntry{
 			RedisKey: &RedisKey{
 				Key:  "AAA" + key + "1",
@@ -95,7 +95,6 @@ func TestSaveString(t *testing.T) {
 		IsNew: false,
 	})
 	assert.NoError(t, err)
-	assert.NotNil(t, r)
 
 	redisKey, err := db.GetKey("AAA" + key + "1")
 	assert.NoError(t, err)

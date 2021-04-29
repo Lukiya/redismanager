@@ -2,11 +2,14 @@ package rmr
 
 import (
 	"context"
+	"runtime"
 	"sync"
 
 	"github.com/Lukiya/redismanager/src/go/common"
 	"github.com/go-redis/redis/v8"
 	"github.com/syncfuture/go/serr"
+	"github.com/syncfuture/go/stask"
+	"github.com/syncfuture/go/u"
 )
 
 func NewStandaloneRedisDB(client *redis.Client, db int) IRedisDB {
@@ -156,18 +159,18 @@ func (x *StandaloneRedisDB) KeyExists(key string) (bool, error) {
 	return count > 0, nil
 }
 
-func (x *StandaloneRedisDB) SaveValue(cmd *SaveRedisEntryCommand) (*RedisEntry, error) {
+func (x *StandaloneRedisDB) SaveEntry(cmd *SaveRedisEntryCommand) error {
 	ctx := context.Background()
 
 	if cmd.IsNew {
 		// Check if new key is existing
 		exists, err := x.KeyExists(cmd.New.Key)
 		if err != nil {
-			return nil, err
+			return err
 		}
 
 		if exists {
-			return nil, common.KeyExistError
+			return common.KeyExistError
 		}
 	}
 
@@ -199,16 +202,55 @@ func (x *StandaloneRedisDB) SaveValue(cmd *SaveRedisEntryCommand) (*RedisEntry, 
 	}
 
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	////////// save TTL
-	err = saveTTL(ctx, x.client, nil, cmd)
-	if err != nil {
-		return nil, err
-	}
+	return saveTTL(ctx, x.client, nil, cmd)
+}
 
-	return x.GetRedisEntry(cmd.New.Key, cmd.New.Field)
+func (x *StandaloneRedisDB) DeleteEntries(cmd *DeleteRedisEntriesCommand) error {
+	ctx := context.Background()
+
+	scheduler := stask.NewFlowScheduler(runtime.NumCPU())
+
+	scheduler.SliceRun(&cmd.Commands, func(_ int, v interface{}) {
+		cmd := v.(*DeleteRedisEntryCommand)
+		err := x.deleteEntry(ctx, cmd)
+		u.LogError(err)
+	})
+
+	return nil
+}
+
+func (x *StandaloneRedisDB) deleteEntry(ctx context.Context, cmd *DeleteRedisEntryCommand) error {
+	if cmd.ElementKey == "" {
+		return x.client.Del(ctx, cmd.Key).Err()
+	} else {
+		redisKey, err := x.GetKey(cmd.Key)
+		if err != nil {
+			return err
+		}
+
+		switch redisKey.Type {
+		case common.RedisType_Hash:
+			err = delHash(ctx, x.client, nil, cmd.Key, cmd.ElementKey)
+			break
+		case common.RedisType_List:
+			err = delList(ctx, x.client, nil, cmd.Key, cmd.ElementKey)
+			break
+		case common.RedisType_Set:
+			err = delSet(ctx, x.client, nil, cmd.Key, cmd.ElementKey)
+			break
+		case common.RedisType_ZSet:
+			err = delZSet(ctx, x.client, nil, cmd.Key, cmd.ElementKey)
+			break
+		default:
+			err = serr.Errorf("key type '%s' is not supported", redisKey.Type)
+			break
+		}
+		return err
+	}
 }
 
 func (x *StandaloneRedisDB) DeleteKey(key string) error {

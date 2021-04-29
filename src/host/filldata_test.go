@@ -100,7 +100,7 @@ func TestClusterFillSet(t *testing.T) {
 }
 
 func TestClusterFillZSet(t *testing.T) {
-	max := 513
+	max := 3
 	mmax := 602
 	ctx := context.Background()
 	pip := _clusterClient.Pipeline()

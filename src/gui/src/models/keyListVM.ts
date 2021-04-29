@@ -1,9 +1,11 @@
-import { Scan } from "@/services/dbAPI";
+import { DeleteEntries, GetKey, Scan } from "@/services/dbAPI";
 import u from "@/u";
 
 export default {
     state: {
         keys: [],
+        selectedRowKeys: [],
+        selectedEntries: [],
         query: u.DefaultQuery,
         hasMore: false,
         cursors: {},
@@ -80,6 +82,56 @@ export default {
                 console.log("no json in response body");
             }
         },
+        *deleteKeys(_: any, { put, select }: any): any {
+            const state = yield select((x: any) => x["keyListVM"]);
+            if (state.selectedEntries.length == 0) return;
+
+            const commands = state.selectedEntries.map((v: any) => {
+                return {
+                    Key: v.Key,
+                    ElementKey: "",
+                }
+            });
+
+            const { query } = state;
+            const resp = yield DeleteEntries(query, {
+                Commands: commands,
+            });
+
+
+            if (!resp) {
+                const newKeys = state.keys.filter((x: any) => !state.selectedEntries.includes(x));  // remove deleted keys from table current data source
+
+                yield put({
+                    type: 'setState', payload: {
+                        keys: newKeys,
+                        selectedRowKeys: [],
+                        selectedEntries: [],
+                    }
+                });
+            }
+        },
+        *updateKey({ payload }: any, { put, select }: any): any {
+            const state = yield select((x: any) => x["keyListVM"]);
+            const { query } = state;
+            const { n, o } = payload;
+
+            query.redisKey = n;
+            const newEntry = yield GetKey(query);
+            if (newEntry) {
+                const newKeys = state.keys.filter((v: any) => v.Key != o.Key); // remove old entry
+
+                if (newEntry.Type != u.NONE) {
+                    newKeys.push(newEntry); // add new entry
+                }
+
+                yield put({
+                    type: 'setState', payload: {
+                        keys: newKeys,
+                    }
+                });
+            }
+        },
     },
     reducers: {
         setState(state: any, { payload }: any) { return { ...state, ...payload }; },
@@ -100,34 +152,31 @@ export default {
                 pageSize,
             };
         },
-        removeKey(state: any) {
-            return state;
-        },
-        updateKey(state: any, { payload }: any) {
-            const n = payload.new;
-            const o = payload.old;
+        // updateKey(state: any, { payload }: any) {
+        //     const n = payload.new;
+        //     const o = payload.old;
 
-            let found = false;
-            for (const i in state.keys) {
-                const x = state.keys[i];
-                if (x.Key == o.Key) {
-                    found = true;
-                    state.keys.splice(i, 1, n);     // replace old entry with new entry
-                    return {
-                        ...state,
-                        keys: state.keys.concat(),  // use contact to clone a new array to foce table refresh
-                    };
-                }
-            }
+        //     let found = false;
+        //     for (const i in state.keys) {
+        //         const x = state.keys[i];
+        //         if (x.Key == o.Key) {
+        //             found = true;
+        //             state.keys.splice(i, 1, n);     // replace old entry with new entry
+        //             return {
+        //                 ...state,
+        //                 keys: state.keys.concat(),  // use contact to clone a new array to foce table refresh
+        //             };
+        //         }
+        //     }
 
-            if (!found) {
-                state.keys.push(n);                 // not exists in data source, add
-                return {
-                    ...state,
-                    keys: state.keys.concat(),      // use contact to clone a new array to foce table refresh
-                };
-            }
-        }
+        //     if (!found) {
+        //         state.keys.push(n);                 // not exists in data source, add
+        //         return {
+        //             ...state,
+        //             keys: state.keys.concat(),      // use contact to clone a new array to foce table refresh
+        //         };
+        //     }
+        // }
     },
     subscriptions: {
         setup({ dispatch, history }: any) {

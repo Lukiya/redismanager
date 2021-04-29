@@ -1,6 +1,6 @@
 import u from '@/u';
-import { Space, Form, Input, InputNumber, Row, Col, Button, Select } from 'antd';
-import { SaveOutlined, CodeOutlined, BoxPlotOutlined, UndoOutlined, PlusOutlined } from '@ant-design/icons';
+import { Space, Form, Input, InputNumber, Row, Col, Button, Select, Popconfirm } from 'antd';
+import { SaveOutlined, CodeOutlined, BoxPlotOutlined, UndoOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 
 const buildFieldEditor = (props: any) => {
     const { fieldEditorEnabled } = props;
@@ -22,7 +22,7 @@ const buildScoreEditor = (props: any) => {
     if (scoreEditorEnabled) {
         return <Col>
             <Form.Item label="Score" labelAlign="right" name="Score">
-                <InputNumber precision={2} placeholder="Score" />
+                <InputNumber precision={6} placeholder="Score" />
             </Form.Item>
         </Col>;
     }
@@ -78,6 +78,19 @@ const buildMinifyButton = (props: any) => {
     }}>Minify</Button>;
 }
 
+const buildDeleteButton = (props: any) => {
+    const { deleteButtonEnabled, dispatch, loading } = props;
+
+    return <Popconfirm
+        title="Confirm?"
+        onConfirm={() => dispatch({ type: "memberListVM/deleteElements" })}
+        okText="YES"
+        cancelText="CANCEL"
+    >
+        <Button danger loading={loading} icon={<DeleteOutlined />} className="btn1" disabled={!deleteButtonEnabled}>Delete</Button>
+    </Popconfirm>;
+}
+
 const DrawerActionBar = (props: any) => {
     const { formRef, newButtonEnabled, keyEditorEnabled, valueEditorEnabled, loading } = props;
     const fieldEditor = buildFieldEditor(props);
@@ -85,7 +98,7 @@ const DrawerActionBar = (props: any) => {
     const indexEditor = buildIndexEditor(props);
     const btnBeautify = buildBeautifyButton(props);
     const btnMinify = buildMinifyButton(props);
-
+    const btnDelete = buildDeleteButton(props);
 
     const form = <Row gutter={8}>
         <Col>
@@ -121,7 +134,10 @@ const DrawerActionBar = (props: any) => {
         </Col>
         {
             newButtonEnabled ? <Col>
-                <Button icon={<PlusOutlined />} className="btn1" onClick={props.newClicked}>New</Button>
+                <Space>
+                    <Button icon={<PlusOutlined />} className="btn1" onClick={props.newClicked}>New</Button>
+                    {btnDelete}
+                </Space>
             </Col> : undefined
         }
         {

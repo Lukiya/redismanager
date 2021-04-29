@@ -19,7 +19,7 @@ var DBGroup = host.NewActionGroup(
 		host.NewAction("GET/api/servers/{serverID}/{db}/{key}", "key__", GetKey),
 		host.NewAction("POST/api/servers/{serverID}/{db}/{key}", "key__", GetRedisEntry),
 		host.NewAction("POST/api/servers/{serverID}/{db}/save", "key__", SaveRedisEntry),
-		host.NewAction("DELETE/api/servers/{serverID}/{db}/{key}", "key__", DeleteEntry),
+		host.NewAction("DELETE/api/servers/{serverID}/{db}", "key__", DeleteRedisEntries),
 	},
 	nil,
 )
@@ -152,34 +152,26 @@ func SaveRedisEntry(ctx host.IHttpContext) {
 	var cmd *rmr.SaveRedisEntryCommand
 	ctx.ReadJSON(&cmd)
 
-	r, err := db.SaveValue(cmd)
+	err = db.SaveEntry(cmd)
 	if errors.Is(err, common.KeyExistError) {
 		ctx.WriteJsonBytes(u.StrToBytes(`{"err":"` + err.Error() + `"}`))
 		return
 	} else if host.HandleErr(err, ctx) {
 		return
 	}
-
-	data, err := json.Marshal(r)
-	if host.HandleErr(err, ctx) {
-		return
-	}
-
-	ctx.WriteJsonBytes(data)
 }
-func DeleteEntry(ctx host.IHttpContext) {
+
+func DeleteRedisEntries(ctx host.IHttpContext) {
 	db, err := getDB(ctx)
 	if err != nil {
 		return
 	}
 
-	cmd := new(rmr.DeleteRedisEntryCommand)
-	cmd.Key = ctx.GetParamString("key")
-	cmd.Element = ctx.GetFormString("Element")
+	var cmd *rmr.DeleteRedisEntriesCommand
+	ctx.ReadJSON(&cmd)
 
-	if cmd.Element == "" {
-		err = db.DeleteKey(cmd.Key)
-	} else {
-		err = db.DeleteElement(cmd.Key, cmd.Element)
+	err = db.DeleteEntries(cmd)
+	if host.HandleErr(err, ctx) {
+		return
 	}
 }

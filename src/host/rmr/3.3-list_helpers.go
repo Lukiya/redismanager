@@ -2,7 +2,6 @@ package rmr
 
 import (
 	"context"
-	"strconv"
 
 	"github.com/go-redis/redis/v8"
 	"github.com/syncfuture/go/serr"
@@ -30,19 +29,12 @@ func saveList(ctx context.Context, client redis.UniversalClient, clusterClient *
 		}
 	}
 
-	if cmd.New.Field != "" {
-		// # update value
-		index, err := strconv.ParseInt(cmd.New.Field, 10, 64)
-		if err != nil {
-			return serr.WithStack(err)
-		}
-		err = client.LSet(ctx, cmd.New.Key, index, cmd.New.Value).Err()
-		if err != nil {
-			return serr.WithStack(err)
-		}
+	err = client.LSet(ctx, cmd.New.Key, cmd.New.Index, cmd.New.Value).Err()
+	if err != nil {
+		return serr.WithStack(err)
 	}
 
-	return
+	return nil
 }
 
 func scanListElements(ctx context.Context, client redis.UniversalClient, query *ScanQuerySet) (*ScanElementResult, error) {

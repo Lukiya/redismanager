@@ -102,7 +102,8 @@ const buildFooter = (props: any) => {
 };
 
 const buildForm = (props: any) => {
-    const { memberListState: { redisKey }, dispatch } = props;
+    const { memberListState: { redisKey, selectedRowKeys }, dispatch, loading } = props;
+    const hasSelection = selectedRowKeys.length > 0;
 
     if (redisKey?.Key != undefined) {
         const [formRef] = Form.useForm();
@@ -115,7 +116,16 @@ const buildForm = (props: any) => {
                 dispatch({ type: "memberListVM/save", values });
             }}
         >
-            <DrawerActionBar newButtonEnabled={true} keyEditorEnabled={true} redisKey={redisKey} formRef={formRef} newClicked={() => onNewClick(props)}></DrawerActionBar>
+            <DrawerActionBar
+                deleteButtonEnabled={hasSelection}
+                newButtonEnabled={true}
+                keyEditorEnabled={true}
+                redisKey={redisKey}
+                formRef={formRef}
+                dispatch={dispatch}
+                loading={loading}
+                newClicked={() => onNewClick(props)}>
+            </DrawerActionBar>
         </Form>;
         useEffect(() => formRef?.resetFields(), [form.props.initialValues]);
 
@@ -125,7 +135,7 @@ const buildForm = (props: any) => {
 
 const MemberList = (props: any) => {
     // const { memberListState: { loading, dataSource, hasMore } } = props;
-    const { memberListState: { dataSource, hasMore, pageSize, suggestedPageSize, title, visible, redisKey }, params, loading, dispatch } = props;
+    const { memberListState: { dataSource, hasMore, pageSize, suggestedPageSize, title, visible, redisKey, selectedRowKeys }, params, loading, dispatch } = props;
 
     const columns = buildColums(props);
     const footer = buildFooter(props);
@@ -141,6 +151,10 @@ const MemberList = (props: any) => {
             dataSource={dataSource}
             columns={columns}
             loading={loading}
+            rowSelection={{
+                selectedRowKeys: selectedRowKeys,
+                onChange: (selectedRowKeys, selectedEntries) => dispatch({ type: 'memberListVM/setState', payload: { selectedRowKeys, selectedEntries } }),
+            }}
             // pagination={{ pageSize: 20, showTotal: (total) => <label>{hasMore ? "Loaded" : "Total"}: {total}</label> }}
             pagination={{
                 pageSizeOptions: ["10", "20", "30", "100"],

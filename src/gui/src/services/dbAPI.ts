@@ -70,14 +70,13 @@ export async function SaveEntry(query: any, data: any) {
     return r;
 }
 
-export async function DeleteEntry(query: any, element: string) {
-    const url = '/servers/' + query.serverID + '/' + query.db + "/" + encodeURIComponent(query.key);
+export async function DeleteEntries(query: any, cmd: any) {
+    const url = '/servers/' + query.serverID + '/' + query.db;
     const r = await request.delete(url, {
-        requestType: "form",
-        data: { Element: element },
+        data: cmd,
     });
 
-    if (r.err != "") {
+    if (r) {
         message.error(r.err);
     }
 

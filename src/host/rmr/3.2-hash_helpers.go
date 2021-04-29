@@ -37,12 +37,10 @@ func saveHash(ctx context.Context, client redis.UniversalClient, clusterClient *
 		}
 	}
 
-	if cmd.New.Field != "" {
-		// # update value
-		err = client.HSet(ctx, cmd.New.Key, cmd.New.Field, cmd.New.Value).Err()
-		if err != nil {
-			return serr.WithStack(err)
-		}
+	// # update value
+	err = client.HSet(ctx, cmd.New.Key, cmd.New.Field, cmd.New.Value).Err()
+	if err != nil {
+		return serr.WithStack(err)
 	}
 
 	return nil

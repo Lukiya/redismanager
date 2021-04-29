@@ -22,9 +22,10 @@ type IRedisDB interface {
 	ScanElements(query *ScanQuerySet) (*ScanElementResult, error)
 	GetAllElements(query *ScanQuerySet) (*ScanElementResult, error)
 	KeyExists(key string) (bool, error)
-	SaveValue(cmd *SaveRedisEntryCommand) (*RedisEntry, error)
-	DeleteKey(key string) error
-	DeleteElement(key, element string) error
+	SaveEntry(cmd *SaveRedisEntryCommand) error
+	DeleteEntries(cmd *DeleteRedisEntriesCommand) error
+	// DeleteKey(key string) error
+	// DeleteElement(key, element string) error
 	GetRedisEntry(key, elementKey string) (*RedisEntry, error)
 }
 
@@ -74,7 +75,12 @@ type SaveRedisEntryCommand struct {
 	Old   *RedisEntry `json:"old"`
 	IsNew bool        `json:"isNew"`
 }
+
 type DeleteRedisEntryCommand struct {
-	Key     string
-	Element string
+	Key        string
+	ElementKey string
+}
+
+type DeleteRedisEntriesCommand struct {
+	Commands []*DeleteRedisEntryCommand
 }

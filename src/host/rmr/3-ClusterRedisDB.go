@@ -2,11 +2,14 @@ package rmr
 
 import (
 	"context"
+	"runtime"
 	"sync"
 
 	"github.com/Lukiya/redismanager/src/go/common"
 	"github.com/go-redis/redis/v8"
 	"github.com/syncfuture/go/serr"
+	"github.com/syncfuture/go/stask"
+	"github.com/syncfuture/go/u"
 )
 
 func NewClusterRedisDB(clusterClient *redis.ClusterClient, masterClients map[string]*redis.Client) IRedisDB {
@@ -217,18 +220,18 @@ func (x *ClusterRedisDB) KeyExists(key string) (bool, error) {
 	return count > 0, nil
 }
 
-func (x *ClusterRedisDB) SaveValue(cmd *SaveRedisEntryCommand) (*RedisEntry, error) {
+func (x *ClusterRedisDB) SaveEntry(cmd *SaveRedisEntryCommand) error {
 	ctx := context.Background()
 
 	if cmd.IsNew {
 		// Check if new key is existing
 		exists, err := x.KeyExists(cmd.New.Key)
 		if err != nil {
-			return nil, err
+			return err
 		}
 
 		if exists {
-			return nil, common.KeyExistError
+			return common.KeyExistError
 		}
 	}
 
@@ -256,55 +259,60 @@ func (x *ClusterRedisDB) SaveValue(cmd *SaveRedisEntryCommand) (*RedisEntry, err
 	}
 
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	////////// save TTL
-	err = saveTTL(ctx, x.clusterClient, x.clusterClient, cmd)
-	if err != nil {
-		return nil, err
-	}
-
-	return x.GetRedisEntry(cmd.New.Key, cmd.New.Field)
+	return saveTTL(ctx, x.clusterClient, x.clusterClient, cmd)
 }
 
-func (x *ClusterRedisDB) DeleteKey(key string) error {
+func (x *ClusterRedisDB) DeleteEntries(cmd *DeleteRedisEntriesCommand) error {
 	ctx := context.Background()
-	client, err := x.clusterClient.MasterForKey(ctx, key)
+
+	scheduler := stask.NewFlowScheduler(runtime.NumCPU())
+
+	scheduler.SliceRun(&cmd.Commands, func(_ int, v interface{}) {
+		cmd := v.(*DeleteRedisEntryCommand)
+		err := x.deleteEntry(ctx, cmd)
+		u.LogError(err)
+	})
+
+	return nil
+}
+
+func (x *ClusterRedisDB) deleteEntry(ctx context.Context, cmd *DeleteRedisEntryCommand) error {
+	client, err := x.clusterClient.MasterForKey(ctx, cmd.Key)
 	if err != nil {
 		return serr.WithStack(err)
 	}
 
-	return client.Del(ctx, key).Err()
-}
+	if cmd.ElementKey == "" {
+		return client.Del(ctx, cmd.Key).Err()
+	} else {
+		redisKey, err := x.GetKey(cmd.Key)
+		if err != nil {
+			return err
+		}
 
-func (x *ClusterRedisDB) DeleteElement(key, element string) error {
-	ctx := context.Background()
-
-	redisKey, err := x.GetKey(key)
-	if err != nil {
+		switch redisKey.Type {
+		case common.RedisType_Hash:
+			err = delHash(ctx, x.clusterClient, x.clusterClient, cmd.Key, cmd.ElementKey)
+			break
+		case common.RedisType_List:
+			err = delList(ctx, x.clusterClient, x.clusterClient, cmd.Key, cmd.ElementKey)
+			break
+		case common.RedisType_Set:
+			err = delSet(ctx, x.clusterClient, x.clusterClient, cmd.Key, cmd.ElementKey)
+			break
+		case common.RedisType_ZSet:
+			err = delZSet(ctx, x.clusterClient, x.clusterClient, cmd.Key, cmd.ElementKey)
+			break
+		default:
+			err = serr.Errorf("key type '%s' is not supported", redisKey.Type)
+			break
+		}
 		return err
 	}
-
-	switch redisKey.Type {
-	case common.RedisType_Hash:
-		err = delHash(ctx, x.clusterClient, x.clusterClient, key, element)
-		break
-	case common.RedisType_List:
-		err = delList(ctx, x.clusterClient, x.clusterClient, key, element)
-		break
-	case common.RedisType_Set:
-		err = delSet(ctx, x.clusterClient, x.clusterClient, key, element)
-		break
-	case common.RedisType_ZSet:
-		err = delZSet(ctx, x.clusterClient, x.clusterClient, key, element)
-		break
-	default:
-		err = serr.Errorf("key type '%s' is not supported", redisKey.Type)
-		break
-	}
-
-	return err
 }
 
 func (x *ClusterRedisDB) GetRedisEntry(key, elementKey string) (*RedisEntry, error) {

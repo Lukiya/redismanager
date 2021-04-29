@@ -34,6 +34,7 @@ const u = {
     LIST: "list",
     SET: "set",
     ZSET: "zset",
+    NONE: "none",
     DefaultQuery: {
         serverID: '',
         nodeID: '',
@@ -240,6 +241,30 @@ const u = {
         }
 
         dispatch({ type: "memberEditorVM/show", payload });
+    },
+    EntryToElement: (redisEntry: any) => {
+        switch (redisEntry.Type) {
+            case u.HASH:
+                return {
+                    Key: redisEntry.Field,
+                    Value: redisEntry.Value,
+                };
+            case u.LIST:
+                return {
+                    Key: redisEntry.Index,
+                    Value: redisEntry.Value,
+                };
+            case u.SET:
+                return {
+                    Key: redisEntry.Value,
+                    // Value: redisEntry.Value,
+                };
+            case u.ZSET:
+                return {
+                    Key: redisEntry.Value,
+                    Value: redisEntry.Score,
+                };
+        }
     },
 }
 export default u

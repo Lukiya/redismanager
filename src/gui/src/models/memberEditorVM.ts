@@ -53,13 +53,19 @@ export default {
 
             const resp = yield SaveEntry(state, data);
             if (!resp?.err) {
-                yield put({ type: "hide" });
                 yield put({
-                    type: "keyListVM/updateKey", payload: {
-                        old: data.old,
-                        new: resp,
+                    type: "memberListVM/updateElement", payload: {
+                        n: data.new,
+                        o: data.old,
                     }
                 });
+                yield put({
+                    type: "keyListVM/updateKey", payload: {
+                        n: data.new,
+                        o: data.old,
+                    }
+                });
+                yield put({ type: "hide" });
             }
         },
     },

@@ -1,7 +1,7 @@
 import { PageContainer } from '@ant-design/pro-layout';
-import { Table, Button, Input, Menu, Card, Space, Row, Col, Dropdown, Divider } from 'antd';
+import { Table, Button, Input, Menu, Card, Space, Row, Col, Dropdown, Divider, Popconfirm } from 'antd';
 import { connect } from 'umi'
-import { PlusOutlined } from '@ant-design/icons'
+import { PlusOutlined, DeleteOutlined } from '@ant-design/icons'
 import MemberEditor from '@/components/memberEditor'
 import u from '@/u';
 import MemberList from '@/components/MemberList';
@@ -97,7 +97,7 @@ const buildFooter = (props: any) => {
 }
 
 const KeyListPage = (props: any) => {
-    const { menuState: { server }, keyListState: { keys, hasMore, pageSize, suggestedPageSize }, keyListLoading, match: { params }, dispatch } = props;
+    const { menuState: { server }, keyListState: { keys, hasMore, pageSize, suggestedPageSize, selectedRowKeys }, keyListLoading, match: { params }, dispatch } = props;
 
     // let node: any;
     // for (let i = 0; i < server.Nodes.length; i++) {
@@ -111,6 +111,7 @@ const KeyListPage = (props: any) => {
     let breadcrumbRoutes: any[] = [];
     let table: any = null;
     let actionBar: any = null;
+    const hasSelection = selectedRowKeys.length > 0;
     // let memberEditor: any = null;
     const inited = server.ID != undefined && server.ID != "";
     if (inited) {
@@ -150,6 +151,16 @@ const KeyListPage = (props: any) => {
                         <Button icon={<PlusOutlined />}>New</Button>
                     </Dropdown>
                 </Col>
+                <Col>
+                    <Popconfirm
+                        title="Confirm?"
+                        onConfirm={() => dispatch({ type: "keyListVM/deleteKeys" })}
+                        okText="YES"
+                        cancelText="CANCEL"
+                    >
+                        <Button danger loading={keyListLoading} icon={<DeleteOutlined />} disabled={!hasSelection}>Delete</Button>
+                    </Popconfirm>
+                </Col>
             </Row>
         </Card>;
 
@@ -171,6 +182,10 @@ const KeyListPage = (props: any) => {
                 showTotal: (total) => <label>{hasMore ? "Loaded" : "Total"}: {total}</label>,
             }}
             loading={keyListLoading}
+            rowSelection={{
+                selectedRowKeys: selectedRowKeys,
+                onChange: (selectedRowKeys, selectedEntries) => dispatch({ type: 'keyListVM/setState', payload: { selectedRowKeys, selectedEntries } }),
+            }}
             size="small"
             bordered
             footer={footer}
