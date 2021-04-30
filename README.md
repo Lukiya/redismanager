@@ -38,6 +38,7 @@ docker cp redismanager:/app/Servers.json /data/redismanager/Servers.json
 docker cp /data/redismanager/Servers.json redismanager:/app/Servers.json
 ```
 or just use volume map to save Servers.json outside of docker instance.
+
 **Please beware, this file is unencrypted. Make sure it can only be accessed by yourself.**
 #### Notes
 * For Mac, make sure you allow it in settings ("Security & Privacy" -> "General" -> "Allow apps downloaded from").
