@@ -2,10 +2,5 @@
     "Log": {
         "Level": "warn"
     },
-    "CORS": {
-        "AllowedOrigin": "*",
-        "AllowedMethods": "*",
-        "AllowedHeaders": "*"
-    },
     "ListenAddr": ":16379"
 }

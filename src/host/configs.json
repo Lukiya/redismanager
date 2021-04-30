@@ -1,0 +1,11 @@
+{
+    "Log": {
+        "Level": "info"
+    },
+    "CORS": {
+        "AllowedOrigin": "*",
+        "AllowedMethods": "*",
+        "AllowedHeaders": "*"
+    },
+    "ListenAddr": ":16379"
+}
