@@ -89,6 +89,8 @@ export async function ExportKeys(query: any, keys: string[]) {
     const r = await request.post(url, {
         data: keys,
     });
+
+    return r;
 }
 
 export async function ImportKeys(query: any, data: any) {
@@ -97,4 +99,6 @@ export async function ImportKeys(query: any, data: any) {
     const r = await request.post(url, {
         data: data,
     });
+
+    return r;
 }

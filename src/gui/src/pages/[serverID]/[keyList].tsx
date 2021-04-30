@@ -226,7 +226,7 @@ const KeyListPage = (props: any) => {
             }
 
             Modal.confirm({
-                title: 'Paste Confirm',
+                title: 'Caution!',
                 content: 'If key exists, it will be overrided, continue?',
                 onOk() {
                     dispatch({

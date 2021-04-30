@@ -142,7 +142,13 @@ export default {
             const resp = yield ExportKeys(state.query, state.selectedRowKeys);
             if (!resp.MsgCode) {
                 u.CopyToClipboard(resp.Data);
-                message.info(state.SelectedRowKeys.length + " key(s) copied.");
+                yield put({
+                    type: 'setState', payload: {
+                        selectedRowKeys: [],
+                        selectedEntries: [],
+                    }
+                });
+                message.info(state.selectedRowKeys.length + " key(s) copied.");
             } else {
                 message.error(resp.MsgCode);
             }

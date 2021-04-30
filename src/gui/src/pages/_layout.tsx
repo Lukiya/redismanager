@@ -1,7 +1,7 @@
-import { DatabaseOutlined, CloudServerOutlined } from '@ant-design/icons';
+import { DatabaseOutlined, CloudServerOutlined, QuestionCircleOutlined, GithubOutlined } from '@ant-design/icons';
 import logo from "@/assets/logo.svg"
 import { connect, Link, useModel } from 'umi';
-import { Layout, Menu, Spin } from 'antd';
+import { Layout, Menu, Spin, Button, Popover, Space } from 'antd';
 import { useEffect } from 'react';
 
 const { Header, Content, Footer, Sider } = Layout;
@@ -47,15 +47,28 @@ const LayoutPage = (props: any) => {
         ) : null;
     }
 
+    const tipsLI = [
+        <li key="1">Ctrl+C&nbsp;: Copy selection(s)</li>,
+        <li key="2">Ctrl+V&nbsp;: Paste</li>,
+        <li key="3">Delete&nbsp;: Delete selection(s)</li>,
+    ];
+    const tipsUL = <ul className="ulist">{tipsLI}</ul>
+
+
     return (
         <Layout style={{ minHeight: '100vh' }}>
             <Sider breakpoint="lg" collapsedWidth="0">
-                <div style={{ paddingTop: "17px", paddingBottom: "17px", textAlign: "center" }}><Link to="/" style={{ color: "#fff", }}><img src={logo} alt="logo" style={{ width: "30px" }} /> Redis Manager</Link></div>
+                <div style={{ paddingTop: "17px", paddingBottom: "17px", textAlign: "center" }}><Link to="/" style={{ color: "#fff", }}><img src={logo} alt="logo" style={{ width: "30px" }} /> Redis Manager {initialState?.info.version}</Link></div>
                 {menu}
             </Sider>
             <Layout className="site-layout">
                 <Header className="site-layout-background" style={{ padding: 0 }}>
-                    <span style={{ color: "#fff" }}>{initialState?.info.version}</span>
+                    <Space>
+                        <Popover content={tipsUL} trigger="focus">
+                            <Button size="small" type="dashed" className="tips"><QuestionCircleOutlined /> Help</Button>
+                        </Popover>
+                        <Button size="small" type="dashed" className="tips" href="https://github.com/Lukiya/redismanager" target="_blank"><GithubOutlined /> Github</Button>
+                    </Space>
                 </Header>
                 {props.children}
             </Layout>

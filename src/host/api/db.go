@@ -43,7 +43,7 @@ func ScanKeysOrElements(ctx host.IHttpContext) {
 		var rs *rmr.ScanKeyResult
 		if querySet.All {
 			rs, err = db.GetAllKeys(querySet)
-		} else if querySet.Cursors == nil {
+		} else if len(querySet.Cursors) == 0 {
 			rs, err = db.ScanKeys(querySet)
 		} else {
 			rs, err = db.ScanMoreKeys(querySet)
