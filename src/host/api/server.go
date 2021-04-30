@@ -63,7 +63,7 @@ func GetServer(ctx host.IHttpContext) {
 	}
 
 	if server == nil {
-		log.Warnf("server '%s' is nil", serverID)
+		log.Debugf("server '%s' is nil", serverID)
 		return
 	}
 
