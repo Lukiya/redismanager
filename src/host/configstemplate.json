@@ -1,6 +1,6 @@
 {
     "Log": {
-        "Level": "warn"
+        "Level": "info"
     },
     "ListenAddr": ":16379"
 }
