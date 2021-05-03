@@ -32,11 +32,13 @@ or
 ``` bash
 docker run --name redismanager -d --restart always -p 16379:16379 lukiya/redismanager
 ```
-if you want to backup or restore servers.json, use below command:
+if you want to backup or restore Servers.json, use below command:
 ``` bash
-docker cp redismanager:/app/servers.json /data/servers.json
-docker cp /data/servers.json redismanager:/app/servers.json
+docker cp redismanager:/app/Servers.json /data/redismanager/Servers.json
+docker cp /data/redismanager/Servers.json redismanager:/app/Servers.json
 ```
+or just use volume map to save Servers.json outside of docker instance.
+
 **Please beware, this file is unencrypted. Make sure it can only be accessed by yourself.**
 #### Notes
 * For Mac, make sure you allow it in settings ("Security & Privacy" -> "General" -> "Allow apps downloaded from").
