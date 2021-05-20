@@ -63,9 +63,9 @@ export async function SaveEntry(query: any, data: any) {
         data: data,
     });
 
-    if (r?.err) {
-        message.error(r.err);
-    }
+    // if (r?.err) {
+    //     message.error(r.err);
+    // }
 
     return r;
 }
@@ -76,9 +76,9 @@ export async function DeleteEntries(query: any, cmd: any) {
         data: cmd,
     });
 
-    if (r) {
-        message.error(r.err);
-    }
+    // if (r) {
+    //     message.error(r.err);
+    // }
 
     return r;
 }

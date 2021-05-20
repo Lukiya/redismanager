@@ -14,6 +14,7 @@ export default {
         suggestedPageSize: 10,
     },
     effects: {
+        // *load({ query }: any, { put, select }: any): any {
         *load({ query }: any, { put }: any): any {
             // const resp = yield call(GetKeys, query);
             query = {
@@ -36,6 +37,8 @@ export default {
             } else {
                 console.log("no json in response body");
             }
+            // const state = yield select((x: any) => x["keyListVM"]);
+            // console.log(state.query);
         },
         *loadMore(_: any, { put, select }: any): any {
             const state = yield select((x: any) => x["keyListVM"]);
@@ -153,7 +156,7 @@ export default {
                 message.error(resp.MsgCode);
             }
         },
-        *paste({ clipboardText }: any, { call, put, select }: any): any {
+        *paste({ clipboardText }: any, { put, select }: any): any {
             const base64Str = clipboardText.substring(u.CLIPBOARD_REDIS.length, clipboardText.length);
             let bytes;
             try {

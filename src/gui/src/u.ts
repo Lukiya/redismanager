@@ -210,7 +210,7 @@ const u = {
             return a.Value - b.Value;
         }
     },
-    OpenEditorForCreate: (type: string, params: any, dispatch: any) => {
+    OpenEditorForCreate: (params: any, key: any, type: string, dispatch: any) => {
         const payload = {
             ...params,
             entry: u.DefaultEntry,
@@ -222,6 +222,9 @@ const u = {
             scoreEditorEnabled: false,
             indexEditorEnabled: false,
         };
+
+        payload.entry.Key = key;
+
         switch (type) {
             case u.STRING:
                 payload.entry.Type = u.STRING;

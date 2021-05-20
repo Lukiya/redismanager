@@ -12,7 +12,7 @@ const { Search } = Input;
 
 const newClicked = (type: string, params: any, dispatch: any) => {
 
-    u.OpenEditorForCreate(type, params, dispatch);
+    u.OpenEditorForCreate(params, "", type, dispatch);
 };
 
 const buildColumns = (dispatch: any, params: any) => {

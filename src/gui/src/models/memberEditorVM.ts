@@ -65,8 +65,9 @@ export default {
                         o: data.old,
                     }
                 });
-                yield put({ type: "hide" });
             }
+            message.error(resp.err);
+            yield put({ type: "hide" });
         },
     },
     reducers: {
