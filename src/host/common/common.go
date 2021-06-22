@@ -17,5 +17,7 @@ const (
 )
 
 var (
-	KeyExistError = errors.New("key already exists")
+	KeyExistError   = errors.New("key already exists")
+	KeyEmptyError   = errors.New("key cannot be empty")
+	FieldEmptyError = errors.New("field cannot be empty")
 )

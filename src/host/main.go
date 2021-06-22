@@ -15,13 +15,13 @@ import (
 var staticFiles embed.FS
 
 var (
-	AppName      string // 应用名称
-	AppVersion   string // 应用版本
-	BuildVersion string // 编译版本
-	BuildTime    string // 编译时间
-	GitRevision  string // Git版本
-	GitBranch    string // Git分支
-	GoVersion    string // Golang信息
+	AppName      string
+	AppVersion   string
+	BuildVersion string
+	BuildTime    string
+	GitRevision  string
+	GitBranch    string
+	GoVersion    string
 )
 
 func main() {

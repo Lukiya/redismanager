@@ -52,21 +52,27 @@ export default {
             }
 
             const resp = yield SaveEntry(state, data);
-            if (!resp?.err) {
-                yield put({
-                    type: "memberListVM/updateElement", payload: {
-                        n: data.new,
-                        o: data.old,
-                    }
-                });
+            if (resp.success) {
+                if (u.IsPresent(data.old.Key)) {
+                    // refresh member list if it's edit
+                    yield put({
+                        type: "memberListVM/updateElement", payload: {
+                            n: data.new,
+                            o: data.old,
+                        }
+                    });
+                }
+
+                // refresh key list
                 yield put({
                     type: "keyListVM/updateKey", payload: {
                         n: data.new,
                         o: data.old,
                     }
                 });
+            }else{
+                message.error(resp.err);
             }
-            message.error(resp.err);
             yield put({ type: "hide" });
         },
     },

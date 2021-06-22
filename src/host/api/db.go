@@ -155,12 +155,13 @@ func SaveRedisEntry(ctx host.IHttpContext) {
 	ctx.ReadJSON(&cmd)
 
 	err = db.SaveEntry(cmd)
-	if errors.Is(err, common.KeyExistError) {
+	if errors.Is(err, common.KeyExistError) || errors.Is(err, common.KeyEmptyError) || errors.Is(err, common.FieldEmptyError) {
 		ctx.WriteJsonBytes(u.StrToBytes(`{"err":"` + err.Error() + `"}`))
 		return
 	} else if host.HandleErr(err, ctx) {
 		return
 	}
+	ctx.WriteJsonBytes(u.StrToBytes(`{"success":true}`))
 }
 
 func DeleteRedisEntries(ctx host.IHttpContext) {

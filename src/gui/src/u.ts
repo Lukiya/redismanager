@@ -284,5 +284,21 @@ const u = {
         }
         return bytes;
     },
+    IsPresent: (input: any) => {
+        const a = input !== undefined && input !== null;
+        if (a && typeof (input) === "string") {
+            return input.trim().length > 0;
+        } else {
+            return a;
+        }
+    },
+    IsMissing: (input: any) => {
+        const a = input === undefined || input === null;
+        if (!a && typeof (input) === "string") {
+            return input.trim().length == 0;
+        } else {
+            return a;
+        }
+    },
 }
 export default u
