@@ -7,7 +7,7 @@ $binPath = $targetDir + $binName
 $APP_NAME = "Redis Manager"
 $APP_VERSION = $(git describe --tags --abbrev=0)
 $BUILD_VERSION = $(git log -1 --oneline)
-$BUILD_TIME=$(Get-date)
+$BUILD_TIME=$(Get-Date -Format "UTCK = yyyy-MM-dd HH:mm:ss")
 # $GIT_REVISION=$(git rev-parse --short HEAD)
 $GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 # $GIT_TAG=$(git name-rev --name-only HEAD)
