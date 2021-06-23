@@ -1,6 +1,6 @@
 import { GetRedisEntry, SaveEntry } from "@/services/dbAPI";
 import u from "@/u";
-import { message } from 'antd';
+import { message, notification } from 'antd';
 
 export default {
     state: {
@@ -70,10 +70,11 @@ export default {
                         o: data.old,
                     }
                 });
-            }else{
-                message.error(resp.err);
+                yield put({ type: "hide" });
+            } else {
+                // message.error(resp.err);
+                notification.error({ message: resp.err, placement: "topLeft" });
             }
-            yield put({ type: "hide" });
         },
     },
     reducers: {

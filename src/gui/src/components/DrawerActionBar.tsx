@@ -7,7 +7,7 @@ const buildFieldEditor = (props: any) => {
 
     if (fieldEditorEnabled) {
         return <Col lg={6} xl={6} xxl={6}>
-            <Form.Item label="Field" labelAlign="right" name="Field">
+            <Form.Item label="Field" labelAlign="right" name="Field" required>
                 <Input width="xl" placeholder="Field" />
             </Form.Item>
         </Col>;

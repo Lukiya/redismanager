@@ -1,4 +1,6 @@
 import { GetServer } from "@/services/serverAPI";
+import u from "@/u";
+import { message, notification } from 'antd';
 
 const _defaultState = {
     server: {
@@ -14,6 +16,10 @@ export default {
     effects: {
         *getServer({ serverID }: any, { call, put }: any): any {
             const resp = yield call(GetServer, serverID);
+            if (u.IsPresent(resp.err)) {
+                message.error(resp.err);
+                return;
+            }
             const dbs = resp.DBs;
             if (!dbs) {
                 yield put({ type: 'resetState' });

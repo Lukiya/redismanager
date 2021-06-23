@@ -19,7 +19,7 @@ export async function GetServers() {
 }
 
 export async function GetServer(serverID: string) {
-    const r = await request.get('/servers/' + serverID);
+    const r = await request.get('/servers/' + serverID).catch((e: any) => e.data);
 
     return r;
 }

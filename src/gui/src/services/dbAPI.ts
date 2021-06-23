@@ -23,14 +23,14 @@ export async function Scan(query: any) {
             },
             Cursors: query.cursors,
         }
-    }).catch((err: any) => message.error(err.data));
+    }).catch((e: any) => e.data);
 
     return r;
 }
 
 export async function GetKey(query: any) {
     const url = '/servers/' + query.serverID + '/' + query.db + "/" + encodeURIComponent(query.redisKey.Key);
-    const r = await request.get(url).catch((err: any) => message.error(err.data));
+    const r = await request.get(url).catch((e: any) => e.data);
 
     return r;
 }
@@ -52,7 +52,7 @@ export async function GetRedisEntry(query: any) {
         requestType: "form",
         data: { ElementKey: query.ElemKey },
         // responseType: "text",
-    }).catch((err: any) => message.error(err.data));
+    }).catch((e: any) => e.data);
 
     return r;
 }
@@ -70,7 +70,7 @@ export async function DeleteEntries(query: any, cmd: any) {
     const url = '/servers/' + query.serverID + '/' + query.db;
     const r = await request.delete(url, {
         data: cmd,
-    }).catch((err: any) => message.error(err.data));
+    }).catch((e: any) => e.data);
 
     // if (r) {
     //     message.error(r.err);
@@ -84,7 +84,7 @@ export async function ExportKeys(query: any, keys: string[]) {
 
     const r = await request.post(url, {
         data: keys,
-    }).catch((err: any) => message.error(err.data));
+    }).catch((e: any) => e.data);
 
     return r;
 }
@@ -94,7 +94,7 @@ export async function ImportKeys(query: any, data: any) {
 
     const r = await request.post(url, {
         data: data,
-    }).catch((err: any) => message.error(err.data));
+    }).catch((e: any) => e.data);
 
     return r;
 }
