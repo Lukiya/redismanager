@@ -5,8 +5,8 @@ import (
 	"errors"
 	"net/url"
 
-	"github.com/Lukiya/redismanager/src/go/common"
 	"github.com/Lukiya/redismanager/src/go/rmr"
+	"github.com/Lukiya/redismanager/src/go/shared"
 
 	"github.com/syncfuture/go/u"
 	"github.com/syncfuture/host"
@@ -155,7 +155,7 @@ func SaveRedisEntry(ctx host.IHttpContext) {
 	ctx.ReadJSON(&cmd)
 
 	err = db.SaveEntry(cmd)
-	if errors.Is(err, common.KeyExistError) || errors.Is(err, common.KeyEmptyError) || errors.Is(err, common.FieldEmptyError) {
+	if errors.Is(err, shared.KeyExistError) || errors.Is(err, shared.KeyEmptyError) || errors.Is(err, shared.FieldEmptyError) {
 		ctx.WriteJsonBytes(u.StrToBytes(`{"err":"` + err.Error() + `"}`))
 		return
 	} else if host.HandleErr(err, ctx) {

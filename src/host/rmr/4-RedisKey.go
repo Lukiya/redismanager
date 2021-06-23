@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/Lukiya/redismanager/src/go/common"
+	"github.com/Lukiya/redismanager/src/go/shared"
 	"github.com/go-redis/redis/v8"
 	"github.com/syncfuture/go/sconv"
 	"github.com/syncfuture/go/serr"
@@ -52,22 +52,22 @@ func (x *RedisKey) GetValue(elementKey string) (string, error) {
 	ctx := context.Background()
 
 	switch x.Type {
-	case common.RedisType_String:
+	case shared.RedisType_String:
 		v, err := x.client.Get(ctx, x.Key).Result()
 		return v, serr.WithStack(err)
-	case common.RedisType_Hash:
+	case shared.RedisType_Hash:
 		v, err := x.client.HGet(ctx, x.Key, elementKey).Result()
 		return v, serr.WithStack(err)
-	case common.RedisType_List:
+	case shared.RedisType_List:
 		index, err := strconv.ParseInt(elementKey, 10, 64)
 		if err != nil {
 			return "", serr.WithStack(err)
 		}
 		v, err := x.client.LIndex(ctx, x.Key, index).Result()
 		return v, serr.WithStack(err)
-	case common.RedisType_Set:
+	case shared.RedisType_Set:
 		return elementKey, nil
-	case common.RedisType_ZSet:
+	case shared.RedisType_ZSet:
 		v, err := x.client.ZScore(ctx, x.Key, elementKey).Result()
 		return sconv.ToString(v), serr.WithStack(err)
 	default:
@@ -99,19 +99,19 @@ func (x *RedisKey) getTTL(ctx context.Context) {
 func (x *RedisKey) getLength(ctx context.Context) {
 	var err error
 	switch x.Type {
-	case common.RedisType_String:
+	case shared.RedisType_String:
 		x.Length, err = x.client.StrLen(ctx, x.Key).Uint64()
 		break
-	case common.RedisType_Hash:
+	case shared.RedisType_Hash:
 		x.Length, err = x.client.HLen(ctx, x.Key).Uint64()
 		break
-	case common.RedisType_List:
+	case shared.RedisType_List:
 		x.Length, err = x.client.LLen(ctx, x.Key).Uint64()
 		break
-	case common.RedisType_Set:
+	case shared.RedisType_Set:
 		x.Length, err = x.client.SCard(ctx, x.Key).Uint64()
 		break
-	case common.RedisType_ZSet:
+	case shared.RedisType_ZSet:
 		x.Length, err = x.client.ZCard(ctx, x.Key).Uint64()
 		break
 	}

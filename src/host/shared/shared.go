@@ -1,4 +1,4 @@
-package common
+package shared
 
 import "errors"
 
@@ -17,7 +17,8 @@ const (
 )
 
 var (
-	KeyExistError   = errors.New("key already exists")
-	KeyEmptyError   = errors.New("key cannot be empty")
-	FieldEmptyError = errors.New("field cannot be empty")
+	KeyExistError            = errors.New("key already exists")
+	KeyEmptyError            = errors.New("key cannot be empty")
+	FieldEmptyError          = errors.New("field cannot be empty")
+	ConnectServerFailedError = errors.New("connect to server failed")
 )

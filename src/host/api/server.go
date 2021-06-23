@@ -2,10 +2,10 @@ package api
 
 import (
 	"encoding/json"
-	"net"
 
 	"github.com/Lukiya/redismanager/src/go/core"
 	"github.com/Lukiya/redismanager/src/go/rmr"
+	"github.com/Lukiya/redismanager/src/go/shared"
 	"github.com/syncfuture/go/serr"
 	log "github.com/syncfuture/go/slog"
 	"github.com/syncfuture/go/u"
@@ -54,17 +54,16 @@ func GetServer(ctx host.IHttpContext) {
 	var err error
 	if serverID == "selected" {
 		server, err = core.Manager.GetSelectedServer()
-		err = serr.Cause(err)
-		if _, ok := err.(*net.OpError); ok {
-			ctx.WriteJsonBytes(u.StrToBytes(`{"err":"connect to server failed"}`))
+		if serr.Is(err, shared.ConnectServerFailedError) {
+			ctx.WriteJsonBytes(u.StrToBytes(`{"err":"` + err.Error() + `"}`))
 			return
 		} else if host.HandleErr(err, ctx) {
 			return
 		}
 	} else {
 		server, err = core.Manager.GetServer(serverID)
-		if _, ok := err.(*net.OpError); ok {
-			ctx.WriteJsonBytes(u.StrToBytes(`{"err":"connect to server failed"}`))
+		if serr.Is(err, shared.ConnectServerFailedError) {
+			ctx.WriteJsonBytes(u.StrToBytes(`{"err":"` + err.Error() + `"}`))
 			return
 		} else if host.HandleErr(err, ctx) {
 			return

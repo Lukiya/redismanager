@@ -3,7 +3,7 @@ package rmr
 import (
 	"context"
 
-	"github.com/Lukiya/redismanager/src/go/common"
+	"github.com/Lukiya/redismanager/src/go/shared"
 	"github.com/go-redis/redis/v8"
 	"github.com/syncfuture/go/sconv"
 	"github.com/syncfuture/go/serr"
@@ -36,28 +36,28 @@ func NewRedisEntry(key, elementKey string, client redis.UniversalClient) (*Redis
 func (x *RedisEntry) getValue(ctx context.Context, elementKey string) {
 	var err error
 	switch x.Type {
-	case common.RedisType_String:
+	case shared.RedisType_String:
 		x.Value, err = x.client.Get(ctx, x.Key).Result()
 		break
-	case common.RedisType_Hash:
+	case shared.RedisType_Hash:
 		if elementKey != "" {
 			x.Field = elementKey
 			x.Value, err = x.client.HGet(ctx, x.Key, elementKey).Result()
 		}
 
 		break
-	case common.RedisType_List:
+	case shared.RedisType_List:
 		if elementKey != "" {
 			x.Index = sconv.ToInt64(elementKey)
 			x.Value, err = x.client.LIndex(ctx, x.Key, x.Index).Result()
 		}
 		break
-	case common.RedisType_Set:
+	case shared.RedisType_Set:
 		if elementKey != "" {
 			x.Value = elementKey
 		}
 		break
-	case common.RedisType_ZSet:
+	case shared.RedisType_ZSet:
 		if elementKey != "" {
 			x.Score, err = x.client.ZScore(ctx, x.Key, elementKey).Result()
 			x.Value = elementKey

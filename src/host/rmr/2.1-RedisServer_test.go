@@ -3,7 +3,7 @@ package rmr
 import (
 	"testing"
 
-	"github.com/Lukiya/redismanager/src/go/common"
+	"github.com/Lukiya/redismanager/src/go/shared"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -48,7 +48,7 @@ func TestClusterRedisServer(t *testing.T) {
 
 	members, err := db.ScanElements(&ScanQuerySet{
 		Key:  "HASH_00001",
-		Type: common.RedisType_Hash,
+		Type: shared.RedisType_Hash,
 		Query: &ScanQuery{
 			Count: 100,
 		},
@@ -79,7 +79,7 @@ func TestSaveString(t *testing.T) {
 		New: &RedisEntry{
 			RedisKey: &RedisKey{
 				Key:  "AAA" + key + "1",
-				Type: common.RedisType_String,
+				Type: shared.RedisType_String,
 				TTL:  3600,
 			},
 			Value: key,
@@ -87,7 +87,7 @@ func TestSaveString(t *testing.T) {
 		Old: &RedisEntry{
 			RedisKey: &RedisKey{
 				Key:  key + "1",
-				Type: common.RedisType_String,
+				Type: shared.RedisType_String,
 				TTL:  3600,
 			},
 			Value: key,

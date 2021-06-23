@@ -3,7 +3,7 @@ package rmr
 import (
 	"context"
 
-	"github.com/Lukiya/redismanager/src/go/common"
+	"github.com/Lukiya/redismanager/src/go/shared"
 	"github.com/go-redis/redis/v8"
 	"github.com/syncfuture/go/serr"
 )
@@ -19,9 +19,9 @@ func saveHash(ctx context.Context, client redis.UniversalClient, clusterClient *
 
 	// check data error
 	if cmd.New.Key == "" {
-		return serr.WithStack(common.KeyEmptyError)
+		return serr.WithStack(shared.KeyEmptyError)
 	} else if cmd.New.Field == "" {
-		return serr.WithStack(common.FieldEmptyError)
+		return serr.WithStack(shared.FieldEmptyError)
 	}
 
 	if cmd.IsNew {

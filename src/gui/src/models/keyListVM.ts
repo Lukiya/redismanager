@@ -22,8 +22,9 @@ export default {
                 ...query,
             };
             const resp = yield Scan(query);
-
-            if (resp?.Keys && resp?.Cursors) {
+            if (u.IsPresent(resp.err)) {
+                message.error(resp.err);
+            } else if (resp?.Keys && resp?.Cursors) {
                 query.cursors = resp.Cursors;
                 const curs = Object.keys(resp.Cursors);
                 yield put({
@@ -49,7 +50,9 @@ export default {
             const { query } = state;
             const resp = yield Scan(query);
 
-            if (resp?.Keys && resp?.Cursors) {
+            if (u.IsPresent(resp.err)) {
+                message.error(resp.err);
+            } else if (resp?.Keys && resp?.Cursors) {
                 query.cursors = resp.Cursors;
                 yield put({
                     type: 'appendKeys', payload: {
@@ -72,7 +75,9 @@ export default {
             query.all = true;
             const resp = yield Scan(query);
 
-            if (resp?.Keys && resp?.Cursors) {
+            if (u.IsPresent(resp.err)) {
+                message.error(resp.err);
+            } else if (resp?.Keys && resp?.Cursors) {
                 query.cursors = resp.Cursors;
                 yield put({
                     type: 'setState', payload: {

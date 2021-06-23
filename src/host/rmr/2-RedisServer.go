@@ -2,8 +2,10 @@ package rmr
 
 import (
 	"context"
+	"net"
 	"sync"
 
+	"github.com/Lukiya/redismanager/src/go/shared"
 	"github.com/go-redis/redis/v8"
 	"github.com/syncfuture/go/sconv"
 	"github.com/syncfuture/go/serr"
@@ -45,7 +47,9 @@ func (x *RedisServer) Connect() error {
 		})
 
 		if err != nil {
-			if err.Error() == _clusterDisabedError {
+			if _, ok := err.(*net.OpError); ok {
+				return serr.WithStack(shared.ConnectServerFailedError)
+			} else if err.Error() == _clusterDisabedError {
 				////////// Standalone
 				x.DBs, err = x.getDBs()
 				if err != nil {

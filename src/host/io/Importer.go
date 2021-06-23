@@ -8,7 +8,7 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/Lukiya/redismanager/src/go/common"
+	"github.com/Lukiya/redismanager/src/go/shared"
 	"github.com/go-redis/redis/v8"
 	"github.com/syncfuture/go/serr"
 	task "github.com/syncfuture/go/stask"
@@ -60,7 +60,7 @@ func (x *Importer) ImportKeys(in []byte) (imported int, err error) {
 		err = serr.New("input bytes are missing")
 		return
 	}
-	if in[0] == common.ZipIndicator1 && in[1] == common.ZipIndicatorSeperator {
+	if in[0] == shared.ZipIndicator1 && in[1] == shared.ZipIndicatorSeperator {
 		// data is compressed, need to decompress
 		in, err = unzipBytes(in[2:]) // remove first 2 byte (zip indicator)
 		if err != nil {
@@ -101,7 +101,7 @@ func (x *Importer) ImportKeys(in []byte) (imported int, err error) {
 
 		// Import new key by type
 		switch entry.Type {
-		case common.RedisType_String:
+		case shared.RedisType_String:
 			var v string
 			err = json.Unmarshal(entry.Data, &v)
 			if err != nil {
@@ -114,7 +114,7 @@ func (x *Importer) ImportKeys(in []byte) (imported int, err error) {
 				return
 			}
 			break
-		case common.RedisType_Hash:
+		case shared.RedisType_Hash:
 			var v map[string]interface{}
 			err = json.Unmarshal(entry.Data, &v)
 			if err != nil {
@@ -127,7 +127,7 @@ func (x *Importer) ImportKeys(in []byte) (imported int, err error) {
 				return
 			}
 			break
-		case common.RedisType_List:
+		case shared.RedisType_List:
 			var v []interface{}
 			err = json.Unmarshal(entry.Data, &v)
 			if err != nil {
@@ -140,7 +140,7 @@ func (x *Importer) ImportKeys(in []byte) (imported int, err error) {
 				return
 			}
 			break
-		case common.RedisType_Set:
+		case shared.RedisType_Set:
 			var v []interface{}
 			err = json.Unmarshal(entry.Data, &v)
 			if err != nil {
@@ -153,7 +153,7 @@ func (x *Importer) ImportKeys(in []byte) (imported int, err error) {
 				return
 			}
 			break
-		case common.RedisType_ZSet:
+		case shared.RedisType_ZSet:
 			var v []*redis.Z
 			err = json.Unmarshal(entry.Data, &v)
 			if err != nil {

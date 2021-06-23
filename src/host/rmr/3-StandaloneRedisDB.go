@@ -5,8 +5,8 @@ import (
 	"runtime"
 	"sync"
 
-	"github.com/Lukiya/redismanager/src/go/common"
 	"github.com/Lukiya/redismanager/src/go/io"
+	"github.com/Lukiya/redismanager/src/go/shared"
 	"github.com/go-redis/redis/v8"
 	"github.com/syncfuture/go/serr"
 	"github.com/syncfuture/go/stask"
@@ -109,16 +109,16 @@ func (x *StandaloneRedisDB) ScanElements(querySet *ScanQuerySet) (*ScanElementRe
 
 	ctx := context.Background()
 	switch querySet.Type {
-	case common.RedisType_Hash:
+	case shared.RedisType_Hash:
 		r, err := scanHashElements(ctx, x.client, querySet)
 		return r, err
-	case common.RedisType_List:
+	case shared.RedisType_List:
 		r, err := scanListElements(ctx, x.client, querySet)
 		return r, err
-	case common.RedisType_Set:
+	case shared.RedisType_Set:
 		r, err := scanSetElements(ctx, x.client, querySet)
 		return r, err
-	case common.RedisType_ZSet:
+	case shared.RedisType_ZSet:
 		r, err := scanZSetElements(ctx, x.client, querySet)
 		return r, err
 	default:
@@ -133,16 +133,16 @@ func (x *StandaloneRedisDB) GetAllElements(querySet *ScanQuerySet) (*ScanElement
 
 	ctx := context.Background()
 	switch querySet.Type {
-	case common.RedisType_Hash:
+	case shared.RedisType_Hash:
 		r, err := getAllHashElements(ctx, x.client, querySet)
 		return r, err
-	case common.RedisType_List:
+	case shared.RedisType_List:
 		r, err := getAllListElements(ctx, x.client, querySet)
 		return r, err
-	case common.RedisType_Set:
+	case shared.RedisType_Set:
 		r, err := getAllSetElements(ctx, x.client, querySet)
 		return r, err
-	case common.RedisType_ZSet:
+	case shared.RedisType_ZSet:
 		r, err := getAllZSetElements(ctx, x.client, querySet)
 		return r, err
 	default:
@@ -171,7 +171,7 @@ func (x *StandaloneRedisDB) SaveEntry(cmd *SaveRedisEntryCommand) error {
 		}
 
 		if exists {
-			return common.KeyExistError
+			return shared.KeyExistError
 		}
 	}
 
@@ -182,19 +182,19 @@ func (x *StandaloneRedisDB) SaveEntry(cmd *SaveRedisEntryCommand) error {
 
 	var err error
 	switch cmd.New.Type {
-	case common.RedisType_String:
+	case shared.RedisType_String:
 		err = saveString(ctx, x.client, nil, cmd)
 		break
-	case common.RedisType_Hash:
+	case shared.RedisType_Hash:
 		err = saveHash(ctx, x.client, nil, cmd)
 		break
-	case common.RedisType_List:
+	case shared.RedisType_List:
 		err = saveList(ctx, x.client, nil, cmd)
 		break
-	case common.RedisType_Set:
+	case shared.RedisType_Set:
 		err = saveSet(ctx, x.client, nil, cmd)
 		break
-	case common.RedisType_ZSet:
+	case shared.RedisType_ZSet:
 		err = saveZSet(ctx, x.client, nil, cmd)
 		break
 	default:
@@ -234,16 +234,16 @@ func (x *StandaloneRedisDB) deleteEntry(ctx context.Context, cmd *DeleteRedisEnt
 		}
 
 		switch redisKey.Type {
-		case common.RedisType_Hash:
+		case shared.RedisType_Hash:
 			err = delHash(ctx, x.client, nil, cmd.Key, cmd.ElementKey)
 			break
-		case common.RedisType_List:
+		case shared.RedisType_List:
 			err = delList(ctx, x.client, nil, cmd.Key, cmd.ElementKey)
 			break
-		case common.RedisType_Set:
+		case shared.RedisType_Set:
 			err = delSet(ctx, x.client, nil, cmd.Key, cmd.ElementKey)
 			break
-		case common.RedisType_ZSet:
+		case shared.RedisType_ZSet:
 			err = delZSet(ctx, x.client, nil, cmd.Key, cmd.ElementKey)
 			break
 		default:
@@ -268,16 +268,16 @@ func (x *StandaloneRedisDB) DeleteElement(key, element string) error {
 	}
 
 	switch redisKey.Type {
-	case common.RedisType_Hash:
+	case shared.RedisType_Hash:
 		err = delHash(ctx, x.client, nil, key, element)
 		break
-	case common.RedisType_List:
+	case shared.RedisType_List:
 		err = delList(ctx, x.client, nil, key, element)
 		break
-	case common.RedisType_Set:
+	case shared.RedisType_Set:
 		err = delSet(ctx, x.client, nil, key, element)
 		break
-	case common.RedisType_ZSet:
+	case shared.RedisType_ZSet:
 		err = delZSet(ctx, x.client, nil, key, element)
 		break
 	default:

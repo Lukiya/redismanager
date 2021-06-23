@@ -7,7 +7,7 @@ import (
 	"runtime"
 	"sync"
 
-	"github.com/Lukiya/redismanager/src/go/common"
+	"github.com/Lukiya/redismanager/src/go/shared"
 	"github.com/go-redis/redis/v8"
 	"github.com/syncfuture/go/serr"
 	"github.com/syncfuture/go/stask"
@@ -66,9 +66,9 @@ func (x *Exporter) ExportKeys(keys ...string) (r []byte, err error) {
 
 	var prefix []byte
 	if x.Zip {
-		prefix = []byte{common.ZipIndicator1, common.ZipIndicatorSeperator}
+		prefix = []byte{shared.ZipIndicator1, shared.ZipIndicatorSeperator}
 	} else {
-		prefix = []byte{common.ZipIndicator0, common.ZipIndicatorSeperator}
+		prefix = []byte{shared.ZipIndicator0, shared.ZipIndicatorSeperator}
 	}
 	r = append(prefix, r...)
 
@@ -94,35 +94,35 @@ func (x *Exporter) ExportKey(key string) (r *ExportFileEntry, err error) {
 
 	// Export whole key
 	switch redisType {
-	case common.RedisType_String:
+	case shared.RedisType_String:
 		v, err := client.Get(x.ctx, key).Result()
 		if err != nil {
 			return nil, serr.WithStack(err)
 		}
 		r, err = NewExportFileEntry(key, redisType, v)
 		break
-	case common.RedisType_Hash:
+	case shared.RedisType_Hash:
 		v, err := client.HGetAll(x.ctx, key).Result()
 		if err != nil {
 			return nil, serr.WithStack(err)
 		}
 		r, err = NewExportFileEntry(key, redisType, v)
 		break
-	case common.RedisType_List:
+	case shared.RedisType_List:
 		v, err := client.LRange(x.ctx, key, 0, -1).Result()
 		if err != nil {
 			return nil, serr.WithStack(err)
 		}
 		r, err = NewExportFileEntry(key, redisType, v)
 		break
-	case common.RedisType_Set:
+	case shared.RedisType_Set:
 		v, err := client.SMembers(x.ctx, key).Result()
 		if err != nil {
 			return nil, serr.WithStack(err)
 		}
 		r, err = NewExportFileEntry(key, redisType, v)
 		break
-	case common.RedisType_ZSet:
+	case shared.RedisType_ZSet:
 		v, err := client.ZRangeByScoreWithScores(x.ctx, key, &redis.ZRangeBy{
 			Min: "-inf",
 			Max: "+inf",
@@ -185,7 +185,7 @@ func (x *Exporter) ExportZipFile(keys ...string) (r []byte, err error) {
 
 // 	// Export
 // 	switch redisType {
-// 	case common.RedisType_Hash:
+// 	case shared.RedisType_Hash:
 // 		f := make([]string, memberCount)
 // 		for i := 0; i < memberCount; i++ {
 // 			f[i] = members[i].(string)
@@ -196,7 +196,7 @@ func (x *Exporter) ExportZipFile(keys ...string) (r []byte, err error) {
 // 		}
 // 		r, err = NewExportFileEntry(key, redisType, v)
 // 		break
-// 	case common.RedisType_List:
+// 	case shared.RedisType_List:
 // 		start, end := members[0].(int64), members[1].(int64)
 // 		v, err := x.client.LRange(key, start, end).Result()
 // 		if err != nil {
@@ -204,10 +204,10 @@ func (x *Exporter) ExportZipFile(keys ...string) (r []byte, err error) {
 // 		}
 // 		r, err = NewExportFileEntry(key, redisType, v)
 // 		break
-// 	case common.RedisType_Set:
+// 	case shared.RedisType_Set:
 // 		r, err = NewExportFileEntry(key, redisType, members)
 // 		break
-// 	case common.RedisType_ZSet:
+// 	case shared.RedisType_ZSet:
 // 		r, err = NewExportFileEntry(key, redisType, members)
 // 		break
 // 	}

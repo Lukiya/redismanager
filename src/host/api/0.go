@@ -6,6 +6,7 @@ import (
 
 	"github.com/Lukiya/redismanager/src/go/core"
 	"github.com/Lukiya/redismanager/src/go/rmr"
+	"github.com/Lukiya/redismanager/src/go/shared"
 	"github.com/syncfuture/go/serr"
 	"github.com/syncfuture/go/u"
 	"github.com/syncfuture/host"
@@ -19,7 +20,12 @@ func getDB(ctx host.IHttpContext) (rmr.IRedisDB, error) {
 	var err error
 
 	server, err := core.Manager.GetServer(serverID)
-	if server == nil {
+	if err != nil {
+		if serr.Is(err, shared.ConnectServerFailedError) {
+			ctx.WriteJsonBytes(u.StrToBytes(`{"err":"` + err.Error() + `"}`))
+		}
+		return nil, err
+	} else if server == nil {
 		return nil, serr.Errorf("cannot find Server '%s'", serverID)
 	}
 
