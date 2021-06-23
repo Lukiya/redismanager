@@ -41,7 +41,6 @@ func main() {
 	fmt.Printf("App version:\t%s\n", AppVersion)
 	fmt.Printf("Build version:\t%s\n", BuildVersion)
 	fmt.Printf("Build time:\t%s\n", BuildTime)
-	fmt.Printf("Git revision:\t%s\n", GitRevision)
 	fmt.Printf("Git branch:\t%s\n", GitBranch)
 	fmt.Printf("Golang: \t%s\n", GoVersion)
 	fmt.Println("------------------------------------------------")
