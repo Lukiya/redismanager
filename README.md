@@ -22,9 +22,9 @@ It stored all redis servers infomation you want to manage.
 **Please beware, this file is unencrypted. Make sure it can only be accessed by yourself.**
 
 ## Quick start
-#### Using excutable files
+#### Use excutable files
 Visit https://github.com/Lukiya/redismanager/releases, download executable file
-#### using docker
+#### Use docker
 ``` bash
 docker run --name redismanager -d --restart always --net host lukiya/redismanager
 ```
