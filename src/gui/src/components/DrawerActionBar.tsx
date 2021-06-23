@@ -7,10 +7,10 @@ const buildFieldEditor = (props: any) => {
 
     if (fieldEditorEnabled) {
         return <Col lg={6} xl={6} xxl={6}>
-            <Form.Item label="Field" labelAlign="right" name="Field" required>
+            <Form.Item label="Field" labelAlign="right" name="Field" rules={[{ required: true, message: 'filed cannot be empty' }]}>
                 <Input width="xl" placeholder="Field" />
             </Form.Item>
-        </Col>;
+        </Col >;
     }
 
     return undefined;
@@ -21,7 +21,7 @@ const buildScoreEditor = (props: any) => {
 
     if (scoreEditorEnabled) {
         return <Col>
-            <Form.Item label="Score" labelAlign="right" name="Score">
+            <Form.Item label="Score" labelAlign="right" name="Score" rules={[{ required: true, message: 'score cannot be empty' }]}>
                 <InputNumber precision={6} placeholder="Score" />
             </Form.Item>
         </Col>;
@@ -114,7 +114,7 @@ const DrawerActionBar = (props: any) => {
             </Form.Item>
         </Col>
         <Col lg={6} xl={6} xxl={6}>
-            <Form.Item label="Key" name="Key">
+            <Form.Item label="Key" name="Key" rules={[{ required: true, message: 'key cannot be empty' }]}>
                 <Input width="xl" placeholder="Key" readOnly={!keyEditorEnabled} />
             </Form.Item>
         </Col>
@@ -122,7 +122,7 @@ const DrawerActionBar = (props: any) => {
         {scoreEditor}
         {indexEditor}
         <Col>
-            <Form.Item label="TTL" labelAlign="right" name="TTL">
+            <Form.Item label="TTL" labelAlign="right" name="TTL" rules={[{ required: true, message: 'ttl cannot be empty' }]}>
                 <InputNumber placeholder="TTL" min={-1} precision={0} readOnly={!keyEditorEnabled} />
             </Form.Item>
         </Col>
