@@ -17,28 +17,42 @@ func saveSet(ctx context.Context, client redis.UniversalClient, clusterClient *r
 	}
 
 	if cmd.IsNew {
+		// // check if data exists
+		// exists, err := client.GetSet(ctx, cmd.New.Key, cmd.New.Field).Result()
+		// if err != nil {
+		// 	return serr.WithStack(err)
+		// } else if exists != "" {
+		// 	return shared.HashFieldExistsError
+		// }
+
 		err = client.SAdd(ctx, cmd.New.Key, cmd.New.Value).Err()
 		if err != nil {
 			return serr.WithStack(err)
 		}
-	} else if cmd.New.Key != cmd.Old.Key {
-		// rename key
-		err = renameKey(ctx, client, clusterClient, cmd.Old.Key, cmd.New.Key)
-		if err != nil {
-			return err
+	} else {
+		if cmd.New.Key != cmd.Old.Key {
+			// rename key
+			err = renameKey(ctx, client, clusterClient, cmd.Old.Key, cmd.New.Key)
+			if err != nil {
+				return err
+			}
+		}
+
+		if cmd.New.Value != cmd.Old.Value {
+			// remove old value
+			err = client.SRem(ctx, cmd.New.Key, cmd.Old.Value).Err()
+			if err != nil {
+				return serr.WithStack(err)
+			}
+			// add new value
+			err = client.SAdd(ctx, cmd.New.Key, cmd.New.Value).Err()
+			if err != nil {
+				return serr.WithStack(err)
+			}
 		}
 	}
 
-	err = client.SRem(ctx, cmd.Old.Key, cmd.Old.Value).Err()
-	if err != nil {
-		return serr.WithStack(err)
-	}
-	err = client.SAdd(ctx, cmd.New.Key, cmd.New.Value).Err()
-	if err != nil {
-		return serr.WithStack(err)
-	}
-
-	return err
+	return nil
 }
 
 func scanSetElements(ctx context.Context, client redis.UniversalClient, query *ScanQuerySet) (*ScanElementResult, error) {

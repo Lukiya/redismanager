@@ -173,6 +173,14 @@ export default {
                     newElemKey = n.Field;
                     oldElemKey = o.Field;
                     break;
+                case u.SET:
+                    newElemKey = n.Value;
+                    oldElemKey = n.Value;
+                    break;
+                case u.ZSET:
+                    newElemKey = n.Value;
+                    oldElemKey = n.Value;
+                    break;
                 default:
                     newElemKey = n.Value;
                     oldElemKey = o.Value;

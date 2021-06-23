@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/Lukiya/redismanager/src/go/shared"
 	"github.com/go-redis/redis/v8"
 	"github.com/syncfuture/go/serr"
 )
@@ -17,7 +18,17 @@ func saveString(ctx context.Context, client redis.UniversalClient, clusterClient
 		}
 	}
 
-	if !cmd.IsNew {
+	if cmd.IsNew {
+		// Check if new key is existing
+		exists, err := keyExists(ctx, client, cmd.New.Key)
+		if err != nil {
+			return err
+		}
+
+		if exists {
+			return shared.KeyExistsError
+		}
+	} else {
 		err := renameKey(ctx, client, clusterClient, cmd.Old.Key, cmd.New.Key)
 		if err != nil {
 			return err

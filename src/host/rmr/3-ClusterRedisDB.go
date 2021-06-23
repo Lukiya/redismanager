@@ -206,22 +206,14 @@ func (x *ClusterRedisDB) GetAllElements(querySet *ScanQuerySet) (*ScanElementRes
 }
 
 func (x *ClusterRedisDB) KeyExists(key string) (bool, error) {
-	ctx := context.Background()
-
-	client, err := x.clusterClient.MasterForKey(ctx, key)
-	if err != nil {
-		return false, serr.WithStack(err)
-	}
-
-	count, err := client.Exists(ctx, key).Result()
-	if err != nil {
-		return false, serr.WithStack(err)
-	}
-
-	return count > 0, nil
+	return keyExists(context.Background(), x.clusterClient, key)
 }
 
 func (x *ClusterRedisDB) SaveEntry(cmd *SaveRedisEntryCommand) error {
+	if cmd.New.Key == "" {
+		return serr.WithStack(shared.KeyEmptyError)
+	}
+
 	ctx := context.Background()
 
 	if cmd.IsNew {
@@ -232,7 +224,7 @@ func (x *ClusterRedisDB) SaveEntry(cmd *SaveRedisEntryCommand) error {
 		}
 
 		if exists {
-			return shared.KeyExistError
+			return shared.KeyExistsError
 		}
 	}
 

@@ -109,6 +109,15 @@ func renameKey(ctx context.Context, client redis.UniversalClient, clusterClient 
 	return nil
 }
 
+func keyExists(ctx context.Context, client redis.UniversalClient, key string) (bool, error) {
+	count, err := client.Exists(ctx, key).Result()
+	if err != nil {
+		return false, serr.WithStack(err)
+	}
+
+	return count > 0, nil
+}
+
 // func getRedisEntry(key, elementKey string, client redis.UniversalClient) (*RedisEntry, error) {
 // 	r := &RedisEntry{
 // 		Key: key,

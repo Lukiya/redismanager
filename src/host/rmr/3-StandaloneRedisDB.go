@@ -151,34 +151,15 @@ func (x *StandaloneRedisDB) GetAllElements(querySet *ScanQuerySet) (*ScanElement
 }
 
 func (x *StandaloneRedisDB) KeyExists(key string) (bool, error) {
-	ctx := context.Background()
-	count, err := x.client.Exists(ctx, key).Result()
-	if err != nil {
-		return false, serr.WithStack(err)
-	}
-
-	return count > 0, nil
+	return keyExists(context.Background(), x.client, key)
 }
 
 func (x *StandaloneRedisDB) SaveEntry(cmd *SaveRedisEntryCommand) error {
-	ctx := context.Background()
-
-	if cmd.IsNew {
-		// Check if new key is existing
-		exists, err := x.KeyExists(cmd.New.Key)
-		if err != nil {
-			return err
-		}
-
-		if exists {
-			return shared.KeyExistError
-		}
+	if cmd.New.Key == "" {
+		return serr.WithStack(shared.KeyEmptyError)
 	}
 
-	// redisKey, err := x.GetKey(cmd.Old.Key)
-	// if err != nil {
-	// 	return err
-	// }
+	ctx := context.Background()
 
 	var err error
 	switch cmd.New.Type {

@@ -18,13 +18,19 @@ func saveHash(ctx context.Context, client redis.UniversalClient, clusterClient *
 	}
 
 	// check data error
-	if cmd.New.Key == "" {
-		return serr.WithStack(shared.KeyEmptyError)
-	} else if cmd.New.Field == "" {
+	if cmd.New.Field == "" {
 		return serr.WithStack(shared.FieldEmptyError)
 	}
 
 	if cmd.IsNew {
+		// check if data exists
+		exists, err := client.HExists(ctx, cmd.New.Key, cmd.New.Field).Result()
+		if err != nil {
+			return serr.WithStack(err)
+		} else if exists {
+			return shared.HashFieldExistsError
+		}
+
 		err = client.HSet(ctx, cmd.New.Key, cmd.New.Field, cmd.New.Value).Err()
 		if err != nil {
 			return serr.WithStack(err)

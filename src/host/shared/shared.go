@@ -17,7 +17,8 @@ const (
 )
 
 var (
-	KeyExistError            = errors.New("key already exists")
+	KeyExistsError           = errors.New("key already exists")
+	HashFieldExistsError     = errors.New("hash filed already exists")
 	KeyEmptyError            = errors.New("key cannot be empty")
 	FieldEmptyError          = errors.New("field cannot be empty")
 	ConnectServerFailedError = errors.New("connect to server failed")

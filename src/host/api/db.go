@@ -155,7 +155,7 @@ func SaveRedisEntry(ctx host.IHttpContext) {
 	ctx.ReadJSON(&cmd)
 
 	err = db.SaveEntry(cmd)
-	if errors.Is(err, shared.KeyExistError) || errors.Is(err, shared.KeyEmptyError) || errors.Is(err, shared.FieldEmptyError) {
+	if errors.Is(err, shared.KeyExistsError) || errors.Is(err, shared.KeyEmptyError) || errors.Is(err, shared.FieldEmptyError) {
 		ctx.WriteJsonBytes(u.StrToBytes(`{"err":"` + err.Error() + `"}`))
 		return
 	} else if host.HandleErr(err, ctx) {
