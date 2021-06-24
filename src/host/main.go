@@ -2,11 +2,10 @@ package main
 
 import (
 	"embed"
-	"fmt"
-	"log"
 
 	"github.com/Lukiya/redismanager/src/go/api"
 	"github.com/Lukiya/redismanager/src/go/core"
+	log "github.com/syncfuture/go/slog"
 	"github.com/syncfuture/go/u"
 	"github.com/syncfuture/host"
 )
@@ -36,14 +35,14 @@ func main() {
 
 	core.Host.ServeEmbedFiles("/{filepath:*}", "wwwroot", staticFiles)
 
-	fmt.Println("------------------------------------------------")
-	fmt.Printf("App name:\t%s\n", AppName)
-	fmt.Printf("App version:\t%s\n", AppVersion)
-	fmt.Printf("Build version:\t%s\n", BuildVersion)
-	fmt.Printf("Build time:\t%s\n", BuildTime)
-	fmt.Printf("Git branch:\t%s\n", GitBranch)
-	fmt.Printf("Golang: \t%s\n", GoVersion)
-	fmt.Println("------------------------------------------------")
+	log.Info("-------------------------------------------------")
+	log.Infof("App name:\t%s", AppName)
+	log.Infof("App version:\t%s", AppVersion)
+	log.Infof("Build version:\t%s", BuildVersion)
+	log.Infof("Build time:\t%s", BuildTime)
+	log.Infof("Git branch:\t%s", GitBranch)
+	log.Infof("Golang: \t%s", GoVersion)
+	log.Info("-------------------------------------------------")
 
 	log.Fatal(core.Host.Run())
 }
