@@ -3,7 +3,7 @@
 
 Redis Manager is an open source, cross-platform and completely free redis management GUI. Its server host side is writen by GO, and GUI side is writen by react + umi + ant design.
 ## Configuration
-There are 2 settings file, called "configs.json" and "servers.json"
+There are 2 settings file, called "configs.json" and "Servers.json"
 ##### configs.json
 It stored some basic configuration for RedisManager, here's an example and instructions for it:
 ``` javascript
@@ -15,16 +15,16 @@ It stored some basic configuration for RedisManager, here's an example and instr
 }
 ```
 
-##### servers.json
+##### Servers.json
 It stored all redis servers infomation you want to manage.
 
 
 **Please beware, this file is unencrypted. Make sure it can only be accessed by yourself.**
 
 ## Quick start
-#### Using excutable files
+#### Use excutable files
 Visit https://github.com/Lukiya/redismanager/releases, download executable file
-#### using docker
+#### Use docker
 ``` bash
 docker run --name redismanager -d --restart always --net host lukiya/redismanager
 ```
