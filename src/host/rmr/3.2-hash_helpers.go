@@ -17,12 +17,12 @@ func saveHash(ctx context.Context, client redis.UniversalClient, clusterClient *
 		}
 	}
 
-	// check data error
-	if cmd.New.Field == "" {
-		return serr.WithStack(shared.FieldEmptyError)
-	}
-
 	if cmd.IsNew {
+		// check data error
+		if cmd.New.Field == "" {
+			return serr.WithStack(shared.FieldEmptyError)
+		}
+
 		// check if data exists
 		exists, err := client.HExists(ctx, cmd.New.Key, cmd.New.Field).Result()
 		if err != nil {
@@ -42,7 +42,7 @@ func saveHash(ctx context.Context, client redis.UniversalClient, clusterClient *
 			return err
 		}
 
-		if cmd.New.Field != cmd.Old.Field {
+		if cmd.New.Field != "" && cmd.New.Field != cmd.Old.Field {
 			// # rename field
 			err = renameHashField(ctx, client, cmd.New.Key, cmd.Old.Field, cmd.New.Field, cmd.New.Value)
 			if err != nil {
@@ -51,10 +51,12 @@ func saveHash(ctx context.Context, client redis.UniversalClient, clusterClient *
 		}
 	}
 
-	// # update value
-	err = client.HSet(ctx, cmd.New.Key, cmd.New.Field, cmd.New.Value).Err()
-	if err != nil {
-		return serr.WithStack(err)
+	if cmd.New.Field != "" {
+		// # update value
+		err = client.HSet(ctx, cmd.New.Key, cmd.New.Field, cmd.New.Value).Err()
+		if err != nil {
+			return serr.WithStack(err)
+		}
 	}
 
 	return nil

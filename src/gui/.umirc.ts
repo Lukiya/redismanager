@@ -51,4 +51,5 @@ export default defineConfig({
     antd: true,
   },
   dynamicImport: {},
+  mfsu: {}
 });

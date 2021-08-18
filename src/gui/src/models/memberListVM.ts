@@ -108,6 +108,8 @@ export default {
                         o: data.old,
                     }
                 });
+            } else {
+                message.error(resp.err);
             }
         },
         *deleteElements(_: any, { put, select }: any): any {
