@@ -3,7 +3,7 @@
 
 Redis Manager is an open source, cross-platform and completely free redis management GUI. Its server host side is writen by GO, and GUI side is writen by react + umi + ant design.
 ## Configuration
-There are 2 settings file, called "configs.json" and "Servers.json"
+There are 2 setting files: "configs.json" and "Servers.json"
 ##### configs.json
 It stored some basic configuration for RedisManager, here's an example and instructions for it:
 ``` javascript
