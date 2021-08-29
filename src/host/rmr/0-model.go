@@ -15,6 +15,7 @@ var (
 )
 
 type IRedisDB interface {
+	GetDB() int
 	ScanKeys(query *ScanQuerySet) (*ScanKeyResult, error)
 	ScanMoreKeys(query *ScanQuerySet) (*ScanKeyResult, error)
 	GetAllKeys(query *ScanQuerySet) (*ScanKeyResult, error)

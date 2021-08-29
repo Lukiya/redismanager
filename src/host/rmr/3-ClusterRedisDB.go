@@ -27,6 +27,10 @@ type ClusterRedisDB struct {
 	masterClients map[string]*redis.Client
 }
 
+func (x *ClusterRedisDB) GetDB() int {
+	return x.DB
+}
+
 func (x *ClusterRedisDB) ScanKeys(querySet *ScanQuerySet) (*ScanKeyResult, error) {
 	ctx := context.Background()
 
@@ -315,6 +319,19 @@ func (x *ClusterRedisDB) GetRedisEntry(key, elementKey string) (*RedisEntry, err
 func (x *ClusterRedisDB) ExportKeys(keys ...string) ([]byte, error) {
 	ctx := context.Background()
 	exporter := io.NewExporter(ctx, true, x.clusterClient, x.clusterClient)
+
+	if len(keys) == 0 {
+		// export all keys if no keys are specified
+		keyQueryResult, err := x.GetAllKeys(&ScanQuerySet{Query: &ScanQuery{Count: 100}})
+		if err != nil {
+			return nil, err
+		}
+
+		for _, a := range keyQueryResult.Keys {
+			keys = append(keys, a.Key)
+		}
+	}
+
 	return exporter.ExportKeys(keys...)
 }
 

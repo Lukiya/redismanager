@@ -1,7 +1,7 @@
 import { PageContainer } from '@ant-design/pro-layout';
-import { Table, Button, Input, Menu, Card, Space, Row, Col, Dropdown, Divider, Popconfirm, Modal } from 'antd';
+import { Table, Button, Input, Menu, Card, Space, Row, Col, Dropdown, Divider, Popconfirm, message, Upload, Alert, Modal } from 'antd';
 import { connect } from 'umi'
-import { PlusOutlined, DeleteOutlined } from '@ant-design/icons'
+import { PlusOutlined, DeleteOutlined, SaveOutlined } from '@ant-design/icons'
 import MemberEditor from '@/components/memberEditor'
 import u from '@/u';
 import MemberList from '@/components/MemberList';
@@ -9,6 +9,7 @@ import Hotkeys from 'react-hot-keys';
 import { useEffect } from 'react';
 
 const { Search } = Input;
+const { Dragger } = Upload;
 
 const newClicked = (type: string, params: any, dispatch: any) => {
 
@@ -113,6 +114,60 @@ const buildDelHotKey = (props: any) => {
     }} /> : undefined;
 };
 
+const exportFile = (props: any) => {
+    const { match: { params }, dispatch } = props;
+
+    dispatch({
+        type: "keyListVM/export", query: {
+            serverID: params.serverID,
+            db: params.db,
+        }
+    });
+};
+
+const showImporter = (props: any) => {
+    const { match: { params }, dispatch } = props;
+
+    const draggerProps = {
+        name: 'file',
+        // action: u.LocalRootURL() + "api/servers/" + params.serverID + "/" + params.db + "/file/import",
+        accept: '.rmd',
+        customRequest: (options: any) => {
+            const data = new FormData()
+            data.append('file', options.file)
+
+            dispatch({
+                type: 'keyListVM/import',
+                payload: {
+                    serverID: params.serverID,
+                    db: params.db,
+                    data,
+                    options,
+                },
+            });
+        },
+        onChange(info: any) {
+            const { status } = info.file;
+            if (status === 'done') {
+                message.success(`${info.file.name} import successfully.`);
+                modal.destroy();
+            } else if (status === 'error') {
+                message.error(`${info.file.name} upload failed.`);
+            }
+        },
+    };
+    const uploader = <Dragger {...draggerProps}>
+        <p className="ant-upload-text">Click or drag rmd file to this area to upload</p>
+        <Alert message="Import rmd file will override existing key(s)" type="warning" showIcon style={{ margin: "5px 10px", fontSize: "12px" }} />
+    </Dragger>
+
+    const modal = Modal.info({
+        okText: "Close",
+        width: 500,
+        content: uploader,
+    });
+};
+
 const KeyListPage = (props: any) => {
     const { menuState: { server }, keyListState: { keys, hasMore, pageSize, suggestedPageSize, selectedRowKeys }, keyListLoading, match: { params }, dispatch } = props;
 
@@ -137,14 +192,23 @@ const KeyListPage = (props: any) => {
             { path: '', breadcrumbName: "db" + params.db, },
         ];
 
-        ////////// action bar
-        const menu = (
+        ////////// New menu
+        const newMenu = (
             <Menu>
-                <Menu.Item key="string" onClick={() => newClicked(u.STRING, params, dispatch)}>string</Menu.Item>
-                <Menu.Item key="hash" onClick={() => newClicked(u.HASH, params, dispatch)}>hash</Menu.Item>
-                <Menu.Item key="list" onClick={() => newClicked(u.LIST, params, dispatch)}>list</Menu.Item>
-                <Menu.Item key="set" onClick={() => newClicked(u.SET, params, dispatch)}>set</Menu.Item>
-                <Menu.Item key="zset" onClick={() => newClicked(u.ZSET, params, dispatch)}>zset</Menu.Item>
+                <Menu.Item onClick={() => newClicked(u.STRING, params, dispatch)}>string</Menu.Item>
+                <Menu.Item onClick={() => newClicked(u.HASH, params, dispatch)}>hash</Menu.Item>
+                <Menu.Item onClick={() => newClicked(u.LIST, params, dispatch)}>list</Menu.Item>
+                <Menu.Item onClick={() => newClicked(u.SET, params, dispatch)}>set</Menu.Item>
+                <Menu.Item onClick={() => newClicked(u.ZSET, params, dispatch)}>zset</Menu.Item>
+            </Menu>
+        );
+
+        ////////// Export Menu
+        const exportMenu = (
+            <Menu>
+                <Menu.Item onClick={() => exportFile(props)} disabled={!hasSelection}>Export Selected</Menu.Item>
+                <Menu.Item onClick={() => exportFile(props)}>Export All</Menu.Item>
+                <Menu.Item onClick={() => showImporter(props)}>Import</Menu.Item>
             </Menu>
         );
 
@@ -163,8 +227,13 @@ const KeyListPage = (props: any) => {
                     }} />
                 </Col>
                 <Col>
-                    <Dropdown overlay={menu}>
+                    <Dropdown overlay={newMenu}>
                         <Button icon={<PlusOutlined />}>New</Button>
+                    </Dropdown>
+                </Col>
+                <Col>
+                    <Dropdown overlay={exportMenu}>
+                        <Button icon={<SaveOutlined />}>I/O</Button>
                     </Dropdown>
                 </Col>
                 <Col>

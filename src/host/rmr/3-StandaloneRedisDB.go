@@ -27,6 +27,10 @@ type StandaloneRedisDB struct {
 	client *redis.Client
 }
 
+func (x *StandaloneRedisDB) GetDB() int {
+	return x.DB
+}
+
 func (x *StandaloneRedisDB) ScanKeys(querySet *ScanQuerySet) (*ScanKeyResult, error) {
 	ctx := context.Background()
 
@@ -276,6 +280,19 @@ func (x *StandaloneRedisDB) GetRedisEntry(key, elementKey string) (*RedisEntry, 
 func (x *StandaloneRedisDB) ExportKeys(keys ...string) ([]byte, error) {
 	ctx := context.Background()
 	exporter := io.NewExporter(ctx, true, x.client, nil)
+
+	if len(keys) == 0 {
+		// export all keys if no keys are specified
+		keyQueryResult, err := x.GetAllKeys(&ScanQuerySet{Query: &ScanQuery{Count: 100}})
+		if err != nil {
+			return nil, err
+		}
+
+		for _, a := range keyQueryResult.Keys {
+			keys = append(keys, a.Key)
+		}
+	}
+
 	return exporter.ExportKeys(keys...)
 }
 

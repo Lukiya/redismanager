@@ -3,7 +3,11 @@ package api
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
+	"io"
 	"net/url"
+	"strings"
+	"time"
 
 	"github.com/Lukiya/redismanager/src/go/rmr"
 	"github.com/Lukiya/redismanager/src/go/shared"
@@ -22,6 +26,8 @@ var DBGroup = host.NewActionGroup(
 		host.NewAction("DELETE/api/servers/{serverID}/{db}", "key__", DeleteRedisEntries),
 		host.NewAction("POST/api/servers/{serverID}/{db}/keys/export", "key__", exportKeys),
 		host.NewAction("POST/api/servers/{serverID}/{db}/keys/import", "key__", importKeys),
+		host.NewAction("POST/api/servers/{serverID}/{db}/file/export", "key__", exportFile),
+		host.NewAction("POST/api/servers/{serverID}/{db}/file/import", "key__", importFile),
 	},
 	nil,
 )
@@ -237,4 +243,52 @@ func importKeys(ctx host.IHttpContext) {
 	}
 
 	ctx.WriteJsonBytes(jsonData)
+}
+
+func exportFile(ctx host.IHttpContext) {
+	db, err := getDB(ctx)
+	if host.HandleErr(err, ctx) {
+		return
+	}
+
+	keysStr := ctx.GetFormString("keys")
+	var keys []string
+	if keysStr != "" {
+		keys = strings.Split(keysStr, ",")
+	} else {
+		keys = make([]string, 0)
+	}
+
+	bytes, err := db.ExportKeys(keys...)
+	if !host.HandleErr(err, ctx) {
+		ctx.SetContentType("application/octet-stream")
+		ctx.SetHeader("Content-Disposition", fmt.Sprintf("attachment;filename=db%d-%s.rmd", db.GetDB(), time.Now().Format("20060102-150405")))
+		ctx.Write(bytes)
+	}
+}
+
+func importFile(ctx host.IHttpContext) {
+	db, err := getDB(ctx)
+	if host.HandleErr(err, ctx) {
+		return
+	}
+
+	fileInfo, err := ctx.GetFormFile("file")
+	if host.HandleErr(err, ctx) {
+		return
+	}
+
+	file, err := fileInfo.Open()
+	if host.HandleErr(err, ctx) {
+		return
+	}
+	defer file.Close()
+
+	bytes, err := io.ReadAll(file)
+	if host.HandleErr(err, ctx) {
+		return
+	}
+
+	_, err = db.ImportKeys(bytes)
+	host.HandleErr(err, ctx)
 }

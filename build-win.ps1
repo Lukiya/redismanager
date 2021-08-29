@@ -23,7 +23,7 @@ $FLAGS = "-s -w -X 'main.AppName=${APP_NAME}'`
 # Write-Host "#: building executable file..."
 $env:GOOS = "windows"; $env:GOARCH = "amd64"; go build -ldflags $FLAGS -o $binPath ./
 # Write-Host "#: compressing executable file..."
-upx $binPath
+# upx $binPath
 # Write-Host "#: copying configs file..."
 Copy-Item ./configstemplate.json $targetDir"configs.json"
 Write-Host "#: done"

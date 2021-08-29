@@ -1,4 +1,4 @@
-import { DeleteEntries, ExportKeys, GetKey, Scan, ImportKeys } from "@/services/dbAPI";
+import { DeleteEntries, ExportKeys, GetKey, Scan, ImportKeys, ImportFile } from "@/services/dbAPI";
 import u from "@/u";
 import { message } from 'antd';
 
@@ -180,6 +180,20 @@ export default {
             }
             yield put({ type: 'load', query: state.query });   // Refresh
         },
+        *import({ payload }: any, { put, select }: any): any {
+            const { serverID, db, data, options } = payload;
+            const resp = yield ImportFile({ serverID: serverID, db: db }, data);
+            if (u.IsPresent(resp.err)) {
+                message.error(resp.err);
+            } else if (resp === "") {
+                options.onSuccess();
+                // refresh
+                const state = yield select((x: any) => x["keyListVM"]);
+                yield put({ type: 'load', query: state.query });   // Refresh
+            } else {
+                options.onError();
+            }
+        },
     },
     reducers: {
         setState(state: any, { payload }: any) { return { ...state, ...payload }; },
@@ -200,31 +214,28 @@ export default {
                 pageSize,
             };
         },
-        // updateKey(state: any, { payload }: any) {
-        //     const n = payload.new;
-        //     const o = payload.old;
+        export(state: any) {
+            // if (u.IsMissing(state.selectedRowKeys)) {
+            //     return state;
+            // }
 
-        //     let found = false;
-        //     for (const i in state.keys) {
-        //         const x = state.keys[i];
-        //         if (x.Key == o.Key) {
-        //             found = true;
-        //             state.keys.splice(i, 1, n);     // replace old entry with new entry
-        //             return {
-        //                 ...state,
-        //                 keys: state.keys.concat(),  // use contact to clone a new array to foce table refresh
-        //             };
-        //         }
-        //     }
+            const keys = state.selectedRowKeys.join(",");
 
-        //     if (!found) {
-        //         state.keys.push(n);                 // not exists in data source, add
-        //         return {
-        //             ...state,
-        //             keys: state.keys.concat(),      // use contact to clone a new array to foce table refresh
-        //         };
-        //     }
-        // }
+            const f = document.createElement("form");
+            f.setAttribute("action", u.LocalRootURL() + "api/servers/" + state.query.serverID + "/" + state.query.db + "/file/export");
+            f.setAttribute("method", "post");
+            f.setAttribute("target", "download");
+            const i = document.createElement("input");
+            i.setAttribute("type", "hidden");
+            i.setAttribute("name", "keys");
+            i.setAttribute("value", keys);
+            f.append(i);
+            document.body.append(f);
+            f.submit();
+            f.remove();
+
+            return state;
+        },
     },
     subscriptions: {
         setup({ dispatch, history }: any) {

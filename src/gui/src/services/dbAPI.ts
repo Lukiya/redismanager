@@ -98,3 +98,23 @@ export async function ImportKeys(query: any, data: any) {
 
     return r;
 }
+
+// export async function ExportFile(query: any, keys: string[]) {
+//     const url = '/servers/' + query.serverID + '/' + query.db + '/file/export';
+
+//     const r = await request.post(url, {
+//         data: keys,
+//     }).catch((e: any) => e.data);
+
+//     return r;
+// }
+
+export async function ImportFile(query: any, data: any) {
+    const url = '/servers/' + query.serverID + '/' + query.db + '/file/import';
+
+    const r = await request.post(url, {
+        data: data,
+    }).catch((e: any) => e.data);
+
+    return r;
+}
