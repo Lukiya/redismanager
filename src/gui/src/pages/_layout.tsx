@@ -1,11 +1,13 @@
-import { DatabaseOutlined, CloudServerOutlined, QuestionCircleOutlined, GithubOutlined } from '@ant-design/icons';
+import { DatabaseOutlined, CloudServerOutlined, QuestionCircleOutlined, GithubOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import logo from "@/assets/logo.svg"
 import { connect, Link, useModel } from 'umi';
-import { Layout, Menu, Spin, Button, Popover, Space } from 'antd';
+import { Layout, Menu, Spin, Button, Popover, Space, Typography } from 'antd';
 import { useEffect } from 'react';
+import 'semver';
+import { semver } from '@umijs/utils';
 
-const { Header, Content, Footer, Sider } = Layout;
-const { SubMenu } = Menu;
+const { Header, Sider } = Layout;
+const { Text } = Typography;
 
 function buildMenu(dispatch: any, menuState: any) {
     const dbs = menuState.server.DBs;
@@ -34,6 +36,13 @@ const LayoutPage = (props: any) => {
     const { menuState, dispatch, loading } = props;
     useEffect(() => dispatch({ type: "menuVM/init" }), []);
     const { initialState } = useModel('@@initialState');
+    const info = initialState?.info;
+
+    // new version check
+    const hasNewVersion = semver.gt(info?.liveVersion,info?.version);
+    const btnUpgrade = hasNewVersion ? <Popover content={<Text type="success">New version available</Text>}>
+        <Button size="small" type="dashed" className="tips" href="https://github.com/Lukiya/redismanager/releases" target="_blank"><InfoCircleOutlined /> {info?.liveVersion}</Button>
+    </Popover> : undefined;
 
     let menu: any;
     if (loading) {
@@ -58,7 +67,7 @@ const LayoutPage = (props: any) => {
     return (
         <Layout style={{ minHeight: '100vh' }}>
             <Sider breakpoint="lg" collapsedWidth="0">
-                <div style={{ paddingTop: "17px", paddingBottom: "17px", textAlign: "center" }}><Link to="/" style={{ color: "#fff", }}><img src={logo} alt="logo" style={{ width: "30px" }} /> Redis Manager {initialState?.info.version}</Link></div>
+                <div style={{ paddingTop: "17px", paddingBottom: "17px", textAlign: "center" }}><Link to="/" style={{ color: "#fff", }}><img src={logo} alt="logo" style={{ width: "30px" }} /> Redis Manager {info?.version}</Link></div>
                 {menu}
             </Sider>
             <Layout className="site-layout">
@@ -68,6 +77,7 @@ const LayoutPage = (props: any) => {
                             <Button size="small" type="dashed" className="tips"><QuestionCircleOutlined /> Help</Button>
                         </Popover>
                         <Button size="small" type="dashed" className="tips" href="https://github.com/Lukiya/redismanager" target="_blank"><GithubOutlined /> Github</Button>
+                        {btnUpgrade}
                     </Space>
                 </Header>
                 {props.children}

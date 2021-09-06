@@ -2,9 +2,12 @@ package main
 
 import (
 	"embed"
+	"fmt"
+	"strings"
 
 	"github.com/Lukiya/redismanager/src/go/api"
 	"github.com/Lukiya/redismanager/src/go/core"
+	"github.com/PuerkitoBio/goquery"
 	log "github.com/syncfuture/go/slog"
 	"github.com/syncfuture/go/u"
 	"github.com/syncfuture/host"
@@ -25,7 +28,23 @@ var (
 
 func main() {
 	core.Host.GET("/api/info", func(ctx host.IHttpContext) {
-		ctx.WriteJsonBytes(u.StrToBytes(`{"version":"` + AppVersion + `"}`))
+		doc, err := goquery.NewDocument("https://github.com/Lukiya/redismanager/releases")
+		var liveVersion string
+		if !u.LogError(err) {
+			liveVersion = doc.Find(".release-header .f1 a").First().Text()
+			liveVersion = strings.TrimSpace(liveVersion)
+		}
+
+		if liveVersion == "" {
+			liveVersion = "v1.0.0"
+		}
+
+		if AppVersion == "" {
+			AppVersion = "v1.0.0"
+		}
+
+		json := fmt.Sprintf(`{"version":"%s","liveVersion":"%s"}`, AppVersion, liveVersion)
+		ctx.WriteJsonBytes(u.StrToBytes(json))
 	})
 
 	core.Host.AddActionGroups(
