@@ -16,6 +16,7 @@ var (
 func init() {
 	cp := sconfig.NewJsonConfigProvider()
 	log.Init(cp)
+	host.ConfigHttpClient(cp)
 	Host = sfasthttp.NewFHWebHost(cp)
 
 	Manager = rmr.NewRedisManager()
