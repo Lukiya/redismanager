@@ -4,7 +4,6 @@ import { connect, Link, useModel } from 'umi';
 import { Layout, Menu, Spin, Button, Popover, Space, Typography } from 'antd';
 import { useEffect } from 'react';
 import 'semver';
-import { semver } from '@umijs/utils';
 
 const { Header, Sider } = Layout;
 const { Text } = Typography;
@@ -41,8 +40,9 @@ const LayoutPage = (props: any) => {
     // new version check
     const hasNewVersion = semver.gt(info?.liveVersion,info?.version);
     const btnUpgrade = hasNewVersion ? <Popover content={<Text type="success">New version available</Text>}>
-        <Button size="small" type="dashed" className="tips" href="https://github.com/Lukiya/redismanager/releases" target="_blank"><InfoCircleOutlined /> {info?.liveVersion}</Button>
+        <Button size="small" type="dashed" className="tips" href="https://github.com/Lukiya/redismanager/releases" target="_blank"><InfoCircleOutlined /> {info}</Button>
     </Popover> : undefined;
+    // const btnUpgrade = undefined;
 
     let menu: any;
     if (loading) {
