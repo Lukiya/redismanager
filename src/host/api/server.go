@@ -20,6 +20,7 @@ var ServerGroup = host.NewActionGroup(
 		host.NewAction("GET/api/servers/{id}", "server__", GetServer),
 		host.NewAction("POST/api/servers/{id}", "server__", SelectServer),
 		host.NewAction("DELETE/api/servers/{id}", "server__", RemoveServer),
+		host.NewAction("POST/api/servers/{id}/bgsave", "server__", ServerBGSave),
 	},
 	nil,
 )
@@ -105,4 +106,25 @@ func RemoveServer(ctx host.IHttpContext) {
 
 	err := core.Manager.Remove(id)
 	host.HandleErr(err, ctx)
+}
+
+// ServerBGSave Post /api/servers/{id}/bgsave
+func ServerBGSave(ctx host.IHttpContext) {
+	id := ctx.GetParamString("id")
+	if id == "" {
+		host.HandleErr(serr.New("id is required"), ctx)
+		return
+	}
+
+	server, err := core.Manager.GetServer(id)
+	if host.HandleErr(err, ctx) {
+		return
+	}
+
+	r, err := server.BGSave()
+	if host.HandleErr(err, ctx) {
+		return
+	}
+
+	ctx.WriteString(r)
 }

@@ -1,7 +1,7 @@
 import { Button } from 'antd';
 import { PageContainer } from '@ant-design/pro-layout';
-import ProForm, { ProFormText, ProFormTextArea, ProFormSwitch } from '@ant-design/pro-form';
-import { DeleteOutlined, SelectOutlined, EditOutlined } from '@ant-design/icons';
+import ProForm, { ProFormText, ProFormSwitch } from '@ant-design/pro-form';
+import { DeleteOutlined, SelectOutlined, EditOutlined, SaveOutlined } from '@ant-design/icons';
 import { connect } from 'umi'
 import { Drawer, FormInstance, Table, Card, Popconfirm, Space } from 'antd'
 import { useEffect, useRef } from 'react';
@@ -31,11 +31,14 @@ const Dashboard = (props: any) => {
             align: "right",
             width: 240,
             render: (_: any, record: any) => {
-                const btnSelect = record.Selected ? null : <Button type="primary" size="small" icon={<SelectOutlined />} onClick={() => dispatch({ type: "serverListVM/selectServer", payload: record })}>Select</Button>;
+                const btnSelect = record.Selected ? undefined : <Button type="primary" size="small" style={{ width: 79}} icon={<SelectOutlined />} onClick={() => dispatch({ type: "serverListVM/selectServer", payload: record })}>Select</Button>;
+                const btnSave = record.Selected ? <Button type="default" size="small" style={{ width: 79}} icon={<SaveOutlined />} onClick={() => dispatch({ type: "serverListVM/serverBGSave", payload: record })}>BG Save</Button> : undefined;
 
                 return (
                     <Space>
                         {btnSelect}
+
+                        {btnSave}
 
                         <Button type="default" size="small" icon={<EditOutlined />} onClick={() => dispatch({ type: "serverListVM/showEditor", payload: record })}>Edit</Button>
 

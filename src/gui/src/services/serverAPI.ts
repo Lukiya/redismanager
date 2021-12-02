@@ -35,3 +35,9 @@ export async function RemoveServer(id: string) {
 
     return r;
 }
+
+export async function ServerBGSave(id: string) {
+    const r = await request.post('/servers/' + id + '/bgsave');
+
+    return r;
+}

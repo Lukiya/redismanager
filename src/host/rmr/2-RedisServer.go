@@ -67,6 +67,22 @@ func (x *RedisServer) Connect() error {
 	return nil
 }
 
+func (x *RedisServer) BGSave() (string, error) {
+	db0Client := redis.NewClient(&redis.Options{
+		Addr:     x.config.Addrs[0],
+		Password: x.config.Password,
+		DB:       0,
+	})
+
+	cmd := db0Client.BgSave(context.Background())
+	r, err := cmd.Result()
+	if err != nil {
+		return "", serr.WithStack(err)
+	}
+
+	return r, nil
+}
+
 func (x *RedisServer) getDBs() ([]IRedisDB, error) {
 	db0Client := redis.NewClient(&redis.Options{
 		Addr:     x.config.Addrs[0],

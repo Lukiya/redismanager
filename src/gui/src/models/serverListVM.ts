@@ -1,4 +1,6 @@
-import { GetServers, RemoveServer, SaveServer, SelectServer } from "@/services/serverAPI";
+import { GetServers, RemoveServer, SaveServer, SelectServer, ServerBGSave } from "@/services/serverAPI";
+import u from "@/u";
+import { message } from "antd";
 const _defaultServer = {
     ID: "",
     Name: "",
@@ -47,6 +49,14 @@ export default {
             if (server.Selected) {
                 yield put({ type: 'menuVM/rebuild' });
             }
+        },
+        *serverBGSave({ payload }: any, { call, put }: any): any {
+            const resp =yield call(ServerBGSave, payload.ID);
+            if (u.IsPresent(resp.err)) {
+                message.error(resp.err);
+                return;
+            }
+            message.info(resp);
         },
     },
     reducers: {
