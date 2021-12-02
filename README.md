@@ -37,7 +37,10 @@ if you want to backup or restore Servers.json, use below command:
 docker cp redismanager:/app/Servers.json /data/redismanager/Servers.json
 docker cp /data/redismanager/Servers.json redismanager:/app/Servers.json
 ```
-or just use volume map to save Servers.json outside of docker instance.
+or just use volume map to save Servers.json outside of docker instance like below:
+```
+docker run --name redismanager -d --restart always -p 16379:16379 -v /data/redismanager/Servers.json:/app/Servers.json lukiya/redismanager
+```
 
 **Please beware, this file is unencrypted. Make sure it can only be accessed by yourself.**
 #### Notes
