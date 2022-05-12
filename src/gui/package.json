@@ -1,0 +1,44 @@
+{
+  "private": true,
+  "scripts": {
+    "start": "umi dev",
+    "build": "umi build",
+    "postinstall": "umi generate tmp",
+    "prettier": "prettier --write '**/*.{js,jsx,tsx,ts,less,md,json}'",
+    "test": "umi-test",
+    "test:coverage": "umi-test --coverage"
+  },
+  "gitHooks": {
+    "pre-commit": "lint-staged"
+  },
+  "lint-staged": {
+    "*.{js,jsx,less,md,json}": [
+      "prettier --write"
+    ],
+    "*.ts?(x)": [
+      "prettier --parser=typescript --write"
+    ]
+  },
+  "dependencies": {
+    "@ant-design/pro-form": "^1.49.6",
+    "@ant-design/pro-layout": "^6.31.3",
+    "@umijs/preset-react": "1.8.30",
+    "antd": "^4.17.2",
+    "copy-to-clipboard": "^3.3.1",
+    "es-semver": "^1.0.1",
+    "react-hot-keys": "^2.7.1",
+    "umi": "^3.5.20"
+  },
+  "devDependencies": {
+    "@ant-design/colors": "^6.0.0",
+    "@types/react": "^17.0.37",
+    "@types/react-dom": "^17.0.11",
+    "@umijs/test": "^3.5.20",
+    "lint-staged": "^12.1.2",
+    "prettier": "^2.5.0",
+    "react": "17.x",
+    "react-dom": "17.x",
+    "typescript": "^4.5.2",
+    "yorkie": "^2.0.0"
+  }
+}

@@ -1,0 +1,23 @@
+# dependencies
+node_modules
+npm-debug.log*
+yarn-error.log
+yarn.lock
+package-lock.json
+
+# production
+__debug_bin
+dist
+wwwroot
+
+# misc
+.DS_Store
+
+# umi
+.umi
+.umi-production
+
+# other
+Servers.json
+src/io_test.go
+*.exe
