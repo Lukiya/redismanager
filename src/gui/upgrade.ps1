@@ -1,1 +1,0 @@
-yarn upgrade-interactive --latest

@@ -1,9 +1,0 @@
-{
-    "Log": {
-        "Level": "info"
-    },
-    "Http": {
-        "SkipCertVerification": true
-    },
-    "ListenAddr": ":16379"
-}
