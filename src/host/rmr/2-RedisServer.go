@@ -2,6 +2,8 @@ package rmr
 
 import (
 	"context"
+	"crypto/tls"
+	"crypto/x509"
 	"net"
 	"sync"
 
@@ -9,6 +11,7 @@ import (
 	"github.com/go-redis/redis/v8"
 	"github.com/syncfuture/go/sconv"
 	"github.com/syncfuture/go/serr"
+	"github.com/syncfuture/go/u"
 )
 
 func NewRedisServer(config *ServerConfig) *RedisServer {
@@ -30,7 +33,27 @@ func (x *RedisServer) Connect() error {
 	if len(x.DBs) == 0 {
 		clusterOptions := &redis.ClusterOptions{
 			Addrs:    x.config.Addrs,
+			Username: x.config.Username,
 			Password: x.config.Password,
+		}
+		if x.config.TLS != nil {
+			// Has tls config, use tls connection
+
+			cert, err := tls.X509KeyPair(u.StrToBytes(x.config.TLS.Cert), u.StrToBytes(x.config.TLS.Key))
+			if err != nil {
+				return serr.WithStack(err)
+			}
+			caCert := u.StrToBytes(x.config.TLS.CACert)
+			pool := x509.NewCertPool()
+			pool.AppendCertsFromPEM(caCert)
+
+			clusterOptions.TLSConfig = &tls.Config{
+				MinVersion:         tls.VersionTLS12,
+				InsecureSkipVerify: true,
+				Certificates:       []tls.Certificate{cert},
+				RootCAs:            pool,
+				// ServerName:   "192.168.188.200",
+			}
 		}
 
 		clusterClient := redis.NewClusterClient(clusterOptions)
@@ -84,11 +107,34 @@ func (x *RedisServer) BGSave() (string, error) {
 }
 
 func (x *RedisServer) getDBs() ([]IRedisDB, error) {
-	db0Client := redis.NewClient(&redis.Options{
+	options := &redis.Options{
 		Addr:     x.config.Addrs[0],
 		Password: x.config.Password,
 		DB:       0,
-	})
+	}
+
+	if x.config.TLS != nil {
+		// Has tls config, use tls connection
+
+		cert, err := tls.X509KeyPair(u.StrToBytes(x.config.TLS.Cert), u.StrToBytes(x.config.TLS.Key))
+		if err != nil {
+			return nil, serr.WithStack(err)
+		}
+		caCert := u.StrToBytes(x.config.TLS.CACert)
+		pool := x509.NewCertPool()
+		pool.AppendCertsFromPEM(caCert)
+
+		options.TLSConfig = &tls.Config{
+			MinVersion:         tls.VersionTLS12,
+			InsecureSkipVerify: true,
+			Certificates:       []tls.Certificate{cert},
+			RootCAs:            pool,
+			// ServerName:   "192.168.188.200",
+		}
+	}
+
+	db0Client := redis.NewClient(options)
+
 	databases, err := db0Client.ConfigGet(context.Background(), "databases").Result()
 	if err != nil {
 		return nil, serr.WithStack(err)

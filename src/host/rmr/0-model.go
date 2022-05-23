@@ -32,12 +32,20 @@ type IRedisDB interface {
 	ImportKeys(data []byte) (int, error)
 }
 
+type TLSCert struct {
+	Cert   string `json:"Cert,omitempty"`
+	Key    string `json:"Key,omitempty"`
+	CACert string `json:"CACert,omitempty"`
+}
+
 type ServerConfig struct {
 	ID       string   `json:"ID,omitempty"`
 	Name     string   `json:"Name,omitempty"`
 	Addrs    []string `json:"Addrs,omitempty"`
+	Username string   `json:"Username,omitempty"`
 	Password string   `json:"Password,omitempty"`
 	Selected bool     `json:"Selected,omitempty"`
+	TLS      *TLSCert `json:"TLS,omitempty"`
 }
 
 type ScanQuerySet struct {
