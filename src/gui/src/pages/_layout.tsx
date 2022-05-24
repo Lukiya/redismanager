@@ -16,7 +16,12 @@ function buildMenu(dispatch: any, menuState: any) {
         const db = dbs[i];
         const dbStr = "db" + db.DB;
         const key = db.DB.toString();
-        const dbMenu = <Menu.Item key={key} icon={<DatabaseOutlined />}><Link to={"/" + menuState.server.ID + "/" + db.DB}>{dbStr}</Link></Menu.Item>
+        // const dbMenu = <Menu.Item key={key} icon={<DatabaseOutlined />}><Link to={"/" + menuState.server.ID + "/" + db.DB}>{dbStr}</Link></Menu.Item>
+        const dbMenu = {
+            key: key,
+            icon: <DatabaseOutlined />,
+            label: <Link to={"/" + menuState.server.ID + "/" + db.DB}>{dbStr}</Link>,
+        };
         dbMenus.push(dbMenu);
     }
 
@@ -25,15 +30,18 @@ function buildMenu(dispatch: any, menuState: any) {
         <Menu title="Test" theme="dark" mode="inline"
             // openKeys={menuState.openKeys} onOpenChange={(openKeys) => dispatch({ type: "menuVM/setOpenKeys", openKeys })}
             selectedKeys={menuState.selectedKeys}
+            items={dbMenus}
         >
-            {dbMenus}
+            {/* {dbMenus} */}
         </Menu >
     );
 }
 
 const LayoutPage = (props: any) => {
     const { menuState, dispatch, loading } = props;
-    useEffect(() => dispatch({ type: "menuVM/init" }), []);
+    useEffect(() => {
+        dispatch({ type: "menuVM/init" });
+    }, []);
     const { initialState } = useModel('@@initialState');
     const info = initialState?.info;
 
