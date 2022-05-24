@@ -1,6 +1,6 @@
 import { Button } from 'antd';
 import { PageContainer } from '@ant-design/pro-layout';
-import ProForm, { ProFormText, ProFormSwitch } from '@ant-design/pro-form';
+import ProForm, { ProFormText, ProFormSwitch, ProFormTextArea } from '@ant-design/pro-form';
 import { DeleteOutlined, SelectOutlined, EditOutlined, SaveOutlined } from '@ant-design/icons';
 import { connect } from 'umi'
 import { Drawer, FormInstance, Table, Card, Popconfirm, Space } from 'antd'
@@ -31,8 +31,8 @@ const Dashboard = (props: any) => {
             align: "right",
             width: 240,
             render: (_: any, record: any) => {
-                const btnSelect = record.Selected ? undefined : <Button type="primary" size="small" style={{ width: 79}} icon={<SelectOutlined />} onClick={() => dispatch({ type: "serverListVM/selectServer", payload: record })}>Select</Button>;
-                const btnSave = record.Selected ? <Button type="default" size="small" style={{ width: 79}} icon={<SaveOutlined />} onClick={() => dispatch({ type: "serverListVM/serverBGSave", payload: record })}>BG Save</Button> : undefined;
+                const btnSelect = record.Selected ? undefined : <Button type="primary" size="small" style={{ width: 79 }} icon={<SelectOutlined />} onClick={() => dispatch({ type: "serverListVM/selectServer", payload: record })}>Select</Button>;
+                const btnSave = record.Selected ? <Button type="default" size="small" style={{ width: 79 }} icon={<SaveOutlined />} onClick={() => dispatch({ type: "serverListVM/serverBGSave", payload: record })}>BG Save</Button> : undefined;
 
                 return (
                     <Space>
@@ -82,6 +82,10 @@ const Dashboard = (props: any) => {
             Addrs: editingServer.Addrs.join("\n"),
             Password: editingServer.Password,
             Selected: editingServer.Selected,
+            Username: editingServer.Username,
+            Cert: editingServer.TLS?.Cert,
+            Key: editingServer.TLS?.Key,
+            CACert: editingServer.TLS?.CACert,
         }}
     >
         <ProForm.Group>
@@ -108,6 +112,18 @@ const Dashboard = (props: any) => {
         </ProForm.Group>
         <ProForm.Group>
             <ProFormText.Password width="md" name="Password" label="Password" />
+        </ProForm.Group>
+        <ProForm.Group>
+            <ProFormText width="md" name="Username" label="Username [Optional]" />
+        </ProForm.Group>
+        <ProForm.Group>
+            <ProFormTextArea width="md" name="Cert" label="Pub Cert. [Optional]" />
+        </ProForm.Group>
+        <ProForm.Group>
+            <ProFormTextArea width="md" name="Key" label="Private Key [Optional]" />
+        </ProForm.Group>
+        <ProForm.Group>
+            <ProFormTextArea width="md" name="CACert" label="CA Cert. [Optional]" />
         </ProForm.Group>
     </ProForm>;
     useEffect(() => formRef.current?.resetFields(), [form.props.initialValues]);

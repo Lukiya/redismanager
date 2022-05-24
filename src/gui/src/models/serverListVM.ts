@@ -24,7 +24,13 @@ export default {
             const data = {
                 ID: payload.ID,
                 Name: payload.Name,
+                Username: payload.Username,
                 Password: payload.Password,
+                TLS:{
+                    Cert: payload.Cert,
+                    Key: payload.Key,
+                    CACert: payload.CACert,
+                },
                 Addrs: addrs,
             };
 
@@ -51,7 +57,7 @@ export default {
             }
         },
         *serverBGSave({ payload }: any, { call, put }: any): any {
-            const resp =yield call(ServerBGSave, payload.ID);
+            const resp = yield call(ServerBGSave, payload.ID);
             if (u.IsPresent(resp.err)) {
                 message.error(resp.err);
                 return;

@@ -10,5 +10,6 @@
     "Http": {
         "SkipCertVerification": true
     },
+    "VerionSelector": "h1 a",
     "ListenAddr": ":16379"
 }

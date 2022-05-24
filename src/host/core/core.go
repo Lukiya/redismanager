@@ -9,15 +9,16 @@ import (
 )
 
 var (
-	Manager *rmr.RedisManager
-	Host    host.IWebHost
+	Manager        *rmr.RedisManager
+	Host           host.IWebHost
+	ConfigProvider sconfig.IConfigProvider
 )
 
 func init() {
-	cp := sconfig.NewJsonConfigProvider()
-	log.Init(cp)
-	host.ConfigHttpClient(cp)
-	Host = sfasthttp.NewFHWebHost(cp)
+	ConfigProvider = sconfig.NewJsonConfigProvider()
+	log.Init(ConfigProvider)
+	host.ConfigHttpClient(ConfigProvider)
+	Host = sfasthttp.NewFHWebHost(ConfigProvider)
 
 	Manager = rmr.NewRedisManager()
 }

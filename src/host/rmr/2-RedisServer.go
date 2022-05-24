@@ -109,6 +109,7 @@ func (x *RedisServer) BGSave() (string, error) {
 func (x *RedisServer) getDBs() ([]IRedisDB, error) {
 	options := &redis.Options{
 		Addr:     x.config.Addrs[0],
+		Username: x.config.Username,
 		Password: x.config.Password,
 		DB:       0,
 	}

@@ -90,6 +90,10 @@ func (x *RedisManager) Save(in *ServerConfig) (err error) {
 				config.Addrs = in.Addrs
 				config.Name = in.Name
 				config.Password = in.Password
+				config.Username = in.Username
+				if in.TLS != nil {
+					config.TLS = in.TLS
+				}
 				x.generateName(config)
 				break
 			}

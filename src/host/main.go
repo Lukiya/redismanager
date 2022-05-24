@@ -31,7 +31,8 @@ func main() {
 		doc, err := goquery.NewDocument("https://github.com/Lukiya/redismanager/releases")
 		var liveVersion string
 		if !u.LogError(err) {
-			liveVersion = doc.Find(".release-header .f1 a").First().Text()
+			verSelector := core.ConfigProvider.GetStringDefault("VerionSelector", "h1 a")
+			liveVersion = doc.Find(verSelector).First().Text()
 			liveVersion = strings.TrimSpace(liveVersion)
 		}
 
