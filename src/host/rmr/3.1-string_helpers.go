@@ -35,7 +35,7 @@ func saveString(ctx context.Context, client redis.UniversalClient, clusterClient
 		}
 	}
 
-	err := client.Set(ctx, cmd.New.Key, cmd.New.Value, time.Duration(-1)).Err()
+	err := client.Set(ctx, cmd.New.Key, cmd.New.Value, time.Duration(0)).Err()
 	if err != nil {
 		return serr.WithStack(err)
 	}

@@ -84,13 +84,13 @@ func (x *RedisKey) getType(ctx context.Context) error {
 func (x *RedisKey) getTTL(ctx context.Context) {
 	ttl, err := x.client.TTL(ctx, x.Key).Result()
 	if u.LogError(err) {
-		x.TTL = -1
+		x.TTL = 0
 		return
 	}
 
 	ttlSeconds := ttl.Seconds()
 	if ttlSeconds < 0 {
-		x.TTL = -1
+		x.TTL = 0
 	} else {
 		x.TTL = int64(ttlSeconds)
 	}

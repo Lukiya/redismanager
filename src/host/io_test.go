@@ -50,6 +50,6 @@ func TestFillData(t *testing.T) {
 	// for i := 0; i < max; i++ {
 	// 	k := "str-" + strconv.Itoa(i)
 	// 	v := "value " + strconv.Itoa(i)
-	// 	client.Set(k, v, time.Duration(-1))
+	// 	client.Set(k, v, time.Duration(0))
 	// }
 }

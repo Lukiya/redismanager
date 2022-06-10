@@ -108,7 +108,7 @@ func (x *Importer) ImportKeys(in []byte) (imported int, err error) {
 				err = serr.WithStack(err)
 				return
 			}
-			err = client.Set(x.ctx, entry.Key, v, time.Duration(-1)).Err()
+			err = client.Set(x.ctx, entry.Key, v, time.Duration(0)).Err()
 			if err != nil {
 				err = serr.WithStack(err)
 				return

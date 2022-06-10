@@ -30,7 +30,7 @@ package core
 // func (x *RedisEntry) GetTTL() {
 // 	ttl := x.client.TTL(context.Background(), x.Key).Val().Seconds()
 // 	if ttl < 0 {
-// 		x.TTL = -1
+// 		x.TTL = 0
 // 	} else {
 // 		x.TTL = int64(ttl)
 // 	}
@@ -95,7 +95,7 @@ package core
 // 			var score float64
 // 			score, err = x.client.ZScore(ctx, x.Key, field).Result()
 // 			if err == nil {
-// 				x.Field = strconv.FormatFloat(score, 'f', -1, 64)
+// 				x.Field = strconv.FormatFloat(score, 'f', 0, 64)
 // 				x.Value = field
 // 			}
 // 		}

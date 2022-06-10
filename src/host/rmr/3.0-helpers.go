@@ -89,7 +89,7 @@ func renameKey(ctx context.Context, client redis.UniversalClient, clusterClient 
 		}
 
 		// restore old key data to new key
-		err = newKeyClient.Restore(ctx, newKey, -1, dumpData).Err()
+		err = newKeyClient.Restore(ctx, newKey, 0, dumpData).Err()
 		if err != nil {
 			return serr.WithStack(err)
 		}

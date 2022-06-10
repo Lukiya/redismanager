@@ -38,7 +38,7 @@ func TestClusterFillString(t *testing.T) {
 	pip := _clusterClient.Pipeline()
 	for i := 0; i < max; i++ {
 		key := fmt.Sprintf("STR_%05d", i)
-		pip.Set(ctx, key, key, -1)
+		pip.Set(ctx, key, key, 0)
 		// nativeClient.Del(key)
 	}
 	pip.Exec(ctx)
