@@ -20,7 +20,7 @@ type RedisManager struct {
 func NewRedisManager() *RedisManager {
 	r := new(RedisManager)
 	err := r.load()
-	u.LogFaltal(err)
+	u.LogFatal(err)
 	r.Servers = r.generateServers()
 	return r
 }
