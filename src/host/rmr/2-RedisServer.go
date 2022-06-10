@@ -36,7 +36,7 @@ func (x *RedisServer) Connect() error {
 			Username: x.config.Username,
 			Password: x.config.Password,
 		}
-		if x.config.TLS != nil {
+		if x.config.TLS != nil && x.config.TLS.Key != "" && x.config.TLS.CACert != "" && x.config.TLS.Cert != "" {
 			// Has tls config, use tls connection
 
 			cert, err := tls.X509KeyPair(u.StrToBytes(x.config.TLS.Cert), u.StrToBytes(x.config.TLS.Key))
@@ -114,7 +114,7 @@ func (x *RedisServer) getDBs() ([]IRedisDB, error) {
 		DB:       0,
 	}
 
-	if x.config.TLS != nil {
+	if x.config.TLS != nil && x.config.TLS.Key != "" && x.config.TLS.CACert != "" && x.config.TLS.Cert != "" {
 		// Has tls config, use tls connection
 
 		cert, err := tls.X509KeyPair(u.StrToBytes(x.config.TLS.Cert), u.StrToBytes(x.config.TLS.Key))

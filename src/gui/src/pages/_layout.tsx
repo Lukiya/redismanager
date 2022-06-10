@@ -59,7 +59,7 @@ const LayoutPage = (props: any) => {
     } else {
         menu = menuState.server.DBs && menuState.server.DBs.length > 0 ? (
             <div>
-                <h1 style={{ color: "white" }}><CloudServerOutlined /> {menuState.server.Name}</h1>
+                <h1 title={menuState.server.Name} style={{ color: "white" }}><CloudServerOutlined /> {menuState.server.Name.length > 23 ? menuState.server.Name.substring(0, 20) + "..." : menuState.server.Name}</h1>
                 {buildMenu(dispatch, menuState)}
             </div>
         ) : null;

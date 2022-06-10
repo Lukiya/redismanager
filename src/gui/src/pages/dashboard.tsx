@@ -111,7 +111,7 @@ const Dashboard = (props: any) => {
             ]} />
         </ProForm.Group>
         <ProForm.Group>
-            <ProFormText.Password width="md" name="Password" label="Password" />
+            <ProFormText.Password width="md" name="Password" label="Password [Optional]" />
         </ProForm.Group>
         <ProForm.Group>
             <ProFormText width="md" name="Username" label="Username [Optional]" />

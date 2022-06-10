@@ -1,6 +1,6 @@
 import { GetServer } from "@/services/serverAPI";
 import u from "@/u";
-import { message, notification } from 'antd';
+import { message } from 'antd';
 
 const _defaultState = {
     server: {
